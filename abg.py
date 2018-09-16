@@ -130,15 +130,11 @@ def main():
     args = parse_args()
     #psf_data=fitsio.read(args.psf_cat)
     f = h.File(args.psf_cat, 'r')
-    ra= np.array( f['catalog/redmagic/highdens/ra'] )
-    #group =  f['catalog']
-    #for key in group.keys():
-    #    print(key)
-    #data = group['metacal'].value
-    
-    #print(f.keys())
-    #print(f['catalog'].keys())
-    #print(type(f['catalog']))
+    print(f.keys())
+    catalog =  f['catalog']
+    print(catalog.keys())
+    metacal =  catalog['metacal']
+    #print(catalog)
     #data = f.get('catalog')
     #dataset1 = np.array(data)
     #print(data['metacal'])
