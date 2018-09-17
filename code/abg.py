@@ -2,28 +2,15 @@ import os
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Alpha beta gamma test')
+    parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the system of equatiosn and plotting correlations')
     
-    parser.add_argument('--metacal_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
-                        help='Full Path to the Metacalibration catalog')
-    parser.add_argument('--piff_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
-                        help='Full Path to the Only stars Piff catalog')
-    parser.add_argument('--exps_file',
-                        default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
-                        help='list of exposures (in lieu of separate exps)')
-    parser.add_argument('--bands', default='grizY', type=str,
-                         help='Limit to the given bands')
-    parser.add_argument('--bandcombo', default=False,
-                        action='store_const', const=True,
-                        help='run rho2 for all combination of bands, if false run particular combination defined in band')
-    parser.add_argument('--use_reserved', default=True,
-                        action='store_const', const=True,
-                        help='just use the objects with the RESERVED flag')
-    parser.add_argument('--frac', default=1., type=float,
-                        help='Choose a random fraction of the input stars')
-    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma',
+    parser.add_argument('--rsgcorr',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/blabla.json',
+                        help='Json file with the reserved stars - galaxies correlations')
+    parser.add_argument('--rsrscorr',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/blabla.json',
+                        help='Json file with the reserved stars - reserved stars correlations')
+    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots',
                         help='location of the output of the files')
     
     
@@ -34,10 +21,7 @@ def parse_args():
         
 def main():
     import numpy as np
-    import h5py as h
-    from read_psf_cats import read_data
-    from read_psf_cats import toList
-    from run_rho import do_canonical_stats
+
     
     args = parse_args()
 

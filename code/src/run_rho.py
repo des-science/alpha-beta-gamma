@@ -1,3 +1,82 @@
+def write_stats(stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None):
+    import json
+
+    stats = [
+        rho0.meanlogr.tolist(),
+        rho0.xip.tolist(),
+        rho0.xip_im.tolist(),
+        rho0.xim.tolist(),
+        rho0.xim_im.tolist(),
+        rho0.varxi.tolist(),
+        rho1.xip.tolist(),
+        rho1.xip_im.tolist(),
+        rho1.xim.tolist(),
+        rho1.xim_im.tolist(),
+        rho1.varxi.tolist(),
+        rho2.xip.tolist(),
+        rho2.xip_im.tolist(),
+        rho2.xim.tolist(),
+        rho2.xim_im.tolist(),
+        rho2.varxi.tolist(),
+        rho3.xip.tolist(),
+        rho3.xip_im.tolist(),
+        rho3.xim.tolist(),
+        rho3.xim_im.tolist(),
+        rho3.varxi.tolist(),
+        rho4.xip.tolist(),
+        rho4.xip_im.tolist(),
+        rho4.xim.tolist(),
+        rho4.xim_im.tolist(),
+        rho4.varxi.tolist(),
+        rho5.xip.tolist(),
+        rho5.xip_im.tolist(),
+        rho5.xim.tolist(),
+        rho5.xim_im.tolist(),
+        rho5.varxi.tolist(),
+    ]
+    if corr_tt is not None:
+        stats.extend([
+            corr_tt.xi.tolist(),
+            corr_tt.varxi.tolist()
+        ])
+    #print('stats = ',stats)
+    print('stat_file = ',stat_file)
+    with open(stat_file,'w') as fp:
+        json.dump([stats], fp)
+    print('Done writing ',stat_file)
+
+def write_cross_stats(stat_file, sigma0, sigma2, sigma5, corr_tt=None):
+    import json
+
+    stats = [
+        sigma0.meanlogr.tolist(),
+        sigma0.xip.tolist(),
+        sigma0.xip_im.tolist(),
+        sigma0.xim.tolist(),
+        sigma0.xim_im.tolist(),
+        sigma0.varxi.tolist(),
+        sigma2.xip.tolist(),
+        sigma2.xip_im.tolist(),
+        sigma2.xim.tolist(),
+        sigma2.xim_im.tolist(),
+        sigma2.varxi.tolist(),
+        sigma5.xip.tolist(),
+        sigma5.xip_im.tolist(),
+        sigma5.xim.tolist(),
+        sigma5.xim_im.tolist(),
+        sigma5.varxi.tolist(),
+    ]
+    if corr_tt is not None:
+        stats.extend([
+            corr_tt.xi.tolist(),
+            corr_tt.varxi.tolist()
+        ])
+    #print('stats = ',stats)
+    print('stat_file = ',stat_file)
+    with open(stat_file,'w') as fp:
+        json.dump([stats], fp)
+    print('Done writing ',stat_file)
+
 def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff'):
     """Compute the rho statistics
     """
@@ -101,6 +180,9 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     p_e2 = data_stars[prefix+'_e2']
     p_T = data_stars[prefix+'_T']
 
+    e1gal =  data_galaxies['obs_e1']
+    e2gal =  data_galaxies['obs_e2']
+
     de1 = e1-p_e1
     de2 = e2-p_e2
     dt = (T-p_T)/T
@@ -110,33 +192,26 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     print('mean dT = ',np.mean(T-p_T))
     print('mean dT/T = ',np.mean(dt))
 
-    if use_xy:
-        x = data['fov_x']
-        y = data['fov_y']
-        print('x = ',x)
-        print('y = ',y)
+    ra = data_stars['ra']
+    dec = data_stars['dec']
+    print('ra = ',ra)
+    print('dec = ',dec)
+    ragal = data_galaxies['ra']
+    decgal = data_galaxies['dec']
+    print('ragal = ',ragal)
+    print('decgal = ',decgal)
+    
+    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
+    decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+    dtcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
+                             k=dt, g1=dt*e1, g2=dt*e2)
+    egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
 
-        ecat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=e1, g2=e2)
-        decat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=de1, g2=de2)
-        dtcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec',
-                                 k=dt, g1=dt*e1, g2=dt*e2)
-        egal_cat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=e1, g2=e2)
-        degal_cat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=de1, g2=de2)
-        dtgal_cat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec',
-                                 k=dt, g1=dt*e1, g2=dt*e2)
-    else:
-        ra = data_stars['ra']
-        dec = data_stars['dec']
-        print('ra = ',ra)
-        print('dec = ',dec)
-
-        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
-        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-        dtcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
-                                 k=dt, g1=dt*e1, g2=dt*e2)
     ecat.name = 'ecat'
     decat.name = 'decat'
     dtcat.name = 'dtcat'
+    egal_cat.name = 'egal_cat'
+    
     if tag is not None:
         for cat in [ ecat, decat, dtcat ]:
             cat.name = tag + ":"  + cat.name
@@ -155,12 +230,9 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     )
 
     results = []
-    for (cat1, cat2) in [(ecat, ecat), 
-                         (decat, decat),
-                          (ecat, decat),
-                          (dtcat, dtcat),
-                          (decat, dtcat),
-                          (ecat, dtcat) ]:
+    for (cat1, cat2) in [(egal_cat, ecat), 
+                         (egal_cat, decat),
+                          (egal_cat, dtcat) ]:
         print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
 
         rho = treecorr.GGCorrelation(bin_config, verbose=2)
@@ -227,10 +299,11 @@ def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='
     for band in use_bands:
         print('band ',band)
         mask_stars = np.in1d(data_stars['band'],band)
-        mask_galaxies = np.in1d(data_galaxies['band'],band)
-        print('sum(mask) = ',np.sum(mask))
-        print('len(data[mask]) = ',len(data[mask]))
+        #mask_galaxies = np.in1d(data_galaxies['band'],band)
+        print('sum(mask) = ',np.sum(mask_stars))
+        print('len(data[mask]) = ',len(data[mask_stars]))
         tag = ''.join(band)
-        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
-        stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
-        write_stats(stat_file,*stats)
+        #stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
+        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
+        stat_file = os.path.join(outpath, "sigma_%s_%s.json"%(name,tag))
+        write_cross_stats(stat_file,*stats)
