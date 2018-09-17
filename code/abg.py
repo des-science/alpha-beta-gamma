@@ -58,8 +58,8 @@ def main():
     data, bands, tilings = read_data(exps, args.piff_cat , keys,
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
-    do_canonical_stats(data, bands, tilings, outpath, alt_tt=False,
-                       bandcombo=args.bandcombo)
+    do_canonical_stats(data, bands, tilings, outpath,
+                       name='all_reserved', bandcombo=args.bandcombo)
     
 
     #CROSS STATISTIC GALAXY-STAR
