@@ -12,6 +12,7 @@ def parse_args():
                         help='Full Path to the Only stars Piff catalog')
     parser.add_argument('--exps_file',
                         default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
+                        #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp',
                         help='list of exposures (in lieu of separate exps)')
     parser.add_argument('--bands', default='grizY', type=str,
                          help='Limit to the given bands')

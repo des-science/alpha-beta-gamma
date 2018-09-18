@@ -1,3 +1,4 @@
+import os
 def write_stats(stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None):
     import json
 
@@ -301,7 +302,7 @@ def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='
         mask_stars = np.in1d(data_stars['band'],band)
         #mask_galaxies = np.in1d(data_galaxies['band'],band)
         print('sum(mask) = ',np.sum(mask_stars))
-        print('len(data[mask]) = ',len(data[mask_stars]))
+        print('len(data[mask]) = ',len(data_stars[mask_stars]))
         tag = ''.join(band)
         #stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
         stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
