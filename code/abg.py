@@ -46,25 +46,25 @@ def main():
     sqrtn = 1
     plt.clf()
     pretty_rho1(meanr, rho1p, sig_rho1, sqrtn, rho3p, sig_rho3, rho4p, sig_rho4)
-    plt.savefig(outpath +'/rho1_all_rsrs.png')
+    plt.savefig(outpath +'/rho1_all_rsrs.pdf')
     plt.clf()
     pretty_rho2(meanr, rho2p, sig_rho2, sqrtn, rho5p, sig_rho5)
-    plt.savefig(outpath +'/rho2_all_rsrs.png')
+    plt.savefig(outpath +'/rho2_all_rsrs.pdf')
     plt.clf()
     pretty_rho0(meanr, rho0p, sig_rho0, sqrtn)
-    plt.savefig(outpath +'/rho0_all_rsrs.png')
+    plt.savefig(outpath +'/rho0_all_rsrs.pdf')
 
     #Reading and plotting reserved stars galaxies correlations
     meanr2, sigma0p, sigma2p, sigma5p, sig_sigma0, sig_sigma2, sig_sigma5 =  read_sigmas(args.rsgcorr)
     plt.clf()
     pretty_sigma(meanr2, sigma0p, sig_sigma0, sqrtn, r'$\sigma_{0}(\theta)$')
-    plt.savefig(outpath +'/sigma0_all_rsgal.png')
+    plt.savefig(outpath +'/sigma0_all_rsgal.pdf')
     plt.clf()
     pretty_sigma(meanr2, sigma2p, sig_sigma2, sqrtn, r'$\sigma_{2}(\theta)$')
-    plt.savefig(outpath +'/sigma2_all_rsgal.png')
+    plt.savefig(outpath +'/sigma2_all_rsgal.pdf')
     plt.clf()
     pretty_sigma(meanr2, sigma5p, sig_sigma5, sqrtn, r'$\sigma_{5}(\theta)$')
-    plt.savefig(outpath +'/sigma5_all_rsgal.png')
+    plt.savefig(outpath +'/sigma5_all_rsgal.pdf')
 
     #Solving equation system (AX=B) and ploting solution for each angular bin
     alpha = []
@@ -90,7 +90,22 @@ def main():
     plt.xscale('log')
     #plt.yscale('log', nonposy='clip')
     plt.tight_layout()
-    plt.savefig(outpath +'/alpha_beta_gamma.png')
+    plt.savefig(outpath +'/alpha_beta_gamma.pdf')
+
+    #Solve system of equations taking the mean rho values. AX=B
+    r0 = np.mean(rho0p)
+    r1 = np.mean(rho1p)
+    r2 = np.mean(rho2p)
+    r3 = np.mean(rho3p)
+    r4 = np.mean(rho4p)
+    r5 = np.mean(rho5p)
+    s0 = np.mean(sigma0p)
+    s2 = np.mean(sigma2p)
+    s5 = np.mean(sigma5p)
+    A = np.array([[r0, r2, r5], [r2, r1, r4], [r5, r4, r3]])
+    B = np.array([s0, s2, s5])
+    sol = np.linalg.solve(A, B)
+    print("Alpha,Beta,Gamma =",  sol)
 
 if __name__ == "__main__":
     main()
