@@ -22,6 +22,23 @@ def toList(filename):
     return exps
     
 
+def band_combinations(bands, single=True, combo=True):
+
+    if single:
+        use_bands = [ b for b in bands ]
+    else:
+        use_bands = []
+
+    if combo:
+        if 'r' in bands and 'i' in bands and 'z' in bands:
+            use_bands.append('riz')
+        #if 'g' in bands and 'r' in bands and 'i' in bands and 'z' in bands:
+            #use_bands.append('griz')
+
+    print('use_bands = ',use_bands)
+    return use_bands
+
+
 def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=False, frac=1.):
 
     RESERVED = 64
@@ -291,21 +308,26 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
     return data, bands, tilings
 
 
-def band_combinations(bands, single=True, combo=True):
-
-    if single:
-        use_bands = [ b for b in bands ]
-    else:
-        use_bands = []
-
-    if combo:
-        if 'r' in bands and 'i' in bands and 'z' in bands:
-            use_bands.append('riz')
-        #if 'g' in bands and 'r' in bands and 'i' in bands and 'z' in bands:
-            #use_bands.append('griz')
-
-    print('use_bands = ',use_bands)
-    return use_bands
-
-
+def read_h5(filename, folder, keys):
+    import h5py as h
+    f = h.File(filename, 'r')
+    cat =  f[folder]
+    print(folder + ' keys:',cat.keys())
+    nrows = len(np.array( cat['ra'] ))
+    formats = []
+    for key in keys:
+        if key == 'ccd' or key == 'tiling':
+            formats.append('i2')
+        elif key == 'exp' or 'flag' in key:
+            formats.append('i4')
+        elif key == 'band':
+            formats.append('a1')
+        else:
+            formats.append('f8')
+    data = np.recarray(shape=(nrows,), formats=formats, names=keys)
+    #print('data.dtype = ',data.dtype)
+    for key in keys:
+        data[key] = np.array(cat[key])
+    print('made recarray')
+    return data
 

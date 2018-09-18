@@ -181,8 +181,8 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     p_e2 = data_stars[prefix+'_e2']
     p_T = data_stars[prefix+'_T']
 
-    e1gal =  data_galaxies['obs_e1']
-    e2gal =  data_galaxies['obs_e2']
+    e1gal =  data_galaxies['e_1']
+    e2gal =  data_galaxies['e_2']
 
     de1 = e1-p_e1
     de2 = e2-p_e2

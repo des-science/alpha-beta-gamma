@@ -37,11 +37,8 @@ def main():
     import sys
     sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
     import numpy as np
-    import h5py as h
-    from read_psf_cats import read_data
-    from read_psf_cats import toList
-    from run_rho import do_canonical_stats
-    from run_rho import do_cross_stats
+    from read_psf_cats import read_data, toList, read_h5
+    from run_rho import do_canonical_stats,  do_cross_stats
     
     args = parse_args()
 
@@ -65,15 +62,15 @@ def main():
     
 
     #Reading metacal catalog
-    f = h.File(args.metacal_cat, 'r')
-    unsheared =  f['catalog/metacal/unsheared']
-    print('Unsheared Metacal catalog fields',unsheared.keys())
-    data_galaxies =  {}
-    data_galaxies['ra'] = np.array(unsheared['ra'])
-    data_galaxies['dec'] = np.array(unsheared['dec'])
-    data_galaxies['obs_e1'] = np.array(unsheared['e_1'])
-    data_galaxies['obs_e2'] = np.array(unsheared['e_2'])
-    #data_galaxies['band'] = np.array(unsheared['nimage_tot_i'])
+    galkeys = ['ra', 'dec', 'e_1', 'e_2',  'snr',  'size_ratio', 'flags']
+    data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
+    print(len(data_galaxies))
+    mask =  (data_galaxies['snr'] > 10)
+    mask &= (data_galaxies['snr'] < 100)
+    mask &= (data_galaxies['size_ratio']>0.5)
+    mask &= (data_galaxies['flags']==0)
+    data_galaxies =  data_galaxies[mask]
+    print(len(data_galaxies))
 
     do_cross_stats(data_stars, data_galaxies, bands, tilings, outpath,
                       name='all_galaxy-reserved', bandcombo=args.bandcombo)
