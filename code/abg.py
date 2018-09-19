@@ -88,7 +88,7 @@ def main():
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(r'$\alpha$,$\beta$,$\gamma$', fontsize=24)
     plt.xscale('log')
-    #plt.yscale('log', nonposy='clip')
+    plt.yscale('log', nonposy='clip')
     plt.tight_layout()
     plt.savefig(outpath +'/alpha_beta_gamma.pdf')
 

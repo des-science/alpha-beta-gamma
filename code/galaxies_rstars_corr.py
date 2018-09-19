@@ -59,22 +59,23 @@ def main():
     data_stars, bands, tilings = read_data(exps, args.piff_cat , keys,
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
+
     
 
     #Reading metacal catalog
-    galkeys = ['ra', 'dec', 'e_1', 'e_2',  'snr',  'size_ratio', 'flags']
+    galkeys = ['ra', 'dec', 'e_1', 'e_2',  'snr',  'size_ratio', 'flags',  'T',  'T_err']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
     print(len(data_galaxies))
     mask =  (data_galaxies['snr'] > 10)
     mask &= (data_galaxies['snr'] < 100)
     mask &= (data_galaxies['size_ratio']>0.5)
     mask &= (data_galaxies['flags']==0)
+    mask &= ( (data_galaxies['T'] - 2 * data_galaxies['T_err']) > 0)
     data_galaxies =  data_galaxies[mask]
     print(len(data_galaxies))
-
     do_cross_stats(data_stars, data_galaxies, bands, tilings, outpath,
                       name='all_galaxy-reserved', bandcombo=args.bandcombo)
-    
+
 
 if __name__ == "__main__":
     main()
