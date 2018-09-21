@@ -66,7 +66,7 @@ def read_rhos(stat_file ):
         sig_rho5 = np.sqrt(var5)
         return meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 
 
-def read_sigmas(stat_file ):
+def read_taus(stat_file ):
     import numpy as np
 
     # Read the json file 
@@ -78,35 +78,35 @@ def read_sigmas(stat_file ):
         stats = stats[0]
             
         ( meanlogr,
-          sigma0p,
-          sigma0p_im,
-          sigma0m,
-          sigma0m_im,
+          tau0p,
+          tau0p_im,
+          tau0m,
+          tau0m_im,
           var0,
-          sigma2p,
-          sigma2p_im,
-          sigma2m,
-          sigma2m_im,
+          tau2p,
+          tau2p_im,
+          tau2m,
+          tau2m_im,
           var2,
-          sigma5p,
-          sigma5p_im,
-          sigma5m,
-          sigma5m_im,
+          tau5p,
+          tau5p_im,
+          tau5m,
+          tau5m_im,
           var5,
         ) = stats[:16]
 
         #Finally this are the arrays with the data
         meanr = np.exp(meanlogr)
-        sigma0p = np.array(sigma0p)
-        sigma0m = np.array(sigma0m)
-        sigma2p = np.array(sigma2p)
-        sigma2m = np.array(sigma2m)
-        sigma5p = np.array(sigma5p)
-        sigma5m = np.array(sigma5m)
-        sig_sigma0 = np.sqrt(var0)
-        sig_sigma2 = np.sqrt(var2)
-        sig_sigma5 = np.sqrt(var5)
-        return meanr, sigma0p, sigma2p, sigma5p, sig_sigma0, sig_sigma2, sig_sigma5 
+        tau0p = np.array(tau0p)
+        tau0m = np.array(tau0m)
+        tau2p = np.array(tau2p)
+        tau2m = np.array(tau2m)
+        tau5p = np.array(tau5p)
+        tau5m = np.array(tau5m)
+        sig_tau0 = np.sqrt(var0)
+        sig_tau2 = np.sqrt(var2)
+        sig_tau5 = np.sqrt(var5)
+        return meanr, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 
               
 
  

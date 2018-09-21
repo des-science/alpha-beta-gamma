@@ -110,7 +110,7 @@ def pretty_rho2(meanr, rho, sig, sqrtn, rho5=None, sig5=None ):
     plt.yscale('log', nonposy='clip')
     plt.tight_layout()
 
-def pretty_sigma(meanr, rho, sig, sqrtn, title):
+def pretty_tau(meanr, rho, sig, sqrtn, title):
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')

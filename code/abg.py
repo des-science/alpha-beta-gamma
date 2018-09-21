@@ -5,7 +5,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the system of equatiosn and plotting correlations')
     
     parser.add_argument('--rsgcorr',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/sigma_all_galaxy-reserved_irz.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_irz.json',
                         help='Json file with the reserved stars - galaxies correlations')
     parser.add_argument('--rsrscorr',
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_irz.json',
@@ -18,7 +18,7 @@ def parse_args():
 
     return args
 
-        
+
 def main():
     import sys
     sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
@@ -26,8 +26,9 @@ def main():
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     plt.style.use('SVA1StyleSheet.mplstyle')
-    from readjson import read_rhos, read_sigmas
-    from plot_stats import pretty_rho1, pretty_rho2, pretty_rho0,  pretty_sigma
+    from readjson import read_rhos, read_taus
+    from plot_stats import pretty_rho1, pretty_rho2, pretty_rho0,  pretty_tau
+    from chi2 import CHI2,  minimize
     import numpy as np
 
     
@@ -55,57 +56,48 @@ def main():
     plt.savefig(outpath +'/rho0_all_rsrs.pdf')
 
     #Reading and plotting reserved stars galaxies correlations
-    meanr2, sigma0p, sigma2p, sigma5p, sig_sigma0, sig_sigma2, sig_sigma5 =  read_sigmas(args.rsgcorr)
+    meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr)
     plt.clf()
-    pretty_sigma(meanr2, sigma0p, sig_sigma0, sqrtn, r'$\sigma_{0}(\theta)$')
-    plt.savefig(outpath +'/sigma0_all_rsgal.pdf')
+    pretty_tau(meanr2, tau0p, sig_tau0, sqrtn, r'$\tau_{0}(\theta)$')
+    plt.savefig(outpath +'/tau0_all_rsgal.pdf')
     plt.clf()
-    pretty_sigma(meanr2, sigma2p, sig_sigma2, sqrtn, r'$\sigma_{2}(\theta)$')
-    plt.savefig(outpath +'/sigma2_all_rsgal.pdf')
+    pretty_tau(meanr2, tau2p, sig_tau2, sqrtn, r'$\tau_{2}(\theta)$')
+    plt.savefig(outpath +'/tau2_all_rsgal.pdf')
     plt.clf()
-    pretty_sigma(meanr2, sigma5p, sig_sigma5, sqrtn, r'$\sigma_{5}(\theta)$')
-    plt.savefig(outpath +'/sigma5_all_rsgal.pdf')
+    pretty_tau(meanr2, tau5p, sig_tau5, sqrtn, r'$\tau_{5}(\theta)$')
+    plt.savefig(outpath +'/tau5_all_rsgal.pdf')
 
-    #Solving equation system (AX=B) and ploting solution for each angular bin
-    alpha = []
-    beta = []
-    gamma =  []
-    for i in range(0, len(meanr)):
-        A = np.array([[rho0p[i], rho2p[i], rho5p[i]], [rho2p[i], rho1p[i], rho4p[i]], [rho5p[i], rho4p[i], rho3p[i]]])
-        B = np.array([sigma0p[i], sigma2p[i],  sigma5p[i]])
-        sol = np.linalg.solve(A, B)
-        alpha.append(sol[0])
-        beta.append(sol[1])
-        gamma.append(sol[2])
-    #print(alpha, beta, gamma)
-    plt.clf()
-    plt.plot(meanr, alpha,  color='blue', label=r'$\alpha$', marker='o')
-    plt.plot(meanr, beta,  color='red', label=r'$\beta$', marker='o')
-    plt.plot(meanr, gamma,  color='green', label=r'$\gamma$', marker='o')
-    plt.legend(loc='upper right', fontsize=24)
-    plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
-    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel(r'$\alpha$,$\beta$,$\gamma$', fontsize=24)
-    plt.xscale('log')
-    plt.yscale('log', nonposy='clip')
-    plt.tight_layout()
-    plt.savefig(outpath +'/alpha_beta_gamma.pdf')
+    #Finding best alpha beta gamma
+    rhos = [rho0p, rho1p, rho2p, rho3p, rho4p, rho5p]
+    sigrhos = [sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5]
+    taus = [tau0p, tau2p, tau5p]
+    sigtaus = [tau5p, sig_tau0, sig_tau2, sig_tau5]
+    data = {}
+    data['rhos'] = rhos
+    data['sigrhos'] = sigrhos
+    data['taus'] = taus
+    data['sigtaus'] = sigtaus
 
-    #Solve system of equations taking the mean rho values. AX=B
-    r0 = np.mean(rho0p)
-    r1 = np.mean(rho1p)
-    r2 = np.mean(rho2p)
-    r3 = np.mean(rho3p)
-    r4 = np.mean(rho4p)
-    r5 = np.mean(rho5p)
-    s0 = np.mean(sigma0p)
-    s2 = np.mean(sigma2p)
-    s5 = np.mean(sigma5p)
-    A = np.array([[r0, r2, r5], [r2, r1, r4], [r5, r4, r3]])
-    B = np.array([s0, s2, s5])
-    sol = np.linalg.solve(A, B)
-    print("Alpha,Beta,Gamma =",  sol)
+    dof = len(rhos[0])
+    ## ALPHA-BETA-GAMMA
+    eq = 1
+    i_guess = [0,-1,- 1]
+    fitted_params, chisq =  minimize(data, i_guess,  eq=eq)
+    print("alpha, beta, gamma:" , fitted_params)
+    print("Chi2 reduced:", chisq/dof )
 
+    ## ALPHA-BETA
+    eq = 1
+    i_guess = [0,-1]
+    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=False)
+    print("alpha, beta" , fitted_params)
+    print("Chi2 reduced:", chisq/dof )
+
+    ## ALPHA
+    eq = 1
+    i_guess = [0]
+    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=False, betaflag=False)
+    print("alpha, beta" , fitted_params)
+    print("Chi2 reduced:", chisq/dof )
 if __name__ == "__main__":
     main()
