@@ -28,7 +28,8 @@ def main():
     plt.style.use('SVA1StyleSheet.mplstyle')
     from readjson import read_rhos, read_taus
     from plot_stats import pretty_rho1, pretty_rho2, pretty_rho0,  pretty_tau
-    from chi2 import CHI2,  minimize
+    from chi2 import CHI2,  minimize,  plotCHI2
+    from maxlikelihood import all_posterior_info
     import numpy as np
 
     
@@ -81,23 +82,28 @@ def main():
     dof = len(rhos[0])
     ## ALPHA-BETA-GAMMA
     eq = 1
-    i_guess = [0,-1,- 1]
+    i_guess = [0,-1,- 1] #fiducial values
     fitted_params, chisq =  minimize(data, i_guess,  eq=eq)
     print("alpha, beta, gamma:" , fitted_params)
     print("Chi2 reduced:", chisq/dof )
 
     ## ALPHA-BETA
     eq = 1
-    i_guess = [0,-1]
-    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=False)
+    gflag, bflag = False, True
+    i_guess = [0,-1] #fiducial values
+    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
     print("alpha, beta" , fitted_params)
     print("Chi2 reduced:", chisq/dof )
+    all_posterior_info(fitted_params,data, eq=eq, gflag=gflag, bflag=bflag )
 
     ## ALPHA
     eq = 1
-    i_guess = [0]
-    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=False, betaflag=False)
-    print("alpha, beta" , fitted_params)
+    gflag, bflag = False, False
+    i_guess = [0] #fiducial values
+    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    print("alpha" , fitted_params)
     print("Chi2 reduced:", chisq/dof )
+    plotCHI2(None, data, eq=eq, gflag=gflag, bflag=bflag)
+    #all_posterior_info(fitted_params,data, eq=eq, gflag=gflag, bflag=bflag )
 if __name__ == "__main__":
     main()

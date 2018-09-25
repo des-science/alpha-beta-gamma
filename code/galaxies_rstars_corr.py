@@ -51,6 +51,10 @@ def main():
         if not os.path.exists(outpath): raise
         
 
+    #Reading metacal catalog
+    #galkeys = ['ra']
+    #blabla =  read_h5(args.metacal_cat, 'catalog/metacal/sheared_1m',  galkeys )
+        
     #Reading Mike stars catalog
     keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
             'piff_e1', 'piff_e2', 'piff_T']
@@ -59,10 +63,7 @@ def main():
     data_stars, bands, tilings = read_data(exps, args.piff_cat , keys,
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
-
     
-
-    #Reading metacal catalog
     galkeys = ['ra', 'dec', 'e_1', 'e_2',  'snr',  'size_ratio', 'flags',  'T',  'T_err']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
     print(len(data_galaxies))
