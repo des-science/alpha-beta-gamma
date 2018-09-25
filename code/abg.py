@@ -28,8 +28,8 @@ def main():
     plt.style.use('SVA1StyleSheet.mplstyle')
     from readjson import read_rhos, read_taus
     from plot_stats import pretty_rho1, pretty_rho2, pretty_rho0,  pretty_tau
-    from chi2 import CHI2,  minimize,  plotCHI2
-    from maxlikelihood import all_posterior_info
+    from chi2 import CHI2,  minimizeCHI2,  plotCHI2, plotCHI2shifted
+    from maxlikelihood import MCMC, OneParMaxLike
     import numpy as np
 
     
@@ -79,31 +79,36 @@ def main():
     data['taus'] = taus
     data['sigtaus'] = sigtaus
 
+    eq = 1
+    
     dof = len(rhos[0])
     ## ALPHA-BETA-GAMMA
-    eq = 1
+    gflag, bflag = True, True
     i_guess = [0,-1,- 1] #fiducial values
-    fitted_params, chisq =  minimize(data, i_guess,  eq=eq)
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
     print("alpha, beta, gamma:" , fitted_params)
     print("Chi2 reduced:", chisq/dof )
+    MCMC(fitted_params,data , eq=eq, gflag=gflag, bflag=bflag )
+
 
     ## ALPHA-BETA
-    eq = 1
     gflag, bflag = False, True
     i_guess = [0,-1] #fiducial values
-    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
     print("alpha, beta" , fitted_params)
     print("Chi2 reduced:", chisq/dof )
-    all_posterior_info(fitted_params,data, eq=eq, gflag=gflag, bflag=bflag )
+    MCMC(fitted_params,data , eq=eq, gflag=gflag, bflag=bflag )
 
     ## ALPHA
-    eq = 1
     gflag, bflag = False, False
     i_guess = [0] #fiducial values
-    fitted_params, chisq =  minimize(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
     print("alpha" , fitted_params)
     print("Chi2 reduced:", chisq/dof )
-    plotCHI2(None, data, eq=eq, gflag=gflag, bflag=bflag)
-    #all_posterior_info(fitted_params,data, eq=eq, gflag=gflag, bflag=bflag )
+    x_arr= -0.05, 0.05, 100
+    plotCHI2(None, data, x_arr, eq=eq, gflag=gflag, bflag=bflag)
+    plotCHI2shifted(None, data, x_arr, svalue=chisq, eq=eq, gflag=gflag, bflag=bflag)
+    #MCMC(fitted_params,data, svalue=chisq, eq=eq, gflag=gflag, bflag=bflag )
+    #OneParMaxLike(fitted_param,data, svalue=svalue,eq=eq, gflag=gflag,bflag = bflag)
 if __name__ == "__main__":
     main()

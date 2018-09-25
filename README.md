@@ -1,7 +1,9 @@
 # alpha-beta-gamma
 Alpha beta gamma test for the y3 master catalog
 
-code/abg.py: solves system of equations
+code/abg.py: solves the fitting problem. Defining a chisq function, for alpha,beta and delta constant
+
+code/abg_scaledependet.py: solves system of equations for each angular bin, so alpha, beta and delta are scale dependent
 
 code/galaxies_rstars_corr.py: computes correlations between metacal galaxies and reserved stars
 

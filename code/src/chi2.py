@@ -105,7 +105,10 @@ def CHI2(params, data, eq=None,  gflag=True,  bflag=True):
             val=chi2(mvect0 + mvect1 + mvect2, dvect0 + dvect1 + dvect2, mvar0 + mvar1 + mvar2, dvar0 + dvar1 + dvar2 )
             return val
 
-def plotCHI2(pars, data, eq=None, gflag=True,  bflag=True ):
+def CHI2shifted(params,data, svalue, eq=None,  gflag=True,  bflag=True):
+    return CHI2(params, data, eq=eq, gflag=gflag,bflag=bflag) -svalue 
+
+def plotCHI2(pars, data,x_arr, eq=None, gflag=True,  bflag=True ):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -118,7 +121,7 @@ def plotCHI2(pars, data, eq=None, gflag=True,  bflag=True ):
     elif((not gflag) and bflag):
         print("")
     else:
-        xmin, xmax, npoints = -0.5, 0.5, 100
+        xmin, xmax, npoints = x_arr
         alphas = np.linspace(xmin, xmax, npoints)
         chisq = [CHI2(x,data,eq=eq, gflag=False, bflag=False ) for x in alphas]
         plt.clf()
@@ -129,9 +132,33 @@ def plotCHI2(pars, data, eq=None, gflag=True,  bflag=True ):
         print("Printing file: chisq_only_alpha.pdf ")
         plt.savefig('chisq_only_alpha.pdf')#, dpi=150)
         
-def minimize(data, initial_guess, eq=None,  gflag=True, bflag = True):
+def plotCHI2shifted(pars, data, x_arr, svalue, eq=None, gflag=True,  bflag=True ):
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.style.use('SVA1StyleSheet.mplstyle')
+    import numpy as np
+    if(gflag and bflag):
+        print("")
+    elif(gflag and (not bflag)):
+        print("")
+    elif((not gflag) and bflag):
+        print("")
+    else:
+        xmin, xmax, npoints = x_arr
+        alphas = np.linspace(xmin, xmax, npoints)
+        chisq = [CHI2shifted(x,data,svalue, eq=eq, gflag=False, bflag=False ) for x in alphas]
+        plt.clf()
+        plt.xlabel(r"$\alpha$")
+        plt.ylabel(r"$\chi^{2}$")
+        plt.xlim([xmin, xmax])
+        plt.plot(alphas, chisq)
+        print("Printing file: chisqshifted_only_alpha.pdf ")
+        plt.savefig('chisqshifted_only_alpha.pdf')#, dpi=150)
+        
+def minimizeCHI2(data, initial_guess, eq=None,  gflag=True, bflag = True):
     import scipy.optimize as optimize
-    result = optimize.minimize(CHI2, initial_guess,args=(data, eq,gflag,bflag), method='Nelder-Mead', tol=1e-6)
+    result = optimize.minimize(CHI2, initial_guess,args=(data,eq,gflag,bflag), method='Nelder-Mead', tol=1e-6)
     if result.success:
         fitted_params = result.x
         return fitted_params, result.fun
