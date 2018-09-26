@@ -64,7 +64,7 @@ def main():
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
     
-    galkeys = ['ra', 'dec', 'e_1', 'e_2',  'snr',  'size_ratio', 'flags',  'T',  'T_err']
+    galkeys = ['ra','dec','e_1','e_2','snr','size_ratio','flags','T','T_err','R11','R22']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
     print(len(data_galaxies))
     mask =  (data_galaxies['snr'] > 10)

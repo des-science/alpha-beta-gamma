@@ -4,7 +4,7 @@ def logprior(pars, gflag=True,bflag = True):
     if(gflag and bflag):
         #print("Using alpha, beta and delta")
         alpha, beta, delta = pars
-        if (-3.<alpha<3)and(-3< beta<5)and( -220<delta<80):
+        if (-0.5<alpha<0.5)and(0< beta<8)and( -350<delta<-50):
             return 0.0
         return -np.inf
     elif(gflag and (not bflag)):
@@ -13,7 +13,7 @@ def logprior(pars, gflag=True,bflag = True):
     elif((not gflag) and bflag):
         #print("Using alpha and beta")
         alpha, beta = pars
-        if (-3.<alpha<3)and(-3< beta<5):
+        if (-0.3<alpha<0.3)and(0< beta<6):
             return 0.0
         return -np.inf
     else:
@@ -67,10 +67,10 @@ def corner_plot(samples, labels, title):
                         show_titles=True, title_kwargs={"fontsize": 12},
                         smooth1d=None, plot_contours=True,
                         no_fill_contours=False, plot_density=True,)
-    print("Printing file: contour_alpha-beta-delta.pdf")
+    print("Printing file:",  title)
     plt.savefig(title)
-    print("contour_alpha-beta-delta.pdf Printed")
-def MCMC(best_pars,data, svalue=None,  eq=None, gflag=True,bflag = True):
+    print(title, "Printed")
+def MCMC(best_pars,data, namemc, namecont, svalue=None,  eq=None, gflag=True,bflag = True):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -98,7 +98,7 @@ def MCMC(best_pars,data, svalue=None,  eq=None, gflag=True,bflag = True):
 
         fig = plt.figure(figsize=(16, 12))
         axs = fig.subplots(3, 3)
-        labels = [r"$\alpha$", r"$\beta$", r"$\delta$"]
+        labels = [r"$\alpha$", r"$\beta$", r"$\eta$"]
         samples = np.c_[alpha_chain_flat, beta_chain_flat, delta_chain_flat].T
         for i, par in enumerate(samples):
             axs[2][0].set_xlabel("Ensemble step")
@@ -130,11 +130,11 @@ def MCMC(best_pars,data, svalue=None,  eq=None, gflag=True,bflag = True):
                    lw=0.5, elinewidth=2., color='k');
         axs[2][2].errorbar(x=idx, y=delta_chain_mean, yerr=delta_chain_err, errorevery=50, ecolor='red',
                    lw=0.5, elinewidth=2., color='k');
-        print("Printing file: mcmc_alpha-beta-delta.pdf")
-        plt.savefig('mcmc_alpha-beta-delta.pdf')
-        print("mcmc-alpha-beta-delta.pdf Printed")
+        print("Printing file:",  namemc)
+        plt.savefig(namemc)
+        print(namemc, "Printed")
 
-        corner_plot(samples, labels, "contour_alpha-beta-delta.pdf")
+        corner_plot(samples, labels, namecont)
             
     elif(gflag and (not betaflag)):
         print("")
@@ -185,11 +185,11 @@ def MCMC(best_pars,data, svalue=None,  eq=None, gflag=True,bflag = True):
                    lw=0.5, elinewidth=2., color='k')
         axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
                    lw=0.5, elinewidth=2., color='k');
-        print("Printing file: mcmc_alpha_beta.pdf")
-        plt.savefig('mcmc_alpha_beta.pdf')
-        print("mcmc_alpha_beta.pdf Printed")
+        print("Printing file:",  namemc)
+        plt.savefig(namemc)
+        print(namemc, "Printed")
 
-        corner_plot(samples, labels, "contour_alpha-beta.pdf")
+        corner_plot(samples, labels, namecont)
     else:
         print("")
 

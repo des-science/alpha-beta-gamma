@@ -79,26 +79,9 @@ def main():
     data['taus'] = taus
     data['sigtaus'] = sigtaus
 
-    eq = 1
+    eq = 0
     
     dof = len(rhos[0])
-    ## ALPHA-BETA-GAMMA
-    gflag, bflag = True, True
-    i_guess = [0,-1,- 1] #fiducial values
-    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
-    print("alpha, beta, gamma:" , fitted_params)
-    print("Chi2 reduced:", chisq/dof )
-    MCMC(fitted_params,data , eq=eq, gflag=gflag, bflag=bflag )
-
-
-    ## ALPHA-BETA
-    gflag, bflag = False, True
-    i_guess = [0,-1] #fiducial values
-    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
-    print("alpha, beta" , fitted_params)
-    print("Chi2 reduced:", chisq/dof )
-    MCMC(fitted_params,data , eq=eq, gflag=gflag, bflag=bflag )
-
     ## ALPHA
     gflag, bflag = False, False
     i_guess = [0] #fiducial values
@@ -106,9 +89,33 @@ def main():
     print("alpha" , fitted_params)
     print("Chi2 reduced:", chisq/dof )
     x_arr= -0.05, 0.05, 100
-    plotCHI2(None, data, x_arr, eq=eq, gflag=gflag, bflag=bflag)
-    plotCHI2shifted(None, data, x_arr, svalue=chisq, eq=eq, gflag=gflag, bflag=bflag)
+    filename1 = outpath+'/chisq_only_alpha.pdf'
+    filename2 = outpath+'/chisqshifted_only_alpha.pdf'
+    plotCHI2(None, data,x_arr,filename1, eq=eq,gflag=gflag,bflag=bflag)
+    plotCHI2shifted(None, data, x_arr, chisq, filename2, eq=eq, gflag=gflag, bflag=bflag)
     #MCMC(fitted_params,data, svalue=chisq, eq=eq, gflag=gflag, bflag=bflag )
     #OneParMaxLike(fitted_param,data, svalue=svalue,eq=eq, gflag=gflag,bflag = bflag)
+    
+    ## ALPHA-BETA
+    gflag, bflag = False, True
+    i_guess = [0,-1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    print("alpha, beta" , fitted_params)
+    print("Chi2 reduced:", chisq/dof )
+    namemc = outpath+'/mcmc_alpha-beta.pdf'
+    namecont = outpath+'/contours_alpha-beta.pdf'
+    MCMC(fitted_params,data ,namemc, namecont, eq=eq, gflag=gflag, bflag=bflag )
+
+    ## ALPHA-BETA-GAMMA
+    gflag, bflag = True, True
+    i_guess = [0,-1,- 1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    print("alpha, beta, gamma:" , fitted_params)
+    print("Chi2 reduced:", chisq/dof )
+    namemc = outpath+'/mcmc_alpha-beta-eta.pdf'
+    namecont = outpath+'/contours_alpha-beta-eta.pdf'
+    MCMC(fitted_params,data, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag )
+
+    
 if __name__ == "__main__":
     main()

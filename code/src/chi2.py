@@ -108,7 +108,7 @@ def CHI2(params, data, eq=None,  gflag=True,  bflag=True):
 def CHI2shifted(params,data, svalue, eq=None,  gflag=True,  bflag=True):
     return CHI2(params, data, eq=eq, gflag=gflag,bflag=bflag) -svalue 
 
-def plotCHI2(pars, data,x_arr, eq=None, gflag=True,  bflag=True ):
+def plotCHI2(pars, data,x_arr, filename, eq=None, gflag=True,  bflag=True ):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -129,10 +129,10 @@ def plotCHI2(pars, data,x_arr, eq=None, gflag=True,  bflag=True ):
         plt.ylabel(r"$\chi^{2}$")
         plt.xlim([xmin, xmax])
         plt.plot(alphas, chisq)
-        print("Printing file: chisq_only_alpha.pdf ")
-        plt.savefig('chisq_only_alpha.pdf')#, dpi=150)
+        print("Printing file: ", filename)
+        plt.savefig(filename)#, dpi=150)
         
-def plotCHI2shifted(pars, data, x_arr, svalue, eq=None, gflag=True,  bflag=True ):
+def plotCHI2shifted(pars, data, x_arr, svalue, filename , eq=None, gflag=True,  bflag=True):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -153,8 +153,8 @@ def plotCHI2shifted(pars, data, x_arr, svalue, eq=None, gflag=True,  bflag=True 
         plt.ylabel(r"$\chi^{2}$")
         plt.xlim([xmin, xmax])
         plt.plot(alphas, chisq)
-        print("Printing file: chisqshifted_only_alpha.pdf ")
-        plt.savefig('chisqshifted_only_alpha.pdf')#, dpi=150)
+        print("Printing file: ",  filename)
+        plt.savefig(filename)#, dpi=150)
         
 def minimizeCHI2(data, initial_guess, eq=None,  gflag=True, bflag = True):
     import scipy.optimize as optimize

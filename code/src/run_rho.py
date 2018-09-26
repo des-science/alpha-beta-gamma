@@ -86,45 +86,52 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
     e1 = data['obs_e1']
     e2 = data['obs_e2']
-    T = data['obs_T']
+    
     p_e1 = data[prefix+'_e1']
     p_e2 = data[prefix+'_e2']
-    p_T = data[prefix+'_T']
-
+    
     de1 = e1-p_e1
     de2 = e2-p_e2
-    dt = (T-p_T)/T
-    print('mean e = ',np.mean(e1),np.mean(e2))
-    print('mean T = ',np.mean(T))
-    print('mean de = ',np.mean(de1),np.mean(de2))
-    print('mean dT = ',np.mean(T-p_T))
-    print('mean dT/T = ',np.mean(dt))
 
+    T = data['obs_T']
+    p_T = data[prefix+'_T']
+    dt = (T-p_T)/T
+    w1 = p_e1*dt
+    w2 = p_e2*dt
+    
+    #Modified ellipticities
+    e1 = e1 - np.array(np.mean(e1))
+    e2 = e2 - np.array(np.mean(e2))
+    p_e1 = p_e1 - np.array(np.mean(p_e1))
+    p_e2 = p_e2 - np.array(np.mean(p_e2))
+    w1 = w1 - np.array(np.mean(w1))
+    w2 = w2 - np.array(np.mean(w2))
+    
     if use_xy:
         x = data['fov_x']
         y = data['fov_y']
         print('x = ',x)
         print('y = ',y)
 
-        ecat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=e1, g2=e2)
+        ecat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=p_e1, g2=p_e2)
         decat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=de1, g2=de2)
-        dtcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec',
-                                 k=dt, g1=dt*e1, g2=dt*e2)
+        wcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec',
+                                 k=dt, g1=w1, g2=w2)
     else:
         ra = data['ra']
         dec = data['dec']
         print('ra = ',ra)
         print('dec = ',dec)
 
-        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
+        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
         decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-        dtcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
-                                 k=dt, g1=dt*e1, g2=dt*e2)
+        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
+                                 k=dt, g1=w1, g2=w2)
     ecat.name = 'ecat'
     decat.name = 'decat'
-    dtcat.name = 'dtcat'
+    wcat.name = 'wcat'
     if tag is not None:
-        for cat in [ ecat, decat, dtcat ]:
+        for cat in [ ecat, decat, wcat ]:
             cat.name = tag + ":"  + cat.name
 
     bin_config = dict(
@@ -143,10 +150,10 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
     results = []
     for (cat1, cat2) in [(ecat, ecat), 
                          (decat, decat),
-                          (ecat, decat),
-                          (dtcat, dtcat),
-                          (decat, dtcat),
-                          (ecat, dtcat) ]:
+                          (decat, ecat),
+                          (wcat, wcat),
+                          (decat, wcat),
+                          (ecat, wcat) ]:
         print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
 
         rho = treecorr.GGCorrelation(bin_config, verbose=2)
@@ -160,10 +167,10 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
         results.append(rho)
 
     if alt_tt:
-        print('Doing alt correlation of %s vs %s'%(dtcat.name, dtcat.name))
+        print('Doing alt correlation of %s vs %s'%(wcat.name, wcat.name))
 
         rho = treecorr.KKCorrelation(bin_config, verbose=2)
-        rho.process(dtcat)
+        rho.process(wcat)
         results.append(rho)
 
     return results
@@ -176,22 +183,34 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
 
     e1 = data_stars['obs_e1']
     e2 = data_stars['obs_e2']
-    T = data_stars['obs_T']
     p_e1 = data_stars[prefix+'_e1']
     p_e2 = data_stars[prefix+'_e2']
+    T = data_stars['obs_T']
     p_T = data_stars[prefix+'_T']
-
-    e1gal =  data_galaxies['e_1']
-    e2gal =  data_galaxies['e_2']
 
     de1 = e1-p_e1
     de2 = e2-p_e2
     dt = (T-p_T)/T
-    print('mean e = ',np.mean(e1),np.mean(e2))
-    print('mean T = ',np.mean(T))
-    print('mean de = ',np.mean(de1),np.mean(de2))
-    print('mean dT = ',np.mean(T-p_T))
-    print('mean dT/T = ',np.mean(dt))
+
+    w1 = p_e1*dt
+    w2 = p_e2*dt
+
+    #Modified ellipticities reserved stars
+    e1 = e1 - np.array(np.mean(e1))
+    e2 = e2 - np.array(np.mean(e2))
+    p_e1 = p_e1 - np.array(np.mean(p_e1))
+    p_e2 = p_e2 - np.array(np.mean(p_e2))
+    w1 = w1 - np.array(np.mean(w1))
+    w2 = w2 - np.array(np.mean(w2))
+
+    e1gal = data_galaxies['e_1']
+    e2gal = data_galaxies['e_2']
+    R11 =  data_galaxies['R11']
+    R22 =  data_galaxies['R22']
+
+    #Modified ellipticities galaxies
+    e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11)) 
+    e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22)) 
 
     ra = data_stars['ra']
     dec = data_stars['dec']
@@ -202,19 +221,19 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     print('ragal = ',ragal)
     print('decgal = ',decgal)
     
-    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
+    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
     decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-    dtcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
-                             k=dt, g1=dt*e1, g2=dt*e2)
+    wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
+                             k=dt, g1=w1, g2=w2)
     egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
 
     ecat.name = 'ecat'
     decat.name = 'decat'
-    dtcat.name = 'dtcat'
+    wcat.name = 'wcat'
     egal_cat.name = 'egal_cat'
     
     if tag is not None:
-        for cat in [ ecat, decat, dtcat ]:
+        for cat in [ ecat, decat, wcat ]:
             cat.name = tag + ":"  + cat.name
 
     bin_config = dict(
@@ -233,7 +252,7 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     results = []
     for (cat1, cat2) in [(egal_cat, ecat), 
                          (egal_cat, decat),
-                          (egal_cat, dtcat) ]:
+                          (egal_cat, wcat) ]:
         print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
 
         rho = treecorr.GGCorrelation(bin_config, verbose=2)
@@ -247,10 +266,10 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
         results.append(rho)
 
     if alt_tt:
-        print('Doing alt correlation of %s vs %s'%(dtcat.name, dtcat.name))
+        print('Doing alt correlation of %s vs %s'%(wcat.name, wcat.name))
 
         rho = treecorr.KKCorrelation(bin_config, verbose=2)
-        rho.process(dtcat)
+        rho.process(wcat)
         results.append(rho)
 
     return results
@@ -306,5 +325,5 @@ def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='
         tag = ''.join(band)
         #stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
         stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
-        stat_file = os.path.join(outpath, "sigma_%s_%s.json"%(name,tag))
+        stat_file = os.path.join(outpath, "tau_%s_%s.json"%(name,tag))
         write_cross_stats(stat_file,*stats)
