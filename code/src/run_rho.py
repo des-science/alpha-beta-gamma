@@ -102,12 +102,23 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
     
     #Modified ellipticities
     if(mod):
-        e1 = e1 - np.array(np.mean(e1))
-        e2 = e2 - np.array(np.mean(e2))
+        print("Mean de")
+        meande = np.mean(de1**2) + np.mean(de2**2)
+        print(meande)
+        print("Mean w")
+        meanw = np.mean(w1**2) + np.mean(w2**2)
+        print(meanw)
+        print("Mean p_e")
+        meanpe = np.mean(p_e1**2) + np.mean(p_e2**2)
+        print(meanpe)
+       
+        p_e1 = p_e1 - np.array(np.mean(p_e1))
+        p_e2 = p_e2 - np.array(np.mean(p_e2))
         de1 = de1 - np.array(np.mean(de1))
         de2 = de2 - np.array(np.mean(de2))
         w1 = w1 - np.array(np.mean(w1))
         w2 = w2 - np.array(np.mean(w2))
+        
     
     if use_xy:
         x = data['fov_x']
@@ -198,12 +209,13 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     w2 = p_e2*dt
 
     #Modified ellipticities reserved stars
-    e1 = e1 - np.array(np.mean(e1))
-    e2 = e2 - np.array(np.mean(e2))
-    de1 = de1 - np.array(np.mean(de1))
-    de2 = de2 - np.array(np.mean(de2))
-    w1 = w1 - np.array(np.mean(w1))
-    w2 = w2 - np.array(np.mean(w2))
+    if(mod):
+        p_e1 = p_e1 - np.array(np.mean(p_e1))
+        p_e2 = p_e2 - np.array(np.mean(p_e2))
+        de1 = de1 - np.array(np.mean(de1))
+        de2 = de2 - np.array(np.mean(de2))
+        w1 = w1 - np.array(np.mean(w1))
+        w2 = w2 - np.array(np.mean(w2))
 
     e1gal = data_galaxies['e_1']
     e2gal = data_galaxies['e_2']

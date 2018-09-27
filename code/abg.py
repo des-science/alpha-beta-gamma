@@ -79,7 +79,7 @@ def main():
     data['taus'] = taus
     data['sigtaus'] = sigtaus
 
-    eq = None
+    eq = 1
     
     dof = len(rhos[0])
     ## ALPHA
