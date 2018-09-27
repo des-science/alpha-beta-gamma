@@ -75,7 +75,7 @@ def main():
     data_galaxies =  data_galaxies[mask]
     print(len(data_galaxies))
     do_cross_stats(data_stars, data_galaxies, bands, tilings, outpath,
-                      name='all_galaxy-reserved', bandcombo=args.bandcombo)
+                      name='all_galaxy-reserved', bandcombo=args.bandcombo, mod=False)
 
 
 if __name__ == "__main__":

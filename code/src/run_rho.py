@@ -78,7 +78,7 @@ def write_cross_stats(stat_file, sigma0, sigma2, sigma5, corr_tt=None):
         json.dump([stats], fp)
     print('Done writing ',stat_file)
 
-def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff'):
+def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True):
     """Compute the rho statistics
     """
     import treecorr
@@ -93,6 +93,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
     de1 = e1-p_e1
     de2 = e2-p_e2
 
+    
     T = data['obs_T']
     p_T = data[prefix+'_T']
     dt = (T-p_T)/T
@@ -100,12 +101,13 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
     w2 = p_e2*dt
     
     #Modified ellipticities
-    e1 = e1 - np.array(np.mean(e1))
-    e2 = e2 - np.array(np.mean(e2))
-    p_e1 = p_e1 - np.array(np.mean(p_e1))
-    p_e2 = p_e2 - np.array(np.mean(p_e2))
-    w1 = w1 - np.array(np.mean(w1))
-    w2 = w2 - np.array(np.mean(w2))
+    if(mod):
+        e1 = e1 - np.array(np.mean(e1))
+        e2 = e2 - np.array(np.mean(e2))
+        de1 = de1 - np.array(np.mean(de1))
+        de2 = de2 - np.array(np.mean(de2))
+        w1 = w1 - np.array(np.mean(w1))
+        w2 = w2 - np.array(np.mean(w2))
     
     if use_xy:
         x = data['fov_x']
@@ -175,7 +177,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
     return results
 
-def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff'):
+def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True):
     """Compute the rho statistics
     """
     import treecorr
@@ -198,8 +200,8 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     #Modified ellipticities reserved stars
     e1 = e1 - np.array(np.mean(e1))
     e2 = e2 - np.array(np.mean(e2))
-    p_e1 = p_e1 - np.array(np.mean(p_e1))
-    p_e2 = p_e2 - np.array(np.mean(p_e2))
+    de1 = de1 - np.array(np.mean(de1))
+    de2 = de2 - np.array(np.mean(de2))
     w1 = w1 - np.array(np.mean(w1))
     w2 = w2 - np.array(np.mean(w2))
 
@@ -209,8 +211,9 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     R22 =  data_galaxies['R22']
 
     #Modified ellipticities galaxies
-    e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11)) 
-    e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22)) 
+    if (mod):
+        e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11)) 
+        e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22)) 
 
     ra = data_stars['ra']
     dec = data_stars['dec']
@@ -296,7 +299,7 @@ def band_combinations(bands, single=True, combo=True,  allcombo=True):
     print('use_bands = ',use_bands)
     print('tags = ',[ ''.join(band) for band in use_bands ])
     return use_bands
-def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True):
+def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
     # Measure the canonical rho stats using all pairs:
@@ -307,11 +310,11 @@ def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all',
         print('sum(mask) = ',np.sum(mask))
         print('len(data[mask]) = ',len(data[mask]))
         tag = ''.join(band)
-        stats = measure_rho(data[mask], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
+        stats = measure_rho(data[mask], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt, mod=mod)
         stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
         write_stats(stat_file,*stats)
 
-def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True):
+def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
     # Measure the canonical rho stats using all pairs:
@@ -324,6 +327,6 @@ def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='
         print('len(data[mask]) = ',len(data_stars[mask_stars]))
         tag = ''.join(band)
         #stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
-        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
+        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
         stat_file = os.path.join(outpath, "tau_%s_%s.json"%(name,tag))
         write_cross_stats(stat_file,*stats)

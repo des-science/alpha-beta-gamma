@@ -16,7 +16,6 @@ def modelvectors(rhos, alpha=0, beta=0, gamma=0, gflag=True, bflag=True):
         mvec0 = alpha*rhos[0]
         return mvec0
         
-
 def modelvar(msigs, gflag=True, bflag=True):
     #variances sigs^2
     if(gflag and bflag):
