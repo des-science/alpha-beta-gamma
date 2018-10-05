@@ -39,7 +39,7 @@ def band_combinations(bands, single=True, combo=True):
     return use_bands
 
 
-def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=False, frac=1.):
+def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=False, frac=1.,  verbose=False):
 
     RESERVED = 64
     NOT_STAR = 128
@@ -85,26 +85,30 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
             old = True
             expname = os.path.join(work, exp, 'exp_info_%d.fits'%expnum)
         if not os.path.exists(expname):
-            print('Neither kind of exposure catalog exists.')
-            print(os.path.join(work, exp, 'exp_psf_cat_%d.fits'%expnum))
-            print(expname)
-            print('Skip this exposure')
+            if(verbose):
+                print('Neither kind of exposure catalog exists.')
+                print(os.path.join(work, exp, 'exp_psf_cat_%d.fits'%expnum))
+                print(expname)
+                print('Skip this exposure')
             continue
 
         try:
             if old:
                 expcat = fitsio.read(expname)
             else:
-                print(expname)
+                if(verbose):
+                    print(expname)
                 expcat = fitsio.read(expname, ext='info')
         except Exception as e:
-            print('Error reading exposure catalog')
-            print('Caught ',e)
-            print('Skip this exposure')
+            if(verbose):
+                print('Error reading exposure catalog')
+                print('Caught ',e)
+                print('Skip this exposure')
             continue
 
         if len(expcat) == 0:
-            print('expcat for exp=%d has no entries!',expnum)
+            if(verbose):
+                print('expcat for exp=%d has no entries!',expnum)
             continue
 
         band = expcat['band'][0]
@@ -113,24 +117,29 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
             continue
 
         if expcat['expnum'][0] != expnum:
-            print('%s != %s'%(expcat['expnum'][0], expnum))
-            print('expnum in catalog does not match expected value')
+            if(verbose):
+                print('%s != %s'%(expcat['expnum'][0], expnum))
+                print('expnum in catalog does not match expected value')
             sys.exit()
 
-        print('Start work on exp = ',exp)
-        print('band = ',band)
+        if(verbose):
+            print('Start work on exp = ',exp)
+            print('band = ',band)
 
         if 'tiling' in expcat.dtype.names:
             tiling = int(expcat['tiling'][0])
             if tiling == 0:
                 # This shouldn't happen, but it did for a few exposures.  Just skip them, since this
                 # might indicate some kind of problem.
-                print('tiling == 0.  Skip this exposure.')
+                if(verbose):
+                    print('tiling == 0.  Skip this exposure.')
                 continue
             if tiling > MAX_TILING:
-                print('tiling is > %d.  Skip this exposure.'%MAX_TILING)
+                if(verbose):
+                    print('tiling is > %d.  Skip this exposure.'%MAX_TILING)
                 continue
-            print('tiling = ',tiling)
+            if(verbose):
+                print('tiling = ',tiling)
         else:
             tiling = 0
 
@@ -147,10 +156,11 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
         nused = np.sum((flag & 1) != 0)
         nreserved = np.sum((flag & RESERVED) != 0)
         ngood = np.sum(flag == 0)
-        print('ntot = ',ntot)
-        print('nused = ',nused)
-        print('nreserved = ',nreserved)
-        print('ngood = ',ngood)
+        if(verbose):
+            print('ntot = ',ntot)
+            print('nused = ',nused)
+            print('nreserved = ',nreserved)
+            print('ngood = ',ngood)
 
         mask = (flag & NOT_STAR) == 0
         mask &= ~np.in1d(ccdnums, BAD_CCDS)
@@ -163,8 +173,9 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
         #print('flag where flag == RESERVED: ',flag[flag==RESERVED+1])
         #print('mask where flag == RESERVED: ',mask[flag==RESERVED+1])
         #print('used where flag == RESERVED: ',mask[flag==RESERVED+1])
-        print('nmask = ',np.sum(mask))
-        print('nused = ',np.sum(used))
+        if(verbose):
+            print('nmask = ',np.sum(mask))
+            print('nused = ',np.sum(used))
 
         T = data['obs_T']
         e1 = data['obs_e1']
@@ -172,7 +183,8 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
         dT = data['obs_T'] - data[prefix + '_T']
         de1 = data['obs_e1'] - data[prefix + '_e1']
         de2 = data['obs_e2'] - data[prefix + '_e2']
-        print(expnum, len(dT), band)
+        if(verbose):
+            print(expnum, len(dT), band)
         #print('T = ',np.mean(T[used]),np.std(T[used]))
         #print('e1 = ',np.mean(e1[used]),np.std(e1[used]))
         #print('e2 = ',np.mean(e2[used]),np.std(e2[used]))
@@ -184,43 +196,53 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
         rho2 = (e1 - 1j*e2) * (de1 + 1j*de2)
         #print('mean rho2 = ',np.mean(rho2[used]))
         if abs(np.mean(dT[used]/T[used])) > 0.01:
-            print('mean dT/T = %f.'%(np.mean(dT[used]/T[used])))
+            if(verbose):
+                print('mean dT/T = %f.'%(np.mean(dT[used]/T[used])))
             n_reject_mean_dt += 1
             #continue
         if abs(np.mean(de1[used])) > 0.01:
-            print('mean de1 = %f.'%(np.mean(de1[used])))
+            if(verbose):
+                print('mean de1 = %f.'%(np.mean(de1[used])))
             n_reject_mean_de1 += 1
             #continue
         if abs(np.mean(de2[used])) > 0.01:
-            print('mean de2 = %f.'%(np.mean(de2[used])))
+            if(verbose):
+                print('mean de2 = %f.'%(np.mean(de2[used])))
             n_reject_mean_de2 += 1
             #continue
         if abs(np.std(dT[used]/T[used])) > 0.1:
-            print('std dT/T = %f.'%(np.std(dT[used]/T[used])))
+            if(verbose):
+                print('std dT/T = %f.'%(np.std(dT[used]/T[used])))
             n_reject_std_dt += 1
             #continue
         if abs(np.std(de1[used])) > 0.1:
-            print('std de1 = %f.'%(np.std(de1[used])))
+            if(verbose):
+                print('std de1 = %f.'%(np.std(de1[used])))
             n_reject_std_de1 += 1
             #continue
         if abs(np.std(de2[used])) > 0.1:
-            print('std de2 = %f.'%(np.std(de2[used])))
+            if(verbose):
+                print('std de2 = %f.'%(np.std(de2[used])))
             n_reject_std_de2 += 1
             #continue
         if abs(np.mean(rho1[used])) > 5.e-4:
-            print('mean rho1 = %s.'%(np.mean(rho1[used])))
+            if(verbose):
+                print('mean rho1 = %s.'%(np.mean(rho1[used])))
             n_reject_rho2 += 1
             #continue
         if abs(np.mean(rho2[used])) > 5.e-4:
-            print('mean rho2 = %s.'%(np.mean(rho2[used])))
+            if(verbose):
+                print('mean rho2 = %s.'%(np.mean(rho2[used])))
             n_reject_rho2 += 1
             #continue
         if abs(np.mean(e1[used])) > 0.03:
-            print('mean e1 = %f.'%(np.mean(e1[used])))
+            if(verbose):
+                print('mean e1 = %f.'%(np.mean(e1[used])))
             n_reject_mean_e1 += 1
             #continue
         if abs(np.mean(e2[used])) > 0.03:
-            print('mean e2 = %f.'%(np.mean(e2[used])))
+            if(verbose):
+                print('mean e2 = %f.'%(np.mean(e2[used])))
             n_reject_mean_e2 += 1
             #continue
 
@@ -229,7 +251,8 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
         n1 = np.sum(mask)
         mask = mask & good
         n2 = np.sum(mask)
-        print('"good" filter removed %d/%d objects'%(n1-n2,n1))
+        if(verbose):
+            print('"good" filter removed %d/%d objects'%(n1-n2,n1))
         n_good_obj += n2
         n_bad_obj += n1-n2
         #print('mask = ',len(mask),np.sum(mask),mask)
@@ -240,10 +263,12 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
         #print('mask = ',len(mask),mask)
 
         ngood = len(mask)
-        print('ngood = ',ngood,'/',len(data))
+        if(verbose):
+            print('ngood = ',ngood,'/',len(data))
         assert ngood == len(data[mask])
         if ngood == 0:
-            print('All objects in exp %d are flagged.'%expnum)
+            if(verbose):
+                print('All objects in exp %d are flagged.'%expnum)
             continue
 
         # Start with just the input keys, which should be columns in data.
@@ -268,6 +293,7 @@ def read_data(exps, work, keys, limit_bands=None, prefix='piff', use_reserved=Fa
         bands.add(band)
         tilings.add(tiling)
         nrows += ngood
+
 
     print('\nFinished processing %d exposures'%len(exps))
     print('bands = ',bands)
@@ -327,7 +353,7 @@ def read_h5(filename, folder, keys):
     data = np.recarray(shape=(nrows,), formats=formats, names=keys)
     #print('data.dtype = ',data.dtype)
     for key in keys:
-        data[key] = np.array(cat[key])
+        data[key] = np.array(cat[key])    
     print('made recarray')
     return data
 

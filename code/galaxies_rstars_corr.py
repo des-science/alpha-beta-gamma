@@ -39,6 +39,7 @@ def main():
     import numpy as np
     from read_psf_cats import read_data, toList, read_h5
     from run_rho import do_canonical_stats,  do_cross_stats
+    import h5py as h
     
     args = parse_args()
 
@@ -56,6 +57,7 @@ def main():
     #blabla =  read_h5(args.metacal_cat, 'catalog/metacal/sheared_1m',  galkeys )
         
     #Reading Mike stars catalog
+    
     keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
             'piff_e1', 'piff_e2', 'piff_T']
  
@@ -64,8 +66,25 @@ def main():
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
     
+    
     galkeys = ['ra','dec','e_1','e_2','snr','size_ratio','flags','T','T_err','R11','R22']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
+
+    dgamma = 2*0.01
+    f = h.File(args.metacal_cat, 'r')
+    index =  f['index']
+    select = np.array(index['select'])
+    select_1p = np.array(index['select_1p'])
+    select_1m = np.array(index['select_1m'])
+    #data_galaxies['R11s'] = (data_galaxies['e_1'][select_1p] - data_galaxies['e_1'][select_1m] )/dgamma
+    #data_galaxies['R22s'] = (data_galaxies['e_2'][select_1p] - data_galaxies['e_2'][select_1m] )/dgamma
+    #print(data_galaxies[0: 2])
+    #print(len(data_galaxies))
+    #data_galaxies =  data_galaxies[select]
+    #print(len(data_galaxies))
+
+    
+    '''
     print(len(data_galaxies))
     mask =  (data_galaxies['snr'] > 10)
     mask &= (data_galaxies['snr'] < 100)
@@ -74,8 +93,9 @@ def main():
     mask &= ( (data_galaxies['T'] - 2 * data_galaxies['T_err']) > 0)
     data_galaxies =  data_galaxies[mask]
     print(len(data_galaxies))
-    do_cross_stats(data_stars, data_galaxies, bands, tilings, outpath,
-                      name='all_galaxy-reserved', bandcombo=args.bandcombo, mod=False)
+    '''
+    #do_cross_stats(data_stars, data_galaxies, bands, tilings, outpath,
+    #                  name='all_galaxy-reserved', bandcombo=args.bandcombo, mod=True)
 
 
 if __name__ == "__main__":

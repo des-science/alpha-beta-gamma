@@ -35,8 +35,7 @@ def main():
     sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
 
     import numpy as np
-    from read_psf_cats import read_data
-    from read_psf_cats import toList
+    from read_psf_cats import read_data,  toList
     from run_rho import do_canonical_stats
     
     args = parse_args()
