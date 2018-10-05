@@ -57,7 +57,6 @@ def main():
     #blabla =  read_h5(args.metacal_cat, 'catalog/metacal/sheared_1m',  galkeys )
         
     #Reading Mike stars catalog
-    
     keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
             'piff_e1', 'piff_e2', 'piff_T']
  
@@ -74,17 +73,12 @@ def main():
     f = h.File(args.metacal_cat, 'r')
     index =  f['index']
     select = np.array(index['select'])
-    data_galaxies =  data_galaxies[select]
-    
     select_1p = np.array(index['select_1p'])
     select_1m = np.array(index['select_1m'])
-    data_galaxies['R11s'] = (data_galaxies['e_1'][select_1p] - data_galaxies['e_1'][select_1m] )/dgamma
-    data_galaxies['R22s'] = (data_galaxies['e_2'][select_1p] - data_galaxies['e_2'][select_1m] )/dgamma
-    #print(data_galaxies[0: 2])
-    #print(len(data_galaxies))
-    
-    #print(len(data_galaxies))
-
+    R11s = (data_galaxies['e_1'][select_1p].mean() - data_galaxies['e_1'][select_1m].mean() )/dgamma
+    R22s = (data_galaxies['e_2'][select_1p].mean() - data_galaxies['e_2'][select_1m].mean() )/dgamma
+    Rs = [R11s, R22s]
+    data_galaxies =  data_galaxies[select]
     
     '''
     print(len(data_galaxies))
@@ -96,7 +90,7 @@ def main():
     data_galaxies =  data_galaxies[mask]
     print(len(data_galaxies))
     '''
-    do_cross_stats(data_stars, data_galaxies, bands, tilings, outpath,
+    do_cross_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
                    name='all_galaxy-reserved', bandcombo=args.bandcombo, mod=True)
 
 

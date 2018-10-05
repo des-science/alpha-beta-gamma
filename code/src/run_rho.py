@@ -188,7 +188,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
     return results
 
-def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True):
+def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True):
     """Compute the rho statistics
     """
     import treecorr
@@ -221,8 +221,8 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
     e2gal = data_galaxies['e_2']
     R11 =  data_galaxies['R11']
     R22 =  data_galaxies['R22']
-    R11s =  data_galaxies['R11s']
-    R22s =  data_galaxies['R22s']
+    R11s =  Rs[0]
+    R22s =  Rs[1]
 
     #Modified ellipticities galaxies
     if (mod):
@@ -330,7 +330,7 @@ def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all',
         stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
         write_stats(stat_file,*stats)
 
-def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True):
+def do_cross_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
     # Measure the canonical rho stats using all pairs:
@@ -343,6 +343,6 @@ def do_cross_stats(data_stars, data_galaxies,  bands, tilings, outpath, prefix='
         print('len(data[mask]) = ',len(data_stars[mask_stars]))
         tag = ''.join(band)
         #stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
-        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
+        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, Rs,  max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
         stat_file = os.path.join(outpath, "tau_%s_%s.json"%(name,tag))
         write_cross_stats(stat_file,*stats)
