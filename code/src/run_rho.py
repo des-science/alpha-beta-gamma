@@ -226,10 +226,10 @@ def measure_cross_rho(data_stars, data_galaxies, max_sep, tag=None, use_xy=False
 
     #Modified ellipticities galaxies
     if (mod):
-        e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11)) 
-        e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22))
-        #e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11) + np.mean(R11s)) 
-        #e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22) + np.mean(R22s)) 
+        #e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11)) 
+        #e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22))
+        e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11) + np.mean(R11s)) 
+        e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22) + np.mean(R22s)) 
 
     ra = data_stars['ra']
     dec = data_stars['dec']
