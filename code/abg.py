@@ -80,8 +80,9 @@ def main():
     data['sigtaus'] = sigtaus
 
     eq = 1
-    
+    nwalkers,  nsteps = 100,  10000
     dof = len(rhos[0])
+
     ## ALPHA
     gflag, bflag = False, False
     i_guess = [0] #fiducial values
@@ -104,7 +105,7 @@ def main():
     print("Chi2 reduced:", chisq/dof )
     namemc = outpath+'/mcmc_alpha-beta.pdf'
     namecont = outpath+'/contours_alpha-beta.pdf'
-    MCMC(fitted_params,data ,namemc, namecont, eq=eq, gflag=gflag, bflag=bflag )
+    MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag )
 
     ## ALPHA-BETA-GAMMA
     gflag, bflag = True, True
@@ -114,7 +115,7 @@ def main():
     print("Chi2 reduced:", chisq/dof )
     namemc = outpath+'/mcmc_alpha-beta-eta.pdf'
     namecont = outpath+'/contours_alpha-beta-eta.pdf'
-    MCMC(fitted_params,data, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag )
+    MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag )
 
     
 if __name__ == "__main__":

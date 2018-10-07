@@ -4,7 +4,7 @@ def logprior(pars, gflag=True,bflag = True):
     if(gflag and bflag):
         #print("Using alpha, beta and delta")
         alpha, beta, delta = pars
-        if (-0.5<alpha<0.5)and(0< beta<8)and( -350<delta<-50):
+        if (-0.3<alpha<0.3)and(0< beta<6)and( -200<delta<0):
             return 0.0
         return -np.inf
     elif(gflag and (not bflag)):
@@ -70,7 +70,7 @@ def corner_plot(samples, labels, title):
     print("Printing file:",  title)
     plt.savefig(title)
     print(title, "Printed")
-def MCMC(best_pars,data, namemc, namecont, svalue=None,  eq=None, gflag=True,bflag = True):
+def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contourcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -79,7 +79,7 @@ def MCMC(best_pars,data, namemc, namecont, svalue=None,  eq=None, gflag=True,bfl
     import numpy as np
     if(gflag and bflag):
         # initial position at maximum likelihood values
-        ndim, nwalkers, nsteps = 3, 50, 1000
+        ndim = 3
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
         sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag) )
@@ -140,7 +140,7 @@ def MCMC(best_pars,data, namemc, namecont, svalue=None,  eq=None, gflag=True,bfl
         print("")
     elif((not gflag) and bflag):
         # initial position at maximum likelihood values
-        ndim, nwalkers, nsteps = 2, 50, 1000
+        ndim = 2
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
         sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag) )

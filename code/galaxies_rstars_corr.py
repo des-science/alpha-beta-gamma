@@ -5,7 +5,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Correlation galaxies and reserved stars')
     
     parser.add_argument('--metacal_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
+                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
+                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/cats_des_y3/Y3_mastercat_v2_6_20_18.h5', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -68,7 +69,7 @@ def main():
     
     galkeys = ['ra','dec','e_1','e_2','snr','size_ratio','flags','T','T_err','R11','R22']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
-
+    print("Total objects in catalog:", len(data_galaxies))
     dgamma = 2*0.01
     f = h.File(args.metacal_cat, 'r')
     index =  f['index']
@@ -79,6 +80,7 @@ def main():
     R22s = (data_galaxies['e_2'][select_1p].mean() - data_galaxies['e_2'][select_1m].mean() )/dgamma
     Rs = [R11s, R22s]
     data_galaxies =  data_galaxies[select]
+    print("Total objects after masking",  len(data_galaxies))
     
     '''
     print(len(data_galaxies))
