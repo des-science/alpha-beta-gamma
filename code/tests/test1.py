@@ -1,3 +1,5 @@
+#Checking that the differences between <ww>-<w'w'> be the same order
+#of magnitude that <w>^2
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
@@ -20,6 +22,8 @@ def parse_args():
     return args
 
 def main():
+    import sys
+    sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
     import numpy as np
     from read_psf_cats import read_data,  toList
     from readjson import read_rhos

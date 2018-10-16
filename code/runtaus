@@ -2,11 +2,12 @@
 
 REPOHOME=/global/cscratch1/sd/alsina/alpha-beta-gamma/code
 STARS=/global/cscratch1/sd/seccolf/y3a1-v29
+METACAL=/global/cscratch1/sd/troxel/cats_des_y3/Y3_mastercat_v2_6_20_18.h5
 OUT=/global/cscratch1/sd/alsina/alpha-beta-gamma/out
 
 source /global/common/software/des/zuntz/setup
 source /global/common/software/des/zuntz/setup-nompi
 
 cd $REPOHOME
-python reserved_stars_corr.py --piff_cat=$STARS --exps_file=ally3.grizY --outpath=$OUT --bands=riz
+python galaxies_rstars_corr.py --metacal_cat=$METACAL --piff_cat=$STARS --exps_file=ally3.grizY --outpath=$OUT --bands=riz
 

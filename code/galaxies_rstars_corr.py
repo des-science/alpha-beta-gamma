@@ -36,7 +36,9 @@ def parse_args():
         
 def main():
     import sys
-    sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
+    #sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
+    sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
+    
     import numpy as np
     from read_psf_cats import read_data, toList, read_h5
     from run_rho import do_canonical_stats,  do_cross_stats
@@ -92,8 +94,8 @@ def main():
     data_galaxies =  data_galaxies[mask]
     print(len(data_galaxies))
     '''
-    #do_cross_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
-    #               name='all_galaxy-reserved', bandcombo=args.bandcombo, mod=True)
+    do_cross_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
+                   name='all_galaxy-reserved', bandcombo=args.bandcombo, mod=True)
 
 
 if __name__ == "__main__":

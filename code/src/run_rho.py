@@ -304,6 +304,8 @@ def band_combinations(bands, single=True, combo=True,  allcombo=True):
                 use_bands.append(['r', 'i', 'z'])
             if 'g' in bands and 'r' in bands and 'i' in bands and 'z' in bands:
                 use_bands.append(['g', 'r', 'i', 'z'])
+            if 'g' in bands and 'r' in bands and 'i' in bands and 'z' in bands and 'Y' in bands:
+                use_bands.append(['g', 'r', 'i', 'z', 'Y'])
     else:
         letters = [k for k in bands]
         use_bands = []
