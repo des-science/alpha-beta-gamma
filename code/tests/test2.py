@@ -105,6 +105,28 @@ def main():
     plt.tight_layout()
     print("Printing chi2_bybin.pdf")
     plt.savefig(outpath +'/chi2_bybin.pdf')
+
+    plt.clf()
+    plt.plot(meanr, sig_tau0**2, color='blue', label=r'$var(\tau_{0})$', marker='o')
+    plt.plot(meanr, sig_tau2**2, color='red', label=r'$var(\tau_{2})$', marker='o')
+    plt.plot(meanr, sig_tau5**2, color='green', label=r'$var(\tau_{5})$', marker='o')
+    plt.plot(meanr, sig_rho0**2, color='black', label=r'$var(\rho_{0})$', marker='o')
+    plt.plot(meanr, sig_rho1**2, color='yellow', label=r'$var(\rho_{1})$', marker='o')
+    plt.plot(meanr, sig_rho2**2, color='gray', label=r'$var(\rho_{2})$', marker='o')
+    plt.plot(meanr, sig_rho3**2, color='magenta', label=r'$var(\rho_{3})$', marker='o')
+    plt.plot(meanr, sig_rho4**2, color='pink', label=r'$var(\rho_{4})$', marker='o')
+    plt.plot(meanr, sig_rho5**2, color='orange', label=r'$var(\rho_{5})$', marker='o')
+    plt.legend(loc='upper right',  shadow=True,  fontsize=7)
+    plt.tick_params(axis='both', which='major', labelsize=24)
+    plt.xlim( [0.5,300.] )
+    plt.ylim( [10**-25,10 **-9] )
+    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
+    plt.ylabel('Variances', fontsize=24)
+    plt.xscale('log')
+    plt.yscale('log', nonposy='clip')
+    plt.tight_layout()
+    print("Printing all_variances_bybin.pdf")
+    plt.savefig(outpath +'/all_variances_bybin.pdf')
     
     
     
