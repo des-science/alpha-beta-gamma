@@ -4,7 +4,7 @@ REPOHOME=/global/cscratch1/sd/alsina/alpha-beta-gamma/code
 STARS=/global/cscratch1/sd/seccolf/y3a1-v29
 OUT=/global/cscratch1/sd/alsina/alpha-beta-gamma/out
 
-source /global/common/software/des/zuntz/setup
+# source /global/common/software/des/zuntz/setup
 source /global/common/software/des/zuntz/setup-nompi
 
 cd $REPOHOME
