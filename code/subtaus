@@ -4,8 +4,8 @@
 #SBATCH --cpus-per-task=32                                       
 #SBATCH --ntasks=10
 #SBATCH --constraint=haswell
-#SBATCH --error=ERROR.txt
-#SBATCH --output=OUTPUT.txt
+#SBATCH --error=ERRORtaus.txt
+#SBATCH --output=OUTPUTtaus.txt
 #SBATCH --time=02:30:00
 #SBATCH --license=SCRATCH
 #SBATCH --mail-type=END
@@ -18,4 +18,4 @@ export NTASKS=$SLURM_NTASKS
 
 REPOHOME=/global/cscratch1/sd/alsina/alpha-beta-gamma/code
 cd $REPOHOME
-srun ./runrhos.sh
+srun ./runtaus.sh
