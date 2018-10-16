@@ -32,7 +32,8 @@ def parse_args():
         
 def main():
     import sys
-    sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
+    #sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
+    sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
 
     import numpy as np
     from read_psf_cats import read_data,  toList
