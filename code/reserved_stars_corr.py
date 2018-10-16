@@ -58,7 +58,7 @@ def main():
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
     do_canonical_stats(data, bands, tilings, outpath,
-                       name='all_reserved', bandcombo=args.bandcombo,  mod=True)
+                       name='all_reserved_unmod', bandcombo=args.bandcombo,  mod=False)
     
     
 

@@ -1,25 +1,28 @@
 #Log natural of the prior 
 def logprior(pars, gflag=True,bflag = True):
     import numpy as np
+    l = 1000
+    alpha_min, beta_min, eta_min  = -l,-l,-l
+    alpha_max, beta_max, eta_max  = l,l,l
     if(gflag and bflag):
         #print("Using alpha, beta and delta")
-        alpha, beta, delta = pars
-        if (-0.3<alpha<0.3)and(0< beta<6)and( -200<delta<0):
+        alpha, beta, eta = pars
+        if ( alpha_min<alpha< alpha_max)and( beta_min < beta< beta_max)and( eta_min<eta<eta_max):
             return 0.0
         return -np.inf
     elif(gflag and (not bflag)):
         #print("Using alpha and gamma")
-        alpha, gamma = pars
+        alpha, eta = pars
     elif((not gflag) and bflag):
         #print("Using alpha and beta")
         alpha, beta = pars
-        if (-0.3<alpha<0.3)and(0< beta<6):
+        if (alpha_min<alpha<alpha_max)and( beta_min< beta< beta_max):
             return 0.0
         return -np.inf
     else:
         #print("Using only alpha")
         alpha = pars
-        if ( - 0.1 < alpha < 0.1):
+        if ( alpha_min < alpha < alpha_max):
             return 0.0
         return -np.inf
 ##Log natural of the likelihood function. Gaussian.
@@ -70,7 +73,7 @@ def corner_plot(samples, labels, title):
     print("Printing file:",  title)
     plt.savefig(title)
     print(title, "Printed")
-def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contourcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True):
+def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -131,7 +134,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         axs[2][2].errorbar(x=idx, y=delta_chain_mean, yerr=delta_chain_err, errorevery=50, ecolor='red',
                    lw=0.5, elinewidth=2., color='k');
         print("Printing file:",  namemc)
-        plt.savefig(namemc)
+        #plt.savefig(namemc)
         print(namemc, "Printed")
 
         corner_plot(samples, labels, namecont)
@@ -186,12 +189,56 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
                    lw=0.5, elinewidth=2., color='k');
         print("Printing file:",  namemc)
-        plt.savefig(namemc)
+        #plt.savefig(namemc)
         print(namemc, "Printed")
 
         corner_plot(samples, labels, namecont)
     else:
-        print("")
+        # initial position at maximum likelihood values
+        ndim = 1
+        pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
+        # MCMC chain with 50 walkers and 1000 steps
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag) )
+        print("Runing MCMC ...")
+        sampler.run_mcmc(pos, nsteps)
+        print("Run finished")
+        # Getting chains
+        alpha_chain = sampler.chain[:,:,0]
+      
+        # Reshaping
+        alpha_chain_flat = np.reshape(alpha_chain, (nwalkers*nsteps,))
+
+        fig = plt.figure(figsize=(16, 8))
+        axs = fig.subplots(1, 3)
+        labels = [r"$\alpha$"]
+        samples = np.c_[alpha_chain_flat].T
+        for i, par in enumerate(samples):
+            axs[0].set_xlabel("Ensemble step")
+            axs[1].set_xlabel("Ensemble step")
+            axs[2].set_xlabel("Walker Step")
+            axs[0].set_ylabel(labels[i])
+            axs[0].set_title("Ensemble dispersion")
+            axs[1].set_title("Ensemble autocorrelation")
+            axs[2].set_title("Walker mean and stdev")
+            idx = np.arange(len(par))
+            axs[0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+            # Get selfcorrelation using emcee
+            ac = emcee.autocorr.function(par)
+
+            idx = np.arange(len(ac),step=1)
+            axs[1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+            axs[1].axhline(alpha=1., lw=1., color='red')
+
+        alpha_chain_mean = np.mean(alpha_chain, axis=0)
+        alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
+        idx = np.arange(len(alpha_chain_mean))
+        axs[2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
+                   lw=0.5, elinewidth=2., color='k')
+        print("Printing file:",  namemc)
+        plt.savefig(namemc)
+        print(namemc, "Printed")
+
+        corner_plot(samples, labels, namecont)
 
 def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True):    
     import matplotlib

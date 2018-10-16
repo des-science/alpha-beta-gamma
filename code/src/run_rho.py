@@ -128,8 +128,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
         ecat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=p_e1, g2=p_e2)
         decat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=de1, g2=de2)
-        wcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec',
-                                 k=dt, g1=w1, g2=w2)
+        wcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=w1, g2=w2)
     else:
         ra = data['ra']
         dec = data['dec']
@@ -138,8 +137,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
         ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
         decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
-                                 k=dt, g1=w1, g2=w2)
+        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
     ecat.name = 'ecat'
     decat.name = 'decat'
     wcat.name = 'wcat'
@@ -258,7 +256,6 @@ def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=F
     bin_config = dict(
         sep_units = 'arcmin',
         bin_slop = 0.1,
-
         min_sep = 0.5,
         max_sep = max_sep,
         bin_size = 0.2,

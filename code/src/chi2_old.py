@@ -1,73 +1,43 @@
-def modelvectors(rhos, params, gflag=True, bflag=True):
+def modelvectors(rhos, alpha=0, beta=0, gamma=0, gflag=True, bflag=True):
     if(gflag and bflag):
-        alpha, beta, gamma = params
         mvec0 = alpha*rhos[0] + beta*rhos[2] + gamma*rhos[5] 
         mvec1 = alpha*rhos[2] + beta*rhos[1] + gamma*rhos[4] 
-        mvec2 = alpha*rhos[5] + beta*rhos[4] + gamma*rhos[3]    
+        mvec2 = alpha*rhos[5] + beta*rhos[4] + gamma*rhos[3]
+        return mvec0, mvec1, mvec2
     elif(gflag and (not bflag)):
-        alpha, gamma = params
         mvec0 = alpha*rhos[0] + gamma*rhos[5] 
-        mvec1 = alpha*rhos[2] + gamma*rhos[4]
-        mvec2 = alpha*rhos[5] + gamma*rhos[3]
+        mvec1 = alpha*rhos[5] + gamma*rhos[3]
+        return mvec0, mvec1
     elif((not gflag) and bflag):
-        alpha, beta = params
         mvec0 = alpha*rhos[0] + beta*rhos[2]
-        mvec1 = alpha*rhos[2] + beta*rhos[1]
-        mvec2 = alpha*rhos[5] + beta*rhos[4] 
+        mvec1 = alpha*rhos[2] + beta*rhos[1] 
+        return mvec0, mvec1
     else:
-        alpha = params
         mvec0 = alpha*rhos[0]
-        mvec1 = alpha*rhos[2]
-        mvec2 = alpha*rhos[5]
-    return mvec0, mvec1, mvec2
+        return mvec0
         
-def modelvar(msigs, params, gflag=True, bflag=True):
+def modelvar(msigs, gflag=True, bflag=True):
     #variances sigs^2
     if(gflag and bflag):
         mvar0 = msigs[0]**2 +msigs[2]**2 + msigs[5]**2 
         mvar1 = msigs[2]**2 +msigs[1]**2 + msigs[4]**2  
         mvar2 = msigs[5]**2 +msigs[4]**2 + msigs[3]**2  
+        return mvar0, mvar1, mvar2
     elif(gflag and (not bflag)):
         mvar0 = msigs[0]**2 +msigs[5]**2
-        mvar1 = msigs[2]**2 +msigs[4]**2
-        mvar2 = msigs[5]**2 +msigs[3]**2   
+        mvar1 = msigs[5]**2 +msigs[3]**2
+        return mvar0,  mvar1
     elif((not gflag) and bflag):
         mvar0 = msigs[0]**2 +msigs[2]**2
         mvar1 = msigs[2]**2 +msigs[1]**2
-        mvar2 = msigs[5]**2 +msigs[4]**2
+        return mvar0,  mvar1
     else:
-        mvar0 = msigs[0]**2
-        mvar1 = msigs[2]**2
-        mvar2 = msigs[5]**2 
-    return mvar0, mvar1, mvar2
-    '''
-    if(gflag and bflag):
-        alpha, beta, gamma = params
-        mvar0 = msigs[0]**2 +msigs[2]**2 + msigs[5]**2 
-        mvar1 = msigs[2]**2 +msigs[1]**2 + msigs[4]**2  
-        mvar2 = msigs[5]**2 +msigs[4]**2 + msigs[3]**2  
-    elif(gflag and (not bflag)):
-        alpha, gamma = params
-        mvar0 = msigs[0] +msigs[5]
-        mvar1 = msigs[2] +msigs[4]
-        mvar2 = msigs[5] +msigs[3]  
-    elif((not gflag) and bflag):
-        alpha, beta = params
-        mvar0 = msigs[0] +msigs[2]
-        mvar1 = msigs[2] +msigs[1]
-        mvar2 = msigs[5] +msigs[4]
-    else:
-        alpha = params
-        mvar0 = (alpha**2)*(msigs[0]**2)
-        mvar1 = (alpha**2)*(msigs[2]**2)
-        mvar2 = (alpha**2)*(msigs[5]**2) 
-    return mvar0, mvar1, mvar2
-    '''
+        mvar0 = msigs[0]**2 
+        return mvar0
         
 def chi2(model, data,  varmodel, vardata ):
     import numpy as np
     chisq_vec = np.power((model - data), 2)/(varmodel + vardata)
-    #chisq_vec = np.power((model - data), 2)/(vardata)
     return chisq_vec.sum()
 
 def CHI2(params, data, eq=None,  gflag=True,  bflag=True):
@@ -75,26 +45,64 @@ def CHI2(params, data, eq=None,  gflag=True,  bflag=True):
     sigrhos = data['sigrhos']
     taus =  data['taus']
     sigtaus = data['sigtaus']
+    if(gflag and bflag):
+        #print("Using alpha, beta and gamma")
+        alpha, beta, gamma = params
+        mvect0, mvect1, mvect2 =  modelvectors(rhos, alpha, beta, gamma, gflag=gflag, bflag=bflag)
+        mvar0, mvar1, mvar2 = modelvar(sigrhos, gflag=gflag, bflag=bflag)
+    elif(gflag and (not bflag)):
+        #print("Using alpha and gamma")
+        alpha, gamma = params
+        mvect0, mvect1=  modelvectors(rhos, alpha=alpha, gamma=gamma, gflag=gflag, bflag=bflag)
+        mvar0, mvar1= modelvar(sigrhos, gflag=gflag, bflag=bflag)
+    elif((not gflag) and bflag):
+        #print("Using alpha and beta")
+        alpha, beta = params
+        mvect0, mvect1=  modelvectors(rhos, alpha=alpha, beta=beta, gflag=gflag, bflag=bflag)
+        mvar0, mvar1= modelvar(sigrhos, gflag=gflag, bflag=bflag)
+    else:
+        #print("Using only alpha")
+        alpha = params
+        mvect0 =  modelvectors(rhos, alpha=alpha, gflag=gflag, bflag=bflag)
+        mvar0 = modelvar(sigrhos, gflag=gflag, bflag=bflag)
+
     dvect0, dvect1, dvect2 = taus[0], taus[1],  taus[2]
     dvar0, dvar1, dvar2 =  sigtaus[0]**2, sigtaus[1]**2, sigtaus[2]**2
-    mvect0, mvect1, mvect2 =  modelvectors(rhos, params,  gflag=gflag, bflag=bflag)
-    mvar0, mvar1, mvar2 = modelvar(sigrhos, params, gflag=gflag, bflag=bflag)
-    if(eq==0):
-        #print("Using first equation")
+
+    if(not gflag and not bflag):
+        #print("Using all the system equations")
         val=chi2(mvect0, dvect0, mvar0, dvar0 )
         return val
-    elif(eq==1):
-        #print("Using second equation")
-        val=chi2(mvect1, dvect1, mvar1, dvar1 )
-        return val
-    elif(eq==2):
-        #print("Using third equation")
-        val=chi2(mvect2, dvect2, mvar2, dvar2 )
-        return val
+    elif(gflag^bflag):
+        if(eq==0):
+            #print("Using first equation")
+            val=chi2(mvect0, dvect0, mvar0, dvar0 )
+            return val
+        elif(eq==1):
+            #print("Using second equation")
+            val=chi2(mvect1, dvect1, mvar1, dvar1 )
+            return val
+        else:
+            #print("Using all the system of two equations")
+            val=chi2(mvect0 + mvect1, dvect0 + dvect1, mvar0 + mvar1, dvar0 + dvar1)
+            return val
     else:
-        #print("Using all the system of three equations")
-        val=chi2(mvect0 + mvect1 + mvect2, dvect0 + dvect1 + dvect2, mvar0 + mvar1 + mvar2, dvar0 + dvar1 + dvar2 )
-        return val
+        if(eq==0):
+            #print("Using first equation")
+            val=chi2(mvect0, dvect0, mvar0, dvar0 )
+            return val
+        elif(eq==1):
+            #print("Using second equation")
+            val=chi2(mvect1, dvect1, mvar1, dvar1 )
+            return val
+        elif(eq==2):
+            #print("Using third equation")
+            val=chi2(mvect2, dvect2, mvar2, dvar2 )
+            return val
+        else:
+            #print("Using all the system of three equations")
+            val=chi2(mvect0 + mvect1 + mvect2, dvect0 + dvect1 + dvect2, mvar0 + mvar1 + mvar2, dvar0 + dvar1 + dvar2 )
+            return val
 
 def CHI2shifted(params,data, svalue, eq=None,  gflag=True,  bflag=True):
     return CHI2(params, data, eq=eq, gflag=gflag,bflag=bflag) -svalue 
