@@ -11,7 +11,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
                         #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp', 
                         help='list of exposures (in lieu of separate exps)')
-    parser.add_argument('--bands', default='grizY', type=str,
+    parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
     parser.add_argument('--bandcombo', default=False,
                         action='store_const', const=True,
