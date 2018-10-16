@@ -240,8 +240,7 @@ def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=F
     
     ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
     decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-    wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg',
-                             k=dt, g1=w1, g2=w2)
+    wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
     egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
 
     ecat.name = 'ecat'
