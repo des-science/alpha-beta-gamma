@@ -46,7 +46,7 @@ def pretty_rho1(meanr, rho, sig, sqrtn, rho3=None, sig3=None, rho4=None, sig4=No
                    loc='upper right', fontsize=24)
         #plt.ylim( [1.e-9, 5.e-6] )
         #plt.ylim( [1.e-9, 2.e-5] )
-        plt.ylim( [5.e-9, 5.e-6] )
+        plt.ylim( [1.e-10, 5.e-6] )
     elif True:
         plt.legend([rho1_line, sv_req],
                    [r'$\rho_1(\theta)$', r'Requirement'],
@@ -90,7 +90,7 @@ def pretty_rho2(meanr, rho, sig, sqrtn, rho5=None, sig5=None ):
                    [r'$\rho_2(\theta)$', r'$\rho_5(\theta)$'],
                    loc='upper right', fontsize=24)
         #plt.ylim( [1.e-7, 5.e-4] )
-        plt.ylim( [5.e-8, 1.e-5] )
+        plt.ylim( [1.e-8, 1.e-5] )
     elif True: # For paper
         plt.legend([rho2_line, sv_req],
                    [r'$\rho_2(\theta)$', r'Requirement'],
