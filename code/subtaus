@@ -6,7 +6,7 @@
 #SBATCH --constraint=haswell
 #SBATCH --error=ERRORtaus.txt
 #SBATCH --output=OUTPUTtaus.txt
-#SBATCH --time=02:30:00
+#SBATCH --time=12:30:00
 #SBATCH --license=SCRATCH
 #SBATCH --mail-type=END
 #SBATCH --mail-user=a.navarro.alsina@gmail.com
