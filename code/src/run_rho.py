@@ -78,7 +78,7 @@ def write_cross_stats(stat_file, sigma0, sigma2, sigma5, corr_tt=None):
         json.dump([stats], fp)
     print('Done writing ',stat_file)
 
-def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True):
+def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True,  obs=False):
     """Compute the rho statistics
     """
     import treecorr
@@ -86,38 +86,31 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
     e1 = data['obs_e1']
     e2 = data['obs_e2']
-    
     p_e1 = data[prefix+'_e1']
     p_e2 = data[prefix+'_e2']
-    
-    de1 = e1-p_e1
-    de2 = e2-p_e2
-
-    
     T = data['obs_T']
     p_T = data[prefix+'_T']
+
+    de1 = e1-p_e1
+    de2 = e2-p_e2
     dt = (T-p_T)/T
     w1 = p_e1*dt
     w2 = p_e2*dt
+    w1obs = e1*dt 
+    w2obs = e2*dt 
     
     #Modified ellipticities
     if(mod):
-        print("Mean de")
-        meande = np.mean(de1**2) + np.mean(de2**2)
-        print(meande)
-        print("Mean w")
-        meanw = np.mean(w1**2) + np.mean(w2**2)
-        print(meanw)
-        print("Mean p_e")
-        meanpe = np.mean(p_e1**2) + np.mean(p_e2**2)
-        print(meanpe)
-       
+        e1 = e1 - np.array(np.mean(e1))
+        e2 = e2 - np.array(np.mean(e2))       
         p_e1 = p_e1 - np.array(np.mean(p_e1))
         p_e2 = p_e2 - np.array(np.mean(p_e2))
         de1 = de1 - np.array(np.mean(de1))
         de2 = de2 - np.array(np.mean(de2))
         w1 = w1 - np.array(np.mean(w1))
         w2 = w2 - np.array(np.mean(w2))
+        w1obs = w1obs - np.array(np.mean(w1obs))
+        w2obs = w2obs - np.array(np.mean(w2obs))
         
     
     if use_xy:
@@ -126,18 +119,27 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
         print('x = ',x)
         print('y = ',y)
 
-        ecat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=p_e1, g2=p_e2)
-        decat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=de1, g2=de2)
-        wcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=w1, g2=w2)
+        if(obs):
+            ecat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=e1, g2=e2)
+            decat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=de1, g2=de2)
+            wcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=w1obs, g2=w2obs)
+        else:    
+            ecat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=p_e1, g2=p_e2)
+            decat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=de1, g2=de2)
+            wcat = treecorr.Catalog(x=x, y=y, x_units='arcsec', y_units='arcsec', g1=w1, g2=w2)
     else:
         ra = data['ra']
         dec = data['dec']
         print('ra = ',ra)
         print('dec = ',dec)
-
-        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
-        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+        if(obs):
+            ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
+            decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+            wcatt = reecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
+        else:
+            ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+            decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+            wcatt = reecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
     ecat.name = 'ecat'
     decat.name = 'decat'
     wcat.name = 'wcat'

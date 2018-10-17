@@ -3,6 +3,23 @@ import matplotlib.pyplot as plt
 #plt.style.use('supermongo.mplstyle')
 plt.style.use('SVA1StyleSheet.mplstyle')
 
+def pretty_rho(meanr, rho, sig, sqrtn,  legend=None):
+    plt.plot(meanr, rho, color='blue')
+    plt.plot(meanr, -rho, color='blue', ls=':')
+    plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')
+    plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color='blue', ls='', marker='o')
+    rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
+    if(legend):
+        plt.legend([rho0_line],[legend],loc='upper right', fontsize=24)
+    plt.ylim( [1.e-8, 1.e-5] )
+    plt.tick_params(axis='both', which='major', labelsize=24)
+    plt.xlim( [0.5,300.] )
+    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
+    plt.ylabel(r'$\rho(\theta)$', fontsize=24)
+    plt.xscale('log')
+    plt.yscale('log', nonposy='clip')
+    plt.tight_layout()
+
 def pretty_rho0(meanr, rho, sig, sqrtn):
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')

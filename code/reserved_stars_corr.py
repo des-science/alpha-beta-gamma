@@ -32,8 +32,8 @@ def parse_args():
         
 def main():
     import sys
-    #sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
-    sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
+    sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
+    #sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
 
     import numpy as np
     from read_psf_cats import read_data,  toList
@@ -59,7 +59,7 @@ def main():
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
     do_canonical_stats(data, bands, tilings, outpath,
-                       name='all_reserved_mod', bandcombo=args.bandcombo,  mod=True)
+                       name='all_reserved_unmod_obs', bandcombo=args.bandcombo,  mod=False,  obs=True)
     
     
 
