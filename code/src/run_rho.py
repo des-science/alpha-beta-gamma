@@ -135,7 +135,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
         if(obs):
             ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
             decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-            wcatt = reecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
+            wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
         else:
             ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
             decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
@@ -315,7 +315,7 @@ def band_combinations(bands, single=True, combo=True,  allcombo=True):
     print('use_bands = ',use_bands)
     print('tags = ',[ ''.join(band) for band in use_bands ])
     return use_bands
-def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True):
+def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True, obs=False):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
     # Measure the canonical rho stats using all pairs:
@@ -326,7 +326,7 @@ def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all',
         print('sum(mask) = ',np.sum(mask))
         print('len(data[mask]) = ',len(data[mask]))
         tag = ''.join(band)
-        stats = measure_rho(data[mask], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt, mod=mod)
+        stats = measure_rho(data[mask], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt, mod=mod,  obs=obs)
         stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
         write_stats(stat_file,*stats)
 

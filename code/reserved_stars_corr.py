@@ -52,14 +52,17 @@ def main():
 
     #STATISTIC USING ONLY RESERVED STARS
     keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
-            'piff_e1', 'piff_e2', 'piff_T']
+            'piff_e1', 'piff_e2', 'piff_T',  'mag']
  
     exps = toList(args.exps_file)
     data, bands, tilings = read_data(exps, args.piff_cat , keys,
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
+    print("Objects",  len(data))
+    data = data[data['mag']<20]
+    print("Objects with magnitude <20",  len(data))
     do_canonical_stats(data, bands, tilings, outpath,
-                       name='all_reserved_unmod_obs', bandcombo=args.bandcombo,  mod=False,  obs=True)
+                       name='all_reserved_unmod_obs_magcut', bandcombo=args.bandcombo,  mod=False,  obs=True)
     
     
 
