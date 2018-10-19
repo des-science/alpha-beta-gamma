@@ -15,7 +15,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
                         #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp',
                         help='list of exposures (in lieu of separate exps)')
-    parser.add_argument('--bands', default='grizY', type=str,
+    parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
     parser.add_argument('--bandcombo', default=False,
                         action='store_const', const=True,
@@ -36,8 +36,8 @@ def parse_args():
         
 def main():
     import sys
-    #sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
-    sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
+    sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
+    #sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
     
     import numpy as np
     from read_psf_cats import read_data, toList, read_h5
@@ -61,13 +61,15 @@ def main():
         
     #Reading Mike stars catalog
     keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
-            'piff_e1', 'piff_e2', 'piff_T']
+            'piff_e1', 'piff_e2', 'piff_T', 'mag']
  
     exps = toList(args.exps_file)
     data_stars, bands, tilings = read_data(exps, args.piff_cat , keys,
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
-    
+    print("Objects",  len(data_stars))
+    data_stars = data_stars[data_stars['mag']<20]
+    print("Objects with magnitude <20",  len(data_stars))
     
     galkeys = ['ra','dec','e_1','e_2','snr','size_ratio','flags','T','T_err','R11','R22']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
@@ -95,7 +97,7 @@ def main():
     print(len(data_galaxies))
     '''
     do_cross_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
-                   name='all_galaxy-reserved', bandcombo=args.bandcombo, mod=True)
+                   name='all_galaxy-reserved_shapenoise', bandcombo=args.bandcombo, mod=True, shapenoise=True)
 
 
 if __name__ == "__main__":

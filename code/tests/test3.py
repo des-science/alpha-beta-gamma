@@ -7,7 +7,7 @@ def parse_args():
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_irz.json',
                         help='Json file with the reserved stars - galaxies correlations')
     parser.add_argument('--rsrscorr',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_irz.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_epiff_magcut_irz.json',
                         help='Json file with the reserved stars - reserved stars correlations')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots',
                         help='location of the output of the files')
@@ -25,7 +25,9 @@ def main():
     import matplotlib.pyplot as plt
     plt.style.use('SVA1StyleSheet.mplstyle')
     from readjson import read_rhos, read_taus
+    from plot_stats import pretty_rho
     from chi2 import minimizeCHI2
+    import numpy as np
 
     args = parse_args()
     outpath = os.path.expanduser(args.outpath)
@@ -39,7 +41,7 @@ def main():
     meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(args.rsrscorr)
     meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr)
     
-    #Finding best alpha beta gamma
+    dof = len(meanr)
     rhos = [rho0p, rho1p, rho2p, rho3p, rho4p, rho5p]
     sigrhos = [sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5]
     taus = [tau0p, tau2p, tau5p]
@@ -50,78 +52,182 @@ def main():
     data['taus'] = taus
     data['sigtaus'] = sigtaus
 
+    ### EQUATION 0 ###
+    #ALPHA-BETA-GAMMA
+    eq = 0
     gflag, bflag = True, True
+    i_guess = [0,-1,- 1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha, beta, eta = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau0p, sig_tau0, sqrtn, legend=r'$\tau_{0}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho0p, sig_rho0, sqrtn, legend=r'$\alpha \rho_{0}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*rho2p, sig_rho2, sqrtn, legend=r'$\beta\rho_{2}$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, eta*rho5p, sig_rho5, sqrtn, legend=r'$\eta\rho_{5}$', lfontsize=15, color='black', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq0_abn_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq0_abn_corr_pars0.pdf')
+    #ALPHA-BETA
+    gflag, bflag = False, True
+    i_guess = [0,-1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha, beta = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau0p, sig_tau0, sqrtn, legend=r'$\tau_{0}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho0p, sig_rho0, sqrtn, legend=r'$\alpha \rho_{0}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*rho2p, sig_rho2, sqrtn, legend=r'$\beta\rho_{2}$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq0_ab_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq0_ab_corr_pars0.pdf')
+    #ALPHA-ONLY
+    gflag, bflag = False, False
+    i_guess = [0] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau0p, sig_tau0, sqrtn, legend=r'$\tau_{0}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho0p, sig_rho0, sqrtn, legend=r'$\alpha \rho_{0}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq0_a_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq0_a_corr_pars0.pdf')
+
+
+    ### EQUATION 1 ###
+    #ALPHA-BETA-GAMMA
+    eq = 1
+    gflag, bflag = True, True
+    i_guess = [0,-1,- 1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha, beta, eta = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau2p, sig_tau2, sqrtn, legend=r'$\tau_{2}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho2p, sig_rho2, sqrtn, legend=r'$\alpha \rho_{2}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*rho1p, sig_rho1, sqrtn, legend=r'$\beta\rho_{1}$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, eta*rho4p, sig_rho4, sqrtn, legend=r'$\eta\rho_{4}$', lfontsize=15, color='black', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq1_abn_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq1_abn_corr_pars0.pdf')
+    #ALPHA-BETA
+    gflag, bflag = False, True
+    i_guess = [0,-1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha, beta = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau2p, sig_tau2, sqrtn, legend=r'$\tau_{2}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho2p, sig_rho2, sqrtn, legend=r'$\alpha \rho_{2}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*rho1p, sig_rho1, sqrtn, legend=r'$\beta\rho_{1}$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq1_ab_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq1_ab_corr_pars0.pdf')
+    #ALPHA-ONLY
+    gflag, bflag = False, False
+    i_guess = [0] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau2p, sig_tau2, sqrtn, legend=r'$\tau_{2}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho2p, sig_rho2, sqrtn, legend=r'$\alpha \rho_{2}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq1_a_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq1_a_corr_pars0.pdf')
+
+
+    ### EQUATION 2 ###
+    #ALPHA-BETA-GAMMA
+    eq = 2
+    gflag, bflag = True, True
+    i_guess = [0,-1,- 1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha, beta, eta = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau5p, sig_tau5, sqrtn, legend=r'$\tau_{5}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho5p, sig_rho5, sqrtn, legend=r'$\alpha \rho_{5}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*rho4p, sig_rho4, sqrtn, legend=r'$\beta\rho_{4}$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, eta*rho3p, sig_rho3, sqrtn, legend=r'$\eta\rho_{3}$', lfontsize=15, color='black', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq2_abn_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq2_abn_corr_pars0.pdf')
+    #ALPHA-BETA
+    gflag, bflag = False, True
+    i_guess = [0,-1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha, beta = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau5p, sig_tau5, sqrtn, legend=r'$\tau_{5}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho5p, sig_rho5, sqrtn, legend=r'$\alpha \rho_{5}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*rho4p, sig_rho4, sqrtn, legend=r'$\beta\rho_{4}$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq2_ab_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq2_ab_corr_pars0.pdf')
+    #ALPHA-ONLY
+    gflag, bflag = False, False
+    i_guess = [0] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau5p, sig_tau5, sqrtn, legend=r'$\tau_{5}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*rho5p, sig_rho5, sqrtn, legend=r'$\alpha \rho_{5}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/eq2_a_corr_pars0.pdf')
+    plt.savefig(outpath +'/eq2_a_corr_pars0.pdf')
+    
+    
+
+    ### All system of EQUATIONS ###
     eq = None
+    #ALPHA-BETA-GAMMA
+    gflag, bflag = True, True
     i_guess = [0,-1,- 1] #fiducial values
     fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
   
     alpha, beta, eta = fitted_params
+    sqrtn = 1
     plt.clf()
-    plt.plot(meanr, tau0p, color='blue', label=r'$\tau_{0}$', marker='o')
-    plt.plot(meanr, -tau0p, color='blue', ls=':', marker='o')
-    plt.plot(meanr, alpha*rho0p, color='red', label=r'$\alpha \rho_{0}$', marker='o')
-    plt.plot(meanr, -alpha*rho0p, color='red',ls=':', marker='o')
-    plt.plot(meanr, beta*rho2p, color='green', label=r'$\beta\rho_{2}$', marker='o')
-    plt.plot(meanr,-beta*rho2p, color='green',ls=':', marker='o')
-    plt.plot(meanr, eta*rho5p, color='black', label=r'$\eta\rho_{5}$', marker='o')
-    plt.plot(meanr,-eta*rho5p, color='black',ls=':', marker='o')
-    plt.legend(loc='lower left',  shadow=True,  fontsize=15)
-    plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
-    #plt.ylim( [10**-22,10 **-10] )
-    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel('Correlation', fontsize=24)
-    plt.xscale('log')
-    plt.yscale('log', nonposy='clip')
-    plt.tight_layout()
-    print("Printing corr_pars1.pdf")
-    plt.savefig(outpath +'/corr_pars1.pdf')
-    
-    plt.clf()
-    plt.plot(meanr, tau2p, color='blue', label=r'$\tau_{2}$', marker='o')
-    plt.plot(meanr, -tau2p, color='blue', ls=':', marker='o')
-    plt.plot(meanr, alpha*rho2p, color='red', label=r'$\alpha \rho_{2}$', marker='o')
-    plt.plot(meanr, -alpha*rho2p, color='red',ls=':', marker='o')
-    plt.plot(meanr, beta*rho1p, color='green', label=r'$\beta\rho_{1}$', marker='o')
-    plt.plot(meanr,-beta*rho1p, color='green',ls=':', marker='o')
-    plt.plot(meanr, eta*rho4p, color='black', label=r'$\eta\rho_{4}$', marker='o')
-    plt.plot(meanr,-eta*rho4p, color='black', ls=':',marker='o')
-    plt.plot(meanr, alpha*rho2p + beta*rho1p + eta*rho4p, color='blue', label='rhs', marker='P')
-    plt.plot(meanr,-alpha*rho2p -  beta*rho1p -  eta*rho4p, color='blue', ls=':', marker='P')
-    plt.legend(loc='lower left',  shadow=True,  fontsize=15)
-    plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
-    #plt.ylim( [10**-22,10 **-10] )
-    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel('Correlation', fontsize=24)
-    plt.xscale('log')
-    plt.yscale('log', nonposy='clip')
-    plt.tight_layout()
-    print("Printing corr_pars2.pdf")
-    plt.savefig(outpath +'/corr_pars2.pdf')
+    pretty_rho(meanr, tau0p + tau2p + tau5p, np.sqrt(sig_tau0**2 + sig_tau2**2 + sig_tau5**2) , sqrtn, legend=r'$\tau_{0}+\tau_{2}+\tau_{5}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*(rho0p+rho2p+rho5p) , sig_rho0, sqrtn, legend=r'$\alpha\times(\rho_{0}+\rho_{2}+\rho_{5})$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*(rho2p +rho1p + rho4p), sig_rho2, sqrtn, legend=r'$\beta\times(\rho_{2}+\rho_{1}+\rho_{4})$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, eta*(rho5p+rho4p + rho3p) , sig_rho5, sqrtn, legend=r'$\eta\times(\rho_{5}+\rho_{4}+\rho_{3})$', lfontsize=15, color='black', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/soe_abg_corr_pars0.pdf')
+    plt.savefig(outpath +'/soe_abg_corr_pars0.pdf')
 
+    #ALPHA-BETA
+    gflag, bflag = False, True
+    i_guess = [0,-1] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha, beta = fitted_params
+    sqrtn = 1
     plt.clf()
-    plt.plot(meanr, tau5p, color='blue', label=r'$\tau_{5}$', marker='o')
-    plt.plot(meanr, -tau5p, color='blue', ls=':', marker='o')
-    plt.plot(meanr, alpha*rho5p, color='red', label=r'$\alpha \rho_{5}$', marker='o')
-    plt.plot(meanr, -alpha*rho5p, color='red',ls=':', marker='o')
-    plt.plot(meanr, beta*rho4p, color='green', label=r'$\beta\rho_{4}$', marker='o')
-    plt.plot(meanr,-beta*rho4p, color='green',ls=':', marker='o')
-    plt.plot(meanr, eta*rho3p, color='black', label=r'$\eta\rho_{3}$', marker='o')
-    plt.plot(meanr,-eta*rho3p, color='black', ls=':', marker='o')
-    plt.plot(meanr, alpha*rho5p + beta*rho4p + eta*rho3p, color='blue', label='rhs', marker='P')
-    plt.plot(meanr,-alpha*rho5p -  beta*rho4p -  eta*rho3p, color='blue', ls=':', marker='P')
-    plt.legend(loc='upper right',  shadow=True,  fontsize=15)
-    plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
-    #plt.ylim( [10**-22,10 **-10] )
-    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel('Correlation', fontsize=24)
-    plt.xscale('log')
-    plt.yscale('log', nonposy='clip')
-    plt.tight_layout()
-    print("Printing corr_pars3.pdf")
-    plt.savefig(outpath +'/corr_pars3.pdf')
+    pretty_rho(meanr, tau0p + tau2p + tau5p, np.sqrt(sig_tau0**2 + sig_tau2**2 + sig_tau5**2) , sqrtn, legend=r'$\tau_{0}+\tau_{2}+\tau_{5}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*(rho0p+rho2p+rho5p) , sig_rho0, sqrtn, legend=r'$\alpha\times(\rho_{0}+\rho_{2}+\rho_{5})$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, beta*(rho2p +rho1p + rho4p), sig_rho2, sqrtn, legend=r'$\beta\times(\rho_{2}+\rho_{1}+\rho_{4})$',lfontsize=15,  color='green', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/soe_ab_corr_pars0.pdf')
+    plt.savefig(outpath +'/soe_ab_corr_pars0.pdf')
+
+    #ALPHA
+    gflag, bflag = False, False
+    i_guess = [0] #fiducial values
+    fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+    alpha = fitted_params
+    sqrtn = 1
+    plt.clf()
+    pretty_rho(meanr, tau0p + tau2p + tau5p, np.sqrt(sig_tau0**2 + sig_tau2**2 + sig_tau5**2) , sqrtn, legend=r'$\tau_{0}+\tau_{2}+\tau_{5}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
+    pretty_rho(meanr, alpha*(rho0p+rho2p+rho5p) , sig_rho0, sqrtn, legend=r'$\alpha\times(\rho_{0}+\rho_{2}+\rho_{5})$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
+    plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
+    print(outpath +'/soe_a_corr_pars0.pdf')
+    plt.savefig(outpath +'/soe_a_corr_pars0.pdf')
+    
+
     
     
     

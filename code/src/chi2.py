@@ -64,10 +64,12 @@ def modelvar(msigs, params, gflag=True, bflag=True):
     return mvar0, mvar1, mvar2
     '''
         
-def chi2(model, data,  varmodel, vardata ):
+def chi2(model, data,  varmodel, vardata,  moderr=False ):
     import numpy as np
-    chisq_vec = np.power((model - data), 2)/(varmodel + vardata)
-    #chisq_vec = np.power((model - data), 2)/(vardata)
+    if(moderr):
+        chisq_vec = np.power((model - data), 2)/(varmodel + vardata)
+    else:
+        chisq_vec = np.power((model - data), 2)/(vardata)
     return chisq_vec.sum()
 
 def CHI2(params, data, eq=None,  gflag=True,  bflag=True):

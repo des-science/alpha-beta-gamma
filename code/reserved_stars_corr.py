@@ -11,7 +11,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/DESWL/psf/ally3.grizY',
                         #default='/home/dfa/sobreira/alsina/DESWL/psf/testexp', 
                         help='list of exposures (in lieu of separate exps)')
-    parser.add_argument('--bands', default='grizY', type=str,
+    parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
     parser.add_argument('--bandcombo', default=False,
                         action='store_const', const=True,
@@ -62,7 +62,7 @@ def main():
     data = data[data['mag']<20]
     print("Objects with magnitude <20",  len(data))
     do_canonical_stats(data, bands, tilings, outpath,
-                       name='all_reserved_unmod_obs_magcut', bandcombo=args.bandcombo,  mod=False,  obs=True)
+                       name='all_reserved_mod_epiff_magcut_copy', bandcombo=args.bandcombo,  mod=True,  obs=False)
     
     
 

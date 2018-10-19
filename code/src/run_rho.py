@@ -1,5 +1,55 @@
 import os
-def write_stats(stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None):
+def getVariances( data_stars, data_galaxies, Rs,tau0, tau2, tau5, prefix='piff', mod=True):
+    import numpy as np
+
+    e1 = data_stars['obs_e1']
+    e2 = data_stars['obs_e2']
+    p_e1 = data_stars[prefix+'_e1']
+    p_e2 = data_stars[prefix+'_e2']
+    T = data_stars['obs_T']
+    p_T = data_stars[prefix+'_T']
+
+    de1 = e1-p_e1
+    de2 = e2-p_e2
+    dt = (T-p_T)/T
+
+    w1 = p_e1*dt
+    w2 = p_e2*dt
+
+    #Modified ellipticities reserved stars
+    if(mod):
+        p_e1 = p_e1 - np.array(np.mean(p_e1))
+        p_e2 = p_e2 - np.array(np.mean(p_e2))
+        de1 = de1 - np.array(np.mean(de1))
+        de2 = de2 - np.array(np.mean(de2))
+        w1 = w1 - np.array(np.mean(w1))
+        w2 = w2 - np.array(np.mean(w2))
+
+    e1gal = data_galaxies['e_1']
+    e2gal = data_galaxies['e_2']
+    R11 =  data_galaxies['R11']
+    R22 =  data_galaxies['R22']
+    R11s =  Rs[0]
+    R22s =  Rs[1]
+
+    #Modified ellipticities galaxies
+    if (mod):
+        #e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11)) 
+        #e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22))
+        e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11) + np.mean(R11s)) 
+        e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22) + np.mean(R22s))
+
+    varep = np.var(p_e1) + np.var(p_e2)
+    varq = np.var(de1) + np.var(de2)
+    varw = np.var(w1) + np.var(w2)
+    varegal = np.var(e1gal) + np.var(e2gal)
+    vartau0 = (varegal*varep)/(2*tau0.npairs);vartau0[vartau0==np.inf] = 0
+    vartau2 = (varegal*varq)/(2*tau2.npairs);vartau2[vartau2==np.inf] = 0
+    vartau5 = (varegal*varw)/(2*tau5.npairs);vartau5[vartau5==np.inf] = 0
+    
+    return vartau0, vartau2, vartau5
+    
+def write_stats( stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None):
     import json
 
     stats = [
@@ -46,27 +96,50 @@ def write_stats(stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None):
         json.dump([stats], fp)
     print('Done writing ',stat_file)
 
-def write_cross_stats(stat_file, sigma0, sigma2, sigma5, corr_tt=None):
+def write_cross_stats(vartaus,stat_file, tau0, tau2, tau5, corr_tt=None, shapenoise=False):
     import json
+    tau0var, tau2var, tau5var = vartaus
 
-    stats = [
-        sigma0.meanlogr.tolist(),
-        sigma0.xip.tolist(),
-        sigma0.xip_im.tolist(),
-        sigma0.xim.tolist(),
-        sigma0.xim_im.tolist(),
-        sigma0.varxi.tolist(),
-        sigma2.xip.tolist(),
-        sigma2.xip_im.tolist(),
-        sigma2.xim.tolist(),
-        sigma2.xim_im.tolist(),
-        sigma2.varxi.tolist(),
-        sigma5.xip.tolist(),
-        sigma5.xip_im.tolist(),
-        sigma5.xim.tolist(),
-        sigma5.xim_im.tolist(),
-        sigma5.varxi.tolist(),
-    ]
+    if(shapenoise):
+        stats = [
+            tau0.meanlogr.tolist(),
+            tau0.xip.tolist(),
+            tau0.xip_im.tolist(),
+            tau0.xim.tolist(),
+            tau0.xim_im.tolist(),
+            tau0var.tolist(),
+            tau2.xip.tolist(),
+            tau2.xip_im.tolist(),
+            tau2.xim.tolist(),
+            tau2.xim_im.tolist(),
+            tau2var.tolist(),
+            tau5.xip.tolist(),
+            tau5.xip_im.tolist(),
+            tau5.xim.tolist(),
+            tau5.xim_im.tolist(),
+            tau5var.tolist(),
+        ]
+    else:
+        stats = [
+            tau0.meanlogr.tolist(),
+            tau0.xip.tolist(),
+            tau0.xip_im.tolist(),
+            tau0.xim.tolist(),
+            tau0.xim_im.tolist(),
+            tau0.varxi.tolist(),
+            tau2.xip.tolist(),
+            tau2.xip_im.tolist(),
+            tau2.xim.tolist(),
+            tau2.xim_im.tolist(),
+            tau2.varxi.tolist(),
+            tau5.xip.tolist(),
+            tau5.xip_im.tolist(),
+            tau5.xim.tolist(),
+            tau5.xim_im.tolist(),
+            tau5.varxi.tolist(),
+        ]
+        
+        
     if corr_tt is not None:
         stats.extend([
             corr_tt.xi.tolist(),
@@ -139,7 +212,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
         else:
             ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
             decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-            wcatt = reecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+            wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
     ecat.name = 'ecat'
     decat.name = 'decat'
     wcat.name = 'wcat'
@@ -193,7 +266,6 @@ def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=F
     """
     import treecorr
     import numpy as np
-
     e1 = data_stars['obs_e1']
     e2 = data_stars['obs_e2']
     p_e1 = data_stars[prefix+'_e1']
@@ -229,8 +301,8 @@ def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=F
         #e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11)) 
         #e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22))
         e1gal = (e1gal - np.array(np.mean(e1gal)))/(np.mean(R11) + np.mean(R11s)) 
-        e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22) + np.mean(R22s)) 
-
+        e2gal = (e2gal - np.array(np.mean(e2gal)))/(np.mean(R22) + np.mean(R22s))
+        
     ra = data_stars['ra']
     dec = data_stars['dec']
     print('ra = ',ra)
@@ -239,6 +311,7 @@ def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=F
     decgal = data_galaxies['dec']
     print('ragal = ',ragal)
     print('decgal = ',decgal)
+    
     
     ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
     decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
@@ -330,9 +403,11 @@ def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all',
         stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
         write_stats(stat_file,*stats)
 
-def do_cross_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True):
+def do_cross_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True,  shapenoise=False):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
+    
+    
     # Measure the canonical rho stats using all pairs:
     use_bands = band_combinations(bands, allcombo=bandcombo)
     for band in use_bands:
@@ -345,4 +420,6 @@ def do_cross_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, pref
         #stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
         stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, Rs,  max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
         stat_file = os.path.join(outpath, "tau_%s_%s.json"%(name,tag))
-        write_cross_stats(stat_file,*stats)
+        vartau0, vartau2, vartau5 =  getVariances(data_stars, data_galaxies, Rs, *stats, prefix=prefix, mod=mod)
+        vartaus = [vartau0, vartau2, vartau5]
+        write_cross_stats(vartaus, stat_file,*stats, shapenoise=shapenoise)
