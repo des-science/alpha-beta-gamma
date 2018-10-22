@@ -91,17 +91,18 @@ def main():
     
     nwalkers,  nsteps = 100,  1000
     dof = len(rhos[0])
+    moderr = False
 
     for eq in [0, 1, 2, 4]:
         ## ALPHA
         gflag, bflag = False, False
         i_guess = [0] #fiducial values
-        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha" , fitted_params)
         print("reduced Chi2 :", chisq/dof )
         namemc = outpath+'/mcmc_alpha_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha_eq' + str(eq) + '_.pdf'
-        MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag )
+        MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
         '''
         x_arr= -0.05, 0.05, 100
         filename1 = outpath+'/chisq_only_alpha.pdf'
@@ -114,22 +115,22 @@ def main():
         ## ALPHA-BETA
         gflag, bflag = False, True
         i_guess = [0,-1] #fiducial values
-        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha, beta" , fitted_params)
         print("reduced Chi2:", chisq/dof )
         namemc = outpath+'/mcmc_alpha-beta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta_eq' + str(eq) + '_.pdf'
-        MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag )
+        MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
         
         ## ALPHA-BETA-GAMMA
         gflag, bflag = True, True
         i_guess = [0,-1,- 1] #fiducial values
-        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha, beta, gamma:" , fitted_params)
         print("reduced Chi2:", chisq/dof )
         namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta-eta_eq' + str(eq) + '_.pdf'
-        MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag )
+        MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
 
    
 if __name__ == "__main__":

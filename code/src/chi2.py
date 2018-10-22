@@ -86,18 +86,18 @@ def chi2(modelvec, datavec,  varmodel, vardata,  moderr=False ):
         chisq_vec = np.power((modelvec - datavec), 2)/(vardata)
     return chisq_vec.sum()
 
-def CHI2(params, data, eq=None,  gflag=True,  bflag=True):
+def CHI2(params, data, eq=None,  gflag=True,  bflag=True, moderr=False):
     rhos = data['rhos'];sigrhos = data['sigrhos']
     taus =  data['taus'];sigtaus = data['sigtaus']
     dvect=  datavector(taus, eq=eq)
     dvar = datavar(sigtaus, eq=eq)
     mvect=  modelvector(rhos, params, eq=eq,  gflag=gflag, bflag=bflag)
     mvar = modelvar(sigrhos, params, eq=eq, gflag=gflag, bflag=bflag)
-    val=chi2(mvect, dvect, mvar, dvar )
+    val=chi2(mvect, dvect, mvar, dvar, moderr=moderr )
     return val
   
-def CHI2shifted(params,data, svalue, eq=None,  gflag=True,  bflag=True):
-    return CHI2(params, data, eq=eq, gflag=gflag,bflag=bflag) -svalue 
+def CHI2shifted(params,data, svalue, eq=None,  gflag=True,  bflag=True,  moderr=False):
+    return CHI2(params, data, eq=eq, gflag=gflag,bflag=bflag, moderr=moderr) -svalue 
 
 def plotCHI2(pars, data,x_arr, filename, eq=None, gflag=True,  bflag=True ):
     import matplotlib
@@ -147,9 +147,9 @@ def plotCHI2shifted(pars, data, x_arr, svalue, filename , eq=None, gflag=True,  
         print("Printing file: ",  filename)
         plt.savefig(filename)#, dpi=150)
         
-def minimizeCHI2(data, initial_guess, eq=None,  gflag=True, bflag = True):
+def minimizeCHI2(data, initial_guess, eq=None,  gflag=True, bflag = True, moderr=False):
     import scipy.optimize as optimize
-    result = optimize.minimize(CHI2, initial_guess,args=(data,eq,gflag,bflag), method='Nelder-Mead', tol=1e-6)
+    result = optimize.minimize(CHI2, initial_guess,args=(data,eq,gflag,bflag, moderr), method='Nelder-Mead', tol=1e-6)
     if result.success:
         fitted_params = result.x
         return fitted_params, result.fun

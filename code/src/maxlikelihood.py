@@ -29,13 +29,13 @@ def logprior(pars, gflag=True,bflag = True):
 def loglike(chisq):
     return -0.5*chisq
 ##Log natural of the posterior
-def logpost(pars, data,svalue=None, eq=None, gflag=True,bflag = True):
+def logpost(pars, data,svalue=None, eq=None, gflag=True,bflag = True, moderr=False):
     import numpy as np
     from chi2 import CHI2, CHI2shifted
     if(svalue):
-        chisq = CHI2shifted(pars, data,svalue, eq=eq, gflag=gflag, bflag=bflag )
+        chisq = CHI2shifted(pars, data,svalue, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
     else:
-        chisq = CHI2(pars, data,eq=eq, gflag=gflag, bflag=bflag )
+        chisq = CHI2(pars, data,eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
     lp = logprior(pars, gflag=gflag,bflag = bflag)
     if not np.isfinite(lp):
         return -np.inf
@@ -45,10 +45,10 @@ def alpha_percentil(p, mu, data, svalue=None, eq=None):
     from scipy.integrate import quad
     from scipy.optimize import brentq
     import numpy as np
-    max_loglike= logpost(mu,data, svalue=svalue, eq=None, gflag=False, bflag=False)
+    max_loglike= logpost(mu,data, svalue=svalue, eq=None, gflag=False, bflag=False, moderr=False)
     print(mu,  max_loglike)
     def cumulative_like(alpha):
-        integral, _ = quad(lambda x: np.exp(logpost(x, data, svalue=svalue,  eq=eq, gflag=False, bflag=False ) - max_loglike), -np.inf, alpha)
+        integral, _ = quad(lambda x: np.exp(logpost(x, data, svalue=svalue,  eq=eq, gflag=False, bflag=False, moderr=False ) - max_loglike), -np.inf, alpha)
         return integral
     total_int = cumulative_like(np.inf)
     #print(total_int)
@@ -73,7 +73,7 @@ def corner_plot(samples, labels, title):
     print("Printing file:",  title)
     plt.savefig(title)
     print(title, "Printed")
-def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True):
+def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -85,7 +85,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         ndim = 3
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag) )
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag, moderr) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
         print("Run finished")
@@ -146,7 +146,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         ndim = 2
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag) )
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag, moderr) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
         print("Run finished")
@@ -198,7 +198,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         ndim = 1
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag) )
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag, moderr) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
         print("Run finished")
@@ -240,7 +240,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
 
         corner_plot(samples, labels, namecont)
 
-def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True):    
+def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True, moderr=False):    
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -261,10 +261,10 @@ def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True)
     lprior = [logprior(x, gflag=gflag ,bflag = bflag)  for x in alphas]
     prior = np.exp(lprior)
     #loglikelihood and likelihood
-    llike = [loglike(CHI2shifted(x,data, svalue=svalue,eq=eq, gflag=gflag, bflag=bflag ))  for x in alphas]
+    llike = [loglike(CHI2shifted(x,data, svalue=svalue,eq=eq, gflag=gflag, bflag=bflag, moderr=moderr ))  for x in alphas]
     like= np.exp(llike)
     #logposterior and posterior
-    lpost = [logpost(x, data,svalue=svalue, eq=eq, gflag=gflag, bflag=bflag ) for x in alphas]
+    lpost = [logpost(x, data,svalue=svalue, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr ) for x in alphas]
     posterior = np.exp(lpost)
     plt.clf()
     plt.xlabel(r"$\alpha$")
