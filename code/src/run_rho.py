@@ -222,6 +222,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
     bin_config = dict(
         sep_units = 'arcmin',
+        #sep_units = 'degrees',
         bin_slop = 0.1,
 
         min_sep = 0.5,
@@ -328,7 +329,8 @@ def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=F
             cat.name = tag + ":"  + cat.name
 
     bin_config = dict(
-        sep_units = 'arcmin',
+        #sep_units = 'arcmin',
+        sep_units = 'degrees',
         bin_slop = 0.1,
         min_sep = 0.5,
         max_sep = max_sep,
@@ -417,8 +419,8 @@ def do_cross_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, pref
         print('sum(mask) = ',np.sum(mask_stars))
         print('len(data[mask]) = ',len(data_stars[mask_stars]))
         tag = ''.join(band)
-        #stats = measure_cross_rho(data_stars[mask_stars], data_galaxies[mask_galaxies], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt)
-        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, Rs,  max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
+        #mod max_sep
+        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, Rs,  max_sep=100, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
         stat_file = os.path.join(outpath, "tau_%s_%s.json"%(name,tag))
         vartau0, vartau2, vartau5 =  getVariances(data_stars, data_galaxies, Rs, *stats, prefix=prefix, mod=mod)
         vartaus = [vartau0, vartau2, vartau5]

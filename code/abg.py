@@ -12,6 +12,8 @@ def parse_args():
                         help='Json file with the reserved stars - reserved stars correlations')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots',
                         help='location of the output of the files')
+    parser.add_argument('--maxscale', default=None, type=float, 
+                        help='Limit the analysis to certain maximum scale, units are determined by .json file with the correlations')
     
     
     args = parser.parse_args()
@@ -44,7 +46,7 @@ def main():
         if not os.path.exists(outpath): raise
 
     #Reading a ploting reserved stars correlations
-    meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(args.rsrscorr)
+    meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(args.rsrscorr, args.maxscale)
     sqrtn = 1
     plt.clf()
     pretty_rho1(meanr, rho1p, sig_rho1, sqrtn, rho3p, sig_rho3, rho4p, sig_rho4)
@@ -60,7 +62,7 @@ def main():
     plt.savefig(outpath +'/rho0_all_rsrs.pdf')
 
     #Reading and plotting reserved stars galaxies correlations
-    meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr)
+    meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr, args.maxscale)
     plt.clf()
     pretty_tau(meanr2, tau0p, sig_tau0, sqrtn, r'$\tau_{0}(\theta)$')
     print("Printing file: ", outpath +'/tau0_all_rsgal.pdf')
@@ -91,7 +93,7 @@ def main():
     dof = len(rhos[0])
 
     for eq in [0, 1, 2, 4]:
-         ## ALPHA
+        ## ALPHA
         gflag, bflag = False, False
         i_guess = [0] #fiducial values
         fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)

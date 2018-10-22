@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
 
 def pretty_rho(meanr, rho, sig, sqrtn,  legend=None, lfontsize=24, color='black', marker='o', ylabel=r'$\rho(\theta)$', ylim=True):
-    plt.plot(meanr, rho, color=color, label=legend)
-    plt.plot(meanr, -rho, color=color, ls=':')
-    plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color=color, ls='', marker=marker)
-    plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color=color, ls='', marker=marker)
-    rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color=color, marker=marker)
+    plt.plot(meanr, rho, color=color, label=legend, marker=marker)
+    plt.plot(meanr, -rho, color=color, ls=':', marker=marker)
+    if sig is not None:
+        plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color=color, ls='', marker=marker)
+        plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color=color, ls='', marker=marker)
+        rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color=color, marker=marker)
     plt.legend(loc='best', fontsize=lfontsize)
     if(ylim):
         plt.ylim( [1.e-8, 1.e-5] )

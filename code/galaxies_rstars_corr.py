@@ -97,7 +97,7 @@ def main():
     print(len(data_galaxies))
     '''
     do_cross_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
-                   name='all_galaxy-reserved_shapenoise', bandcombo=args.bandcombo, mod=True, shapenoise=True)
+                   name='all_galaxy-reserved_max_sep100', bandcombo=args.bandcombo, mod=True, shapenoise=True)
 
 
 if __name__ == "__main__":

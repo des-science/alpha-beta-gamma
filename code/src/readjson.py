@@ -1,6 +1,6 @@
 import json
 
-def read_rhos(stat_file ):
+def read_rhos(stat_file, maxscale=None ):
     import numpy as np
 
     # Read the json file 
@@ -64,9 +64,19 @@ def read_rhos(stat_file ):
         sig_rho3 = np.sqrt(var3)
         sig_rho4 = np.sqrt(var4)
         sig_rho5 = np.sqrt(var5)
+
+        if(maxscale):
+            maxs = maxscale
+            meanr = meanr[meanr<maxs]
+            idx = len(meanr)
+            rho0p = rho0p[:idx]; rho1p = rho1p[:idx]; rho2p = rho2p[:idx]; rho3p = rho3p[:idx];
+            rho4p = rho4p[:idx]; rho5p = rho5p[:idx]; sig_rho0 = sig_rho0[:idx];
+            sig_rho1 = sig_rho1[:idx]; sig_rho2 = sig_rho2[:idx]; sig_rho3 = sig_rho3[:idx];
+            sig_rho4 = sig_rho4[:idx]; sig_rho5 = sig_rho5[:idx]
+        
         return meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 
 
-def read_taus(stat_file ):
+def read_taus(stat_file, maxscale=None ):
     import numpy as np
 
     # Read the json file 
@@ -106,6 +116,14 @@ def read_taus(stat_file ):
         sig_tau0 = np.sqrt(var0)
         sig_tau2 = np.sqrt(var2)
         sig_tau5 = np.sqrt(var5)
+
+        if(maxscale):
+            maxs = maxscale
+            meanr = meanr[meanr<maxs]
+            idx = len(meanr)
+            tau0p = tau0p[:idx]; tau2p = tau2p[:idx]; tau5p = tau5p[:idx];
+            sig_tau0 = sig_tau0[:idx]; sig_tau2 = sig_tau2[:idx]; sig_tau5 = sig_tau5[:idx]
+
         return meanr, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 
               
 

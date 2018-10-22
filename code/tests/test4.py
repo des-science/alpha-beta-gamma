@@ -1,4 +1,4 @@
-#Comparing rhostats
+#Comparing rhostats modified and unmodified
 import os
 
 def main():

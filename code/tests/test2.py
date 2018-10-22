@@ -1,21 +1,4 @@
-#Checking the  behaviour of chisq at different scales. Residual and variances are showed separated
-def parse_args():
-    import argparse
-    parser = argparse.ArgumentParser(description='')
-    
-    parser.add_argument('--rsgcorr',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_irz.json',
-                        help='Json file with the reserved stars - galaxies correlations')
-    parser.add_argument('--rsrscorr',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_irz.json',
-                        help='Json file with the reserved stars - reserved stars correlations')
-    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots',
-                        help='location of the output of the files')
-    
-    
-    args = parser.parse_args()
-
-    return args
+#Checking all the variances and different definitions
 def main():
     import os
     import sys
@@ -27,8 +10,7 @@ def main():
     from readjson import read_rhos, read_taus
     from chi2 import minimizeCHI2
 
-    args = parse_args()
-    outpath = os.path.expanduser(args.outpath)
+    outpath = os.path.expanduser('/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots')
     try:
         if not os.path.exists(outpath):
             os.makedirs(outpath)
@@ -36,8 +18,81 @@ def main():
         if not os.path.exists(outpath): raise
 
         
-    meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(args.rsrscorr)
-    meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr)
+    meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos('/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_epiff_magcut_irz.json')
+    meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus('/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_irz.json')
+    meanr3, tau0p_sn, tau2p_sn, tau5p_sn, sig_tau0_sn, sig_tau2_sn, sig_tau5_sn =  read_taus('/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_shapenoise_irz.json')
+
+    plt.clf()
+    plt.plot(meanr, sig_tau0**2, color='blue', label=r'$var(\tau_{0})$', marker='o')
+    plt.plot(meanr, sig_tau2**2, color='red', label=r'$var(\tau_{2})$', marker='o')
+    plt.plot(meanr, sig_tau5**2, color='green', label=r'$var(\tau_{5})$', marker='o')
+    plt.plot(meanr, sig_tau0_sn**2, color='blue', label=r'$var(\tau_{0sn})$', marker='P')
+    plt.plot(meanr, sig_tau2_sn**2, color='red', label=r'$var(\tau_{2sn})$', marker='P')
+    plt.plot(meanr, sig_tau5_sn**2, color='green', label=r'$var(\tau_{5sn})$', marker='P')
+    plt.legend(loc='upper right',  shadow=True,  fontsize=7)
+    plt.tick_params(axis='both', which='major', labelsize=24)
+    plt.xlim( [0.5,300.] )
+    plt.ylim( [10**-25,10 **-9] )
+    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
+    plt.ylabel('Variances', fontsize=24)
+    plt.xscale('log')
+    plt.yscale('log', nonposy='clip')
+    plt.tight_layout()
+    print("Printing :" + outpath +'/treecorr_vs_notes_variances.pdf')
+    plt.savefig(outpath +'/treecorr_vs_notes_variances.pdf')
+
+    plt.clf()
+    plt.plot(meanr, (sig_tau0_sn**2 )/(sig_tau0**2), color='blue', label=r'$var(\tau_{0})/var(\tau_{0sn})$', marker='o')
+    plt.plot(meanr, (sig_tau2_sn**2 )/(sig_tau2**2), color='green', label=r'$var(\tau_{2})/var(\tau_{2sn})$', marker='o')
+    plt.plot(meanr, (sig_tau5_sn**2 )/(sig_tau5**2), color='red', label=r'$var(\tau_{5})/var(\tau_{5sn})$', marker='o')
+    plt.legend(loc='best',  shadow=True,  fontsize=7)
+    plt.tick_params(axis='both', which='major', labelsize=24)
+    plt.xlim( [0.5,300.] )
+    plt.ylim([0, 3])
+    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
+    plt.ylabel('Variances', fontsize=24)
+    plt.xscale('log')
+    #plt.yscale('log', nonposy='clip')
+    plt.tight_layout()
+    print("Printing :" + outpath +'/ratio_treecorr_vs_notes_variances.pdf')
+    plt.savefig(outpath +'/ratio_treecorr_vs_notes_variances.pdf')
+    
+    
+    plt.clf()
+    plt.plot(meanr, sig_tau0_sn**2, color='blue', label=r'$var(\tau_{0sn})$', marker='o')
+    plt.plot(meanr, sig_tau2_sn**2, color='red', label=r'$var(\tau_{2sn})$', marker='o')
+    plt.plot(meanr, sig_tau5_sn**2, color='green', label=r'$var(\tau_{5sn})$', marker='o')
+    plt.plot(meanr, sig_rho0**2, color='black', label=r'$var(\rho_{0})$', marker='o')
+    plt.plot(meanr, sig_rho1**2, color='yellow', label=r'$var(\rho_{1})$', marker='o')
+    plt.plot(meanr, sig_rho2**2, color='gray', label=r'$var(\rho_{2})$', marker='o')
+    plt.plot(meanr, sig_rho3**2, color='magenta', label=r'$var(\rho_{3})$', marker='o')
+    plt.plot(meanr, sig_rho4**2, color='pink', label=r'$var(\rho_{4})$', marker='o')
+    plt.plot(meanr, sig_rho5**2, color='orange', label=r'$var(\rho_{5})$', marker='o')
+    plt.legend(loc='upper right',  shadow=True,  fontsize=7)
+    plt.tick_params(axis='both', which='major', labelsize=24)
+    plt.xlim( [0.5,300.] )
+    plt.ylim( [10**-25,10 **-9] )
+    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
+    plt.ylabel('Variances', fontsize=24)
+    plt.xscale('log')
+    plt.yscale('log', nonposy='clip')
+    plt.tight_layout()
+    print("Printing :" + outpath +'/all_variances_bybin.pdf' )
+    plt.savefig(outpath +'/all_variances_bybin.pdf')
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     #Finding best alpha beta gamma
     rhos = [rho0p, rho1p, rho2p, rho3p, rho4p, rho5p]
@@ -105,29 +160,6 @@ def main():
     plt.tight_layout()
     print("Printing chi2_bybin.pdf")
     plt.savefig(outpath +'/chi2_bybin.pdf')
-
-    plt.clf()
-    plt.plot(meanr, sig_tau0**2, color='blue', label=r'$var(\tau_{0})$', marker='o')
-    plt.plot(meanr, sig_tau2**2, color='red', label=r'$var(\tau_{2})$', marker='o')
-    plt.plot(meanr, sig_tau5**2, color='green', label=r'$var(\tau_{5})$', marker='o')
-    plt.plot(meanr, sig_rho0**2, color='black', label=r'$var(\rho_{0})$', marker='o')
-    plt.plot(meanr, sig_rho1**2, color='yellow', label=r'$var(\rho_{1})$', marker='o')
-    plt.plot(meanr, sig_rho2**2, color='gray', label=r'$var(\rho_{2})$', marker='o')
-    plt.plot(meanr, sig_rho3**2, color='magenta', label=r'$var(\rho_{3})$', marker='o')
-    plt.plot(meanr, sig_rho4**2, color='pink', label=r'$var(\rho_{4})$', marker='o')
-    plt.plot(meanr, sig_rho5**2, color='orange', label=r'$var(\rho_{5})$', marker='o')
-    plt.legend(loc='upper right',  shadow=True,  fontsize=7)
-    plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
-    plt.ylim( [10**-25,10 **-9] )
-    plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel('Variances', fontsize=24)
-    plt.xscale('log')
-    plt.yscale('log', nonposy='clip')
-    plt.tight_layout()
-    print("Printing all_variances_bybin.pdf")
-    plt.savefig(outpath +'/all_variances_bybin.pdf')
-    
     
     
 if __name__ == "__main__":

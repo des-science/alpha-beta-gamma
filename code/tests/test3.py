@@ -11,6 +11,8 @@ def parse_args():
                         help='Json file with the reserved stars - reserved stars correlations')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots',
                         help='location of the output of the files')
+    parser.add_argument('--maxscale', default=None, type=float, 
+                        help='Limit the analysis to certain maximum scale, units are determined by .json file with the correlations')
     
     
     args = parser.parse_args()
@@ -26,7 +28,7 @@ def main():
     plt.style.use('SVA1StyleSheet.mplstyle')
     from readjson import read_rhos, read_taus
     from plot_stats import pretty_rho
-    from chi2 import minimizeCHI2
+    from chi2 import minimizeCHI2,  modelvector, datavector, datavar
     import numpy as np
 
     args = parse_args()
@@ -38,8 +40,8 @@ def main():
         if not os.path.exists(outpath): raise
 
         
-    meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(args.rsrscorr)
-    meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr)
+    meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(args.rsrscorr, args.maxscale)
+    meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr, args.maxscale)
     
     dof = len(meanr)
     rhos = [rho0p, rho1p, rho2p, rho3p, rho4p, rho5p]
@@ -54,12 +56,12 @@ def main():
 
     ### EQUATION 0 ###
     #ALPHA-BETA-GAMMA
+    sqrtn = 1
     eq = 0
     gflag, bflag = True, True
     i_guess = [0,-1,- 1] #fiducial values
     fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
     alpha, beta, eta = fitted_params
-    sqrtn = 1
     plt.clf()
     pretty_rho(meanr, tau0p, sig_tau0, sqrtn, legend=r'$\tau_{0}$', lfontsize=15,  color='blue', ylabel='Correlations', ylim=False)
     pretty_rho(meanr, alpha*rho0p, sig_rho0, sqrtn, legend=r'$\alpha \rho_{0}$',lfontsize=15,  color='red', ylabel='Correlations', ylim=False)
@@ -68,6 +70,9 @@ def main():
     plt.title(r'$\chi^{2}_{\nu}$ =' + str(chisq / dof)[:6], fontsize=5)
     print(outpath +'/eq0_abn_corr_pars0.pdf')
     plt.savefig(outpath +'/eq0_abn_corr_pars0.pdf')
+    
+    
+    
     #ALPHA-BETA
     gflag, bflag = False, True
     i_guess = [0,-1] #fiducial values
@@ -228,7 +233,56 @@ def main():
     plt.savefig(outpath +'/soe_a_corr_pars0.pdf')
     
 
-    
+
+
+    ##CHISQ REDUCED
+    #ALPHA-BETA-ETA
+    plt.clf()
+    colors = ['blue', 'green', 'red', 'pink', 'black']
+    for eq in [0, 1, 2, 4]:
+        gflag, bflag = True, True
+        i_guess = [0,-1,- 1] #fiducial values
+        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+        mvect =  modelvector(rhos, fitted_params,eq=eq, gflag=gflag, bflag=bflag)
+        dvect =  datavector(taus, eq=eq)
+        dvar = datavar(sigtaus, eq=eq)
+        chisq_vec = np.power((mvect - dvect), 2)/(dvar * dof)
+        if(eq==4): legend = r'$\chi^{2}_{\nu}$(soe)'
+        else: legend = r'$\chi^{2}_{\nu}$(' + str(eq) + ')'
+        pretty_rho(meanr, chisq_vec , None, sqrtn, legend=legend, lfontsize=10,  color=colors[eq], ylabel=r'$\chi^{2}_{\nu}$', marker='o', ylim=False)  
+    print(outpath +'/chisq_red_eq_abn.pdf')
+    plt.savefig(outpath +'/chisq_red_eq_abn.pdf')
+    #ALPHA-BETA
+    plt.clf()
+    for eq in [0, 1, 2, 4]:
+        gflag, bflag = False, True
+        i_guess = [0,-1] #fiducial values
+        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+        mvect =  modelvector(rhos, fitted_params,eq=eq, gflag=gflag, bflag=bflag)
+        dvect =  datavector(taus, eq=eq)
+        dvar = datavar(sigtaus, eq=eq)
+        chisq_vec = np.power((mvect - dvect), 2)/(dvar * dof)
+        if(eq==4): legend = r'$\chi^{2}_{\nu}$(soe)'
+        else: legend = r'$\chi^{2}_{\nu}$(' + str(eq) + ')'
+        pretty_rho(meanr, chisq_vec , None, sqrtn, legend=legend, lfontsize=10,  color=colors[eq], ylabel=r'$\chi^{2}_{\nu}$', marker='o', ylim=False)  
+    print(outpath +'/chisq_red_eq_ab.pdf')
+    plt.savefig(outpath +'/chisq_red_eq_ab.pdf')
+    #ALPHA
+    plt.clf()
+    for eq in [0, 1, 2, 4]:
+        gflag, bflag = False, False
+        i_guess = [0] #fiducial values
+        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag)
+        mvect =  modelvector(rhos, fitted_params,eq=eq, gflag=gflag, bflag=bflag)
+        dvect =  datavector(taus, eq=eq)
+        dvar = datavar(sigtaus, eq=eq)
+        chisq_vec = np.power((mvect - dvect), 2)/(dvar * dof)
+        if(eq==4): legend = r'$\chi^{2}_{\nu}$(soe)'
+        else: legend = r'$\chi^{2}_{\nu}$(' + str(eq) + ')'
+        pretty_rho(meanr, chisq_vec , None, sqrtn, legend=legend, lfontsize=10,  color=colors[eq], ylabel=r'$\chi^{2}_{\nu}$', marker='o', ylim=False)  
+    print(outpath +'/chisq_red_eq_a.pdf')
+    plt.savefig(outpath +'/chisq_red_eq_a.pdf')
+ 
     
     
 if __name__ == "__main__":
