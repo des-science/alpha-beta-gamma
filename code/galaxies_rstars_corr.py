@@ -87,7 +87,8 @@ def main():
     Rs = [R11s, R22s]
     data_galaxies =  data_galaxies[select]
     print("Total objects after masking",  len(data_galaxies))
-    
+    print("R11s=",R11s)
+    print("R22s=",R22s)
     '''
     print(len(data_galaxies))
     mask =  (data_galaxies['snr'] > 10)
