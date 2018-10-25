@@ -80,8 +80,10 @@ def main():
     select = np.array(index['select'])
     select_1p = np.array(index['select_1p'])
     select_1m = np.array(index['select_1m'])
+    select_2p = np.array(index['select_2p']) #added by Lucas: each component gets sheared and this leads to different selection
+    select_2m = np.array(index['select_2m']) #added by Lucas
     R11s = (data_galaxies['e_1'][select_1p].mean() - data_galaxies['e_1'][select_1m].mean() )/dgamma
-    R22s = (data_galaxies['e_2'][select_1p].mean() - data_galaxies['e_2'][select_1m].mean() )/dgamma
+    R22s = (data_galaxies['e_2'][select_2p].mean() - data_galaxies['e_2'][select_2m].mean() )/dgamma #added by Lucas: modified to to select_2p and 2m
     Rs = [R11s, R22s]
     data_galaxies =  data_galaxies[select]
     print("Total objects after masking",  len(data_galaxies))
