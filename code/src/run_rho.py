@@ -96,7 +96,7 @@ def write_stats( stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None):
         json.dump([stats], fp)
     print('Done writing ',stat_file)
 
-def write_cross_stats(vartaus,stat_file, tau0, tau2, tau5, corr_tt=None, shapenoise=False):
+def write_tau_stats(vartaus,stat_file, tau0, tau2, tau5, corr_tt=None, shapenoise=False):
     import json
     tau0var, tau2var, tau5var = vartaus
 
@@ -262,7 +262,7 @@ def measure_rho(data, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='pif
 
     return results
 
-def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True):
+def measure_tau(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=False, alt_tt=False, prefix='piff', mod=True):
     """Compute the rho statistics
     """
     import treecorr
@@ -329,8 +329,8 @@ def measure_cross_rho(data_stars, data_galaxies, Rs, max_sep, tag=None, use_xy=F
             cat.name = tag + ":"  + cat.name
 
     bin_config = dict(
-        #sep_units = 'arcmin',
-        sep_units = 'degrees',
+        sep_units = 'arcmin',
+        #sep_units = 'degrees',
         bin_slop = 0.1,
         min_sep = 0.5,
         max_sep = max_sep,
@@ -390,7 +390,7 @@ def band_combinations(bands, single=True, combo=True,  allcombo=True):
     print('use_bands = ',use_bands)
     print('tags = ',[ ''.join(band) for band in use_bands ])
     return use_bands
-def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True, obs=False):
+def do_rho_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True, obs=False):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
     # Measure the canonical rho stats using all pairs:
@@ -405,7 +405,7 @@ def do_canonical_stats(data, bands, tilings, outpath, prefix='piff', name='all',
         stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
         write_stats(stat_file,*stats)
 
-def do_cross_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True,  shapenoise=False):
+def do_tau_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True,  shapenoise=False):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
     
@@ -420,8 +420,8 @@ def do_cross_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, pref
         print('len(data[mask]) = ',len(data_stars[mask_stars]))
         tag = ''.join(band)
         #mod max_sep
-        stats = measure_cross_rho(data_stars[mask_stars], data_galaxies, Rs,  max_sep=100, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
+        stats = measure_tau(data_stars[mask_stars], data_galaxies, Rs,  max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt,  mod=mod)
         stat_file = os.path.join(outpath, "tau_%s_%s.json"%(name,tag))
         vartau0, vartau2, vartau5 =  getVariances(data_stars, data_galaxies, Rs, *stats, prefix=prefix, mod=mod)
         vartaus = [vartau0, vartau2, vartau5]
-        write_cross_stats(vartaus, stat_file,*stats, shapenoise=shapenoise)
+        write_tau_stats(vartaus, stat_file,*stats, shapenoise=shapenoise)

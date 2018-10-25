@@ -37,7 +37,7 @@ def main():
 
     import numpy as np
     from read_psf_cats import read_data,  toList
-    from run_rho import do_canonical_stats
+    from run_rho import do_rho_stats
     
     args = parse_args()
 
@@ -61,7 +61,7 @@ def main():
     print("Objects",  len(data))
     data = data[data['mag']<20]
     print("Objects with magnitude <20",  len(data))
-    do_canonical_stats(data, bands, tilings, outpath,
+    do_rho_stats(data, bands, tilings, outpath,
                        name='all_reserved_mod_epiff_magcut_copy', bandcombo=args.bandcombo,  mod=True,  obs=False)
     
     

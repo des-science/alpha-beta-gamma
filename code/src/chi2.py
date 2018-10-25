@@ -1,14 +1,14 @@
 def modelvector(rhos, params, eq=None, gflag=True, bflag=True):
     if(gflag and bflag):
-        alpha, beta, gamma = params
-        mvec0 = alpha*rhos[0] + beta*rhos[2] + gamma*rhos[5] 
-        mvec1 = alpha*rhos[2] + beta*rhos[1] + gamma*rhos[4] 
-        mvec2 = alpha*rhos[5] + beta*rhos[4] + gamma*rhos[3]    
+        alpha, beta, eta = params
+        mvec0 = alpha*rhos[0] + beta*rhos[2] + eta*rhos[5] 
+        mvec1 = alpha*rhos[2] + beta*rhos[1] + eta*rhos[4] 
+        mvec2 = alpha*rhos[5] + beta*rhos[4] + eta*rhos[3]    
     elif(gflag and (not bflag)):
-        alpha, gamma = params
-        mvec0 = alpha*rhos[0] + gamma*rhos[5] 
-        mvec1 = alpha*rhos[2] + gamma*rhos[4]
-        mvec2 = alpha*rhos[5] + gamma*rhos[3]
+        alpha, eta = params
+        mvec0 = alpha*rhos[0] + eta*rhos[5] 
+        mvec1 = alpha*rhos[2] + eta*rhos[4]
+        mvec2 = alpha*rhos[5] + eta*rhos[3]
     elif((not gflag) and bflag):
         alpha, beta = params
         mvec0 = alpha*rhos[0] + beta*rhos[2]

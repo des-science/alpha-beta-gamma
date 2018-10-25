@@ -133,9 +133,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
                    lw=0.5, elinewidth=2., color='k');
         axs[2][2].errorbar(x=idx, y=delta_chain_mean, yerr=delta_chain_err, errorevery=50, ecolor='red',
                    lw=0.5, elinewidth=2., color='k');
-        print("Printing file:",  namemc)
-        plt.savefig(namemc)
-        print(namemc, "Printed")
+        if namemc is not None:
+            print("Printing file:",  namemc)
+            plt.savefig(namemc)
+            print(namemc, "Printed")
 
         corner_plot(samples, labels, namecont)
             
@@ -188,9 +189,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
                    lw=0.5, elinewidth=2., color='k')
         axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
                    lw=0.5, elinewidth=2., color='k');
-        print("Printing file:",  namemc)
-        plt.savefig(namemc)
-        print(namemc, "Printed")
+        if namemc is not None:
+            print("Printing file:",  namemc)
+            plt.savefig(namemc)
+            print(namemc, "Printed")
 
         corner_plot(samples, labels, namecont)
     else:
@@ -234,9 +236,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         idx = np.arange(len(alpha_chain_mean))
         axs[2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
                    lw=0.5, elinewidth=2., color='k')
-        print("Printing file:",  namemc)
-        plt.savefig(namemc)
-        print(namemc, "Printed")
+        if namemc is not None:
+            print("Printing file:",  namemc)
+            plt.savefig(namemc)
+            print(namemc, "Printed")
 
         corner_plot(samples, labels, namecont)
 

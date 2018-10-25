@@ -19,7 +19,7 @@ def main():
     except OSError:
         if not os.path.exists(outpath): raise
 
-    tausepiff =  "/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_max_sep30_irz.json"
+    tausepiff =  "/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_max_sep100_irz.json"
     meanr, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5  = read_taus(tausepiff)
     
     sqrtn = 1
@@ -44,7 +44,7 @@ def main():
     tau0p0_line = plt.errorbar(-meanr, tau0p, yerr=sig_tau0, color='red', marker='o')
 
     plt.legend(loc='best', fontsize=24)
-    plt.ylim( [1.e-11, 1.e-6] )
+    plt.ylim( [1.e-11, 1.e-5] )
     plt.tick_params(axis='both', which='major', labelsize=24)
     plt.xlim( [0.5,150.] )
     plt.xlabel(r'$\theta$ (degrees)', fontsize=24)
@@ -54,8 +54,8 @@ def main():
     plt.tight_layout()
    
  
-    print("Printing :", outpath +'/taus_30degrees.pdf')
-    plt.savefig(outpath +'/taus_30degrees.pdf')
+    print("Printing :", outpath +'/taus_100degrees.pdf')
+    plt.savefig(outpath +'/taus_100degrees.pdf')
 
 if __name__ == "__main__":
     main()

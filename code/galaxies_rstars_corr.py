@@ -41,7 +41,7 @@ def main():
     
     import numpy as np
     from read_psf_cats import read_data, toList, read_h5
-    from run_rho import do_canonical_stats,  do_cross_stats
+    from run_rho import  do_tau_stats
     import h5py as h
     
     args = parse_args()
@@ -96,8 +96,8 @@ def main():
     data_galaxies =  data_galaxies[mask]
     print(len(data_galaxies))
     '''
-    do_cross_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
-                   name='all_galaxy-reserved_max_sep100', bandcombo=args.bandcombo, mod=True, shapenoise=True)
+    do_tau_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
+                   name='all_galaxy-reserved_unmod', bandcombo=args.bandcombo, mod=False, shapenoise=True)
 
 
 if __name__ == "__main__":

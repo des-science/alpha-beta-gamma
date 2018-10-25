@@ -91,7 +91,7 @@ def main():
     
     nwalkers,  nsteps = 100,  1000
     dof = len(rhos[0])
-    moderr = False
+    moderr = True
 
     for eq in [0, 1, 2, 4]:
         ## ALPHA
@@ -100,7 +100,8 @@ def main():
         fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha" , fitted_params)
         print("reduced Chi2 :", chisq/dof )
-        namemc = outpath+'/mcmc_alpha_eq' + str(eq) + '_.pdf'
+        namemc = None
+        #namemc = outpath+'/mcmc_alpha_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha_eq' + str(eq) + '_.pdf'
         MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
         '''
@@ -118,7 +119,8 @@ def main():
         fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha, beta" , fitted_params)
         print("reduced Chi2:", chisq/dof )
-        namemc = outpath+'/mcmc_alpha-beta_eq' + str(eq) + '_.pdf'
+        namemc =  None
+        #namemc = outpath+'/mcmc_alpha-beta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta_eq' + str(eq) + '_.pdf'
         MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
         
@@ -128,10 +130,11 @@ def main():
         fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha, beta, gamma:" , fitted_params)
         print("reduced Chi2:", chisq/dof )
-        namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.pdf'
+        namemc =  None
+        #namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta-eta_eq' + str(eq) + '_.pdf'
         MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
-
+        
    
 if __name__ == "__main__":
     main()
