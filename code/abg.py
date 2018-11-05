@@ -5,10 +5,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the system of equatiosn and plotting correlations')
     
     parser.add_argument('--rsgcorr',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_irz.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_mod_irz.json',
                         help='Json file with the reserved stars - galaxies correlations')
     parser.add_argument('--rsrscorr',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_epiff_magcut_irz.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_epiff_magcut_sn_irz.json',
                         help='Json file with the reserved stars - reserved stars correlations')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots',
                         help='location of the output of the files')
@@ -91,7 +91,7 @@ def main():
     
     nwalkers,  nsteps = 100,  1000
     dof = len(rhos[0])
-    moderr = True
+    moderr = False
 
     for eq in [0, 1, 2, 4]:
         ## ALPHA
@@ -103,15 +103,8 @@ def main():
         namemc = None
         #namemc = outpath+'/mcmc_alpha_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha_eq' + str(eq) + '_.pdf'
-        MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
-        '''
-        x_arr= -0.05, 0.05, 100
-        filename1 = outpath+'/chisq_only_alpha.pdf'
-        filename2 = outpath+'/chisqshifted_only_alpha.pdf'
-        plotCHI2(None, data,x_arr,filename1, eq=eq,gflag=gflag,bflag=bflag)
-        plotCHI2shifted(None, data, x_arr, chisq, filename2, eq=eq, gflag=gflag, bflag=bflag)
-        '''
-    
+        mcmcpars =  MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        print("mcmc_alpha",  mcmcpars)    
     
         ## ALPHA-BETA
         gflag, bflag = False, True
@@ -122,18 +115,19 @@ def main():
         namemc =  None
         #namemc = outpath+'/mcmc_alpha-beta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta_eq' + str(eq) + '_.pdf'
-        MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        mcmcpars = MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        print("mcmc_alpha-beta",  mcmcpars)    
         
-        ## ALPHA-BETA-GAMMA
+        ## ALPHA-BETA-ETA
         gflag, bflag = True, True
         i_guess = [0,-1,- 1] #fiducial values
         fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha, beta, gamma:" , fitted_params)
         print("reduced Chi2:", chisq/dof )
-        namemc =  None
-        #namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.pdf'
+        namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta-eta_eq' + str(eq) + '_.pdf'
-        MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        mcmcpars = MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        print("mcmc_alpha-beta-eta",  mcmcpars) 
         
    
 if __name__ == "__main__":

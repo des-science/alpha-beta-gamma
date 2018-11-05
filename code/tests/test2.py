@@ -1,4 +1,5 @@
-#Checking all the variances and different definitions
+#Checking all the variances and different definitions.
+#Ploting chisq by bin
 def main():
     import os
     import sys

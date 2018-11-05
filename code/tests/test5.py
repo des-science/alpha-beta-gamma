@@ -17,9 +17,9 @@ def main():
         if not os.path.exists(outpath):
             os.makedirs(outpath)
     except OSError:
-        if not os.path.exists(outpath): raise
-
-    tausepiff =  "/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_max_sep100_irz.json"
+        if not os.path.exists(outpath): raise   
+        
+    tausepiff =  "/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/used/tau_all_galaxy-reserved_max_sep100_irz.json"
     meanr, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5  = read_taus(tausepiff)
     
     sqrtn = 1

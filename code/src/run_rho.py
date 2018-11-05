@@ -49,42 +49,77 @@ def getVariances( data_stars, data_galaxies, Rs,tau0, tau2, tau5, prefix='piff',
     
     return vartau0, vartau2, vartau5
     
-def write_stats( stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None):
+def write_stats( stat_file, rho0, rho1, rho2, rho3, rho4, rho5, corr_tt=None, shapenoise=False):
     import json
 
-    stats = [
-        rho0.meanlogr.tolist(),
-        rho0.xip.tolist(),
-        rho0.xip_im.tolist(),
-        rho0.xim.tolist(),
-        rho0.xim_im.tolist(),
-        rho0.varxi.tolist(),
-        rho1.xip.tolist(),
-        rho1.xip_im.tolist(),
-        rho1.xim.tolist(),
-        rho1.xim_im.tolist(),
-        rho1.varxi.tolist(),
-        rho2.xip.tolist(),
-        rho2.xip_im.tolist(),
-        rho2.xim.tolist(),
-        rho2.xim_im.tolist(),
-        rho2.varxi.tolist(),
-        rho3.xip.tolist(),
-        rho3.xip_im.tolist(),
-        rho3.xim.tolist(),
-        rho3.xim_im.tolist(),
-        rho3.varxi.tolist(),
-        rho4.xip.tolist(),
-        rho4.xip_im.tolist(),
-        rho4.xim.tolist(),
-        rho4.xim_im.tolist(),
-        rho4.varxi.tolist(),
-        rho5.xip.tolist(),
-        rho5.xip_im.tolist(),
-        rho5.xim.tolist(),
-        rho5.xim_im.tolist(),
-        rho5.varxi.tolist(),
-    ]
+    if(shapenoise):
+        stats = [
+            rho0.meanlogr.tolist(),
+            rho0.xip.tolist(),
+            rho0.xip_im.tolist(),
+            rho0.xim.tolist(),
+            rho0.xim_im.tolist(),
+            (2*rho0.varxi).tolist(),
+            rho1.xip.tolist(),
+            rho1.xip_im.tolist(),
+            rho1.xim.tolist(),
+            rho1.xim_im.tolist(),
+            (2*rho1.varxi).tolist(),
+            rho2.xip.tolist(),
+            rho2.xip_im.tolist(),
+            rho2.xim.tolist(),
+            rho2.xim_im.tolist(),
+            (2*rho2.varxi).tolist(),
+            rho3.xip.tolist(),
+            rho3.xip_im.tolist(),
+            rho3.xim.tolist(),
+            rho3.xim_im.tolist(),
+            (2*rho3.varxi).tolist(),
+            rho4.xip.tolist(),
+            rho4.xip_im.tolist(),
+            rho4.xim.tolist(),
+            rho4.xim_im.tolist(),
+            (2*rho4.varxi).tolist(),
+            rho5.xip.tolist(),
+            rho5.xip_im.tolist(),
+            rho5.xim.tolist(),
+            rho5.xim_im.tolist(),
+            (2*rho5.varxi).tolist(),
+        ]
+    else:
+        stats = [
+            rho0.meanlogr.tolist(),
+            rho0.xip.tolist(),
+            rho0.xip_im.tolist(),
+            rho0.xim.tolist(),
+            rho0.xim_im.tolist(),
+            rho0.varxi.tolist(),
+            rho1.xip.tolist(),
+            rho1.xip_im.tolist(),
+            rho1.xim.tolist(),
+            rho1.xim_im.tolist(),
+            rho1.varxi.tolist(),
+            rho2.xip.tolist(),
+            rho2.xip_im.tolist(),
+            rho2.xim.tolist(),
+            rho2.xim_im.tolist(),
+            rho2.varxi.tolist(),
+            rho3.xip.tolist(),
+            rho3.xip_im.tolist(),
+            rho3.xim.tolist(),
+            rho3.xim_im.tolist(),
+            rho3.varxi.tolist(),
+            rho4.xip.tolist(),
+            rho4.xip_im.tolist(),
+            rho4.xim.tolist(),
+            rho4.xim_im.tolist(),
+            rho4.varxi.tolist(),
+            rho5.xip.tolist(),
+            rho5.xip_im.tolist(),
+            rho5.xim.tolist(),
+            rho5.xim_im.tolist(),
+            rho5.varxi.tolist(),
+        ]
     if corr_tt is not None:
         stats.extend([
             corr_tt.xi.tolist(),
@@ -390,7 +425,7 @@ def band_combinations(bands, single=True, combo=True,  allcombo=True):
     print('use_bands = ',use_bands)
     print('tags = ',[ ''.join(band) for band in use_bands ])
     return use_bands
-def do_rho_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True, obs=False):
+def do_rho_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True, obs=False,  shapenoise=False):
     import numpy as np 
     print('Start CANONICAL: ',prefix,name)
     # Measure the canonical rho stats using all pairs:
@@ -403,7 +438,7 @@ def do_rho_stats(data, bands, tilings, outpath, prefix='piff', name='all', alt_t
         tag = ''.join(band)
         stats = measure_rho(data[mask], max_sep=300, tag=tag, prefix=prefix, alt_tt=alt_tt, mod=mod,  obs=obs)
         stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
-        write_stats(stat_file,*stats)
+        write_stats(stat_file,*stats, shapenoise=shapenoise)
 
 def do_tau_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, prefix='piff', name='all', alt_tt=False, bandcombo=True, mod=True,  shapenoise=False):
     import numpy as np 

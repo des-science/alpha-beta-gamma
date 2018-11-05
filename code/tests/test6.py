@@ -1,3 +1,4 @@
+#runing taus and rhos by quadrant.
 import os
 
 def parse_args():
@@ -73,6 +74,9 @@ def main():
     
     galkeys = ['ra','dec','e_1','e_2','snr','size_ratio','flags','T','T_err','R11','R22']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
+    meanra = np.mean(data_stars['ra'])
+    meandec = np.mean(data_stars['dec']) 
+    
     print("Total objects in catalog:", len(data_galaxies))
     dgamma = 2*0.01
     f = h.File(args.metacal_cat, 'r')
@@ -89,18 +93,27 @@ def main():
     print("Total objects after masking",  len(data_galaxies))
     print("R11s=",R11s)
     print("R22s=",R22s)
-    '''
-    print(len(data_galaxies))
-    mask =  (data_galaxies['snr'] > 10)
-    mask &= (data_galaxies['snr'] < 100)
-    mask &= (data_galaxies['size_ratio']>0.5)
-    mask &= (data_galaxies['flags']==0)
-    mask &= ( (data_galaxies['T'] - 2 * data_galaxies['T_err']) > 0)
-    data_galaxies =  data_galaxies[mask]
-    print(len(data_galaxies))
-    '''
-    do_tau_stats(data_stars, data_galaxies, Rs, bands, tilings, outpath,
-                   name='all_galaxy-reserved_mod', bandcombo=args.bandcombo, mod=True, shapenoise=True)
+
+ 
+    data_stars1 = data_stars[(data_stars['ra']>meanra)&(data_stars['dec']>meandec)]
+    data_galaxies1 = data_galaxies[(data_galaxies['ra']>meanra)&(data_galaxies['dec']>meandec)]
+    do_tau_stats(data_stars1, data_galaxies1, Rs, bands, tilings, outpath,
+                   name='all_galaxy-reserved_mod_patch1', bandcombo=args.bandcombo, mod=True, shapenoise=True)
+
+    data_stars2 = data_stars[(data_stars['ra']<meanra)&(data_stars['dec']>meandec)]
+    data_galaxies2 = data_galaxies[(data_galaxies['ra']<meanra)&(data_galaxies['dec']>meandec)]
+    do_tau_stats(data_stars2, data_galaxies2, Rs, bands, tilings, outpath,
+                   name='all_galaxy-reserved_mod_patch2', bandcombo=args.bandcombo, mod=True, shapenoise=True)
+
+    data_stars3 = data_stars[(data_stars['ra']<meanra)&(data_stars['dec']<meandec)]
+    data_galaxies3 = data_galaxies[(data_galaxies['ra']<meanra)&(data_galaxies['dec']<meandec)]
+    do_tau_stats(data_stars3, data_galaxies3, Rs, bands, tilings, outpath,
+                   name='all_galaxy-reserved_mod_patch3', bandcombo=args.bandcombo, mod=True, shapenoise=True)
+
+    data_stars4 = data_stars[(data_stars['ra']>meanra)&(data_stars['dec']<meandec)]
+    data_galaxies4 = data_galaxies[(data_galaxies['ra']>meanra)&(data_galaxies['dec']<meandec)]
+    do_tau_stats(data_stars4, data_galaxies4, Rs, bands, tilings, outpath,
+                   name='all_galaxy-reserved_mod_patch4', bandcombo=args.bandcombo, mod=True, shapenoise=True)
 
 
 if __name__ == "__main__":

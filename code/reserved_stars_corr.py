@@ -62,7 +62,7 @@ def main():
     data = data[data['mag']<20]
     print("Objects with magnitude <20",  len(data))
     do_rho_stats(data, bands, tilings, outpath,
-                       name='all_reserved_mod_epiff_magcut_copy', bandcombo=args.bandcombo,  mod=True,  obs=False)
+                       name='all_reserved_mod_epiff_magcut_sn', bandcombo=args.bandcombo,  mod=True,  obs=False, shapenoise=True)
     
     
 

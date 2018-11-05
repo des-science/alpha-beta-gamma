@@ -65,7 +65,7 @@ def corner_plot(samples, labels, title):
     burn = 5000
     samples_burned = np.c_[[par[burn:] for par in samples]]
     fig = corner.corner(samples_burned.T, labels=labels,
-                        quantiles=[0.16, 0.5, 0.84], 
+                        quantiles=[0.16, 0.5, 0.84],  #-1sigma,0sigma,1sigma
                         levels=(1-np.exp(-0.5), 1-np.exp(-2), 1-np.exp(-9./2)), #1sigma, 2sigma and 3sigma contours
                         show_titles=True, title_kwargs={"fontsize": 12},
                         smooth1d=None, plot_contours=True,
@@ -73,7 +73,7 @@ def corner_plot(samples, labels, title):
     print("Printing file:",  title)
     plt.savefig(title)
     print(title, "Printed")
-def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False):
+def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False,  plot=True):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -99,46 +99,56 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         beta_chain_flat = np.reshape(beta_chain, (nwalkers*nsteps,))
         delta_chain_flat = np.reshape(delta_chain, (nwalkers*nsteps,))
 
-        fig = plt.figure(figsize=(16, 12))
-        axs = fig.subplots(3, 3)
-        labels = [r"$\alpha$", r"$\beta$", r"$\eta$"]
         samples = np.c_[alpha_chain_flat, beta_chain_flat, delta_chain_flat].T
-        for i, par in enumerate(samples):
-            axs[2][0].set_xlabel("Ensemble step")
-            axs[2][1].set_xlabel("Ensemble step")
-            axs[2][2].set_xlabel("Walker Step")
-            axs[i][0].set_ylabel(labels[i])
-            axs[0][0].set_title("Ensemble dispersion")
-            axs[0][1].set_title("Ensemble autocorrelation")
-            axs[0][2].set_title("Walker mean and stdev")
-            idx = np.arange(len(par))
-            axs[i][0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
-            # Get selfcorrelation using emcee
-            ac = emcee.autocorr.function(par)
 
-            idx = np.arange(len(ac),step=1)
-            axs[i][1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
-            axs[i][1].axhline(alpha=1., lw=1., color='red')
+        if (plot):
+            fig = plt.figure(figsize=(16, 12))
+            axs = fig.subplots(3, 3)
+            labels = [r"$\alpha$", r"$\beta$", r"$\eta$"]
+        
+            for i, par in enumerate(samples):
+                axs[2][0].set_xlabel("Ensemble step")
+                axs[2][1].set_xlabel("Ensemble step")
+                axs[2][2].set_xlabel("Walker Step")
+                axs[i][0].set_ylabel(labels[i])
+                axs[0][0].set_title("Ensemble dispersion")
+                axs[0][1].set_title("Ensemble autocorrelation")
+                axs[0][2].set_title("Walker mean and stdev")
+                idx = np.arange(len(par))
+                axs[i][0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+                # Get selfcorrelation using emcee
+                ac = emcee.autocorr.function(par)
+                
+                idx = np.arange(len(ac),step=1)
+                axs[i][1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+                axs[i][1].axhline(alpha=1., lw=1., color='red')
 
-        alpha_chain_mean = np.mean(alpha_chain, axis=0)
-        alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
-        beta_chain_mean = np.mean(beta_chain, axis=0)
-        beta_chain_err = np.std(beta_chain, axis=0) / np.sqrt(nwalkers)
-        delta_chain_mean = np.mean(delta_chain, axis=0)
-        delta_chain_err = np.std(delta_chain, axis=0) / np.sqrt(nwalkers)
-        idx = np.arange(len(alpha_chain_mean))
-        axs[0][2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
-                   lw=0.5, elinewidth=2., color='k')
-        axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
-                   lw=0.5, elinewidth=2., color='k');
-        axs[2][2].errorbar(x=idx, y=delta_chain_mean, yerr=delta_chain_err, errorevery=50, ecolor='red',
-                   lw=0.5, elinewidth=2., color='k');
-        if namemc is not None:
-            print("Printing file:",  namemc)
-            plt.savefig(namemc)
-            print(namemc, "Printed")
+                alpha_chain_mean = np.mean(alpha_chain, axis=0)
+                alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
+                beta_chain_mean = np.mean(beta_chain, axis=0)
+                beta_chain_err = np.std(beta_chain, axis=0) / np.sqrt(nwalkers)
+                delta_chain_mean = np.mean(delta_chain, axis=0)
+                delta_chain_err = np.std(delta_chain, axis=0) / np.sqrt(nwalkers)
+                idx = np.arange(len(alpha_chain_mean))
+                axs[0][2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
+                                   lw=0.5, elinewidth=2., color='k')
+                axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
+                                   lw=0.5, elinewidth=2., color='k');
+                axs[2][2].errorbar(x=idx, y=delta_chain_mean, yerr=delta_chain_err, errorevery=50, ecolor='red',
+                                   lw=0.5, elinewidth=2., color='k');
+                
+                print("Printing file:",  namemc)
+                plt.savefig(namemc)
+                print(namemc, "Printed")
+                corner_plot(samples, labels, namecont)
+            
 
-        corner_plot(samples, labels, namecont)
+        samples[:, 2] = np.exp(samples[:, 2])
+        a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+        b_perc = np.percentile(samples[1], [16, 50, 84]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]] 
+        d_perc = np.percentile(samples[2], [16, 50, 84]); de =[d_perc[1], d_perc[0] - d_perc[1], d_perc[2] - d_perc[1]]
+        
+        return [alp, bet, de]
             
     elif(gflag and (not betaflag)):
         print("")
@@ -158,43 +168,53 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         # Reshaping
         alpha_chain_flat = np.reshape(alpha_chain, (nwalkers*nsteps,))
         beta_chain_flat = np.reshape(beta_chain, (nwalkers*nsteps,))
-
-        fig = plt.figure(figsize=(16, 8))
-        axs = fig.subplots(2, 3)
-        labels = [r"$\alpha$", r"$\beta$"]
         samples = np.c_[alpha_chain_flat, beta_chain_flat].T
-        for i, par in enumerate(samples):
-            axs[1][0].set_xlabel("Ensemble step")
-            axs[1][1].set_xlabel("Ensemble step")
-            axs[1][2].set_xlabel("Walker Step")
-            axs[i][0].set_ylabel(labels[i])
-            axs[0][0].set_title("Ensemble dispersion")
-            axs[0][1].set_title("Ensemble autocorrelation")
-            axs[0][2].set_title("Walker mean and stdev")
-            idx = np.arange(len(par))
-            axs[i][0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
-            # Get selfcorrelation using emcee
-            ac = emcee.autocorr.function(par)
 
-            idx = np.arange(len(ac),step=1)
-            axs[i][1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
-            axs[i][1].axhline(alpha=1., lw=1., color='red')
-
-        alpha_chain_mean = np.mean(alpha_chain, axis=0)
-        alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
-        beta_chain_mean = np.mean(beta_chain, axis=0)
-        beta_chain_err = np.std(beta_chain, axis=0) / np.sqrt(nwalkers)
-        idx = np.arange(len(alpha_chain_mean))
-        axs[0][2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
-                   lw=0.5, elinewidth=2., color='k')
-        axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
-                   lw=0.5, elinewidth=2., color='k');
-        if namemc is not None:
-            print("Printing file:",  namemc)
-            plt.savefig(namemc)
-            print(namemc, "Printed")
-
-        corner_plot(samples, labels, namecont)
+        if (plot):
+            fig = plt.figure(figsize=(16, 8))
+            axs = fig.subplots(2, 3)
+            labels = [r"$\alpha$", r"$\beta$"]
+            
+            for i, par in enumerate(samples):
+                axs[1][0].set_xlabel("Ensemble step")
+                axs[1][1].set_xlabel("Ensemble step")
+                axs[1][2].set_xlabel("Walker Step")
+                axs[i][0].set_ylabel(labels[i])
+                axs[0][0].set_title("Ensemble dispersion")
+                axs[0][1].set_title("Ensemble autocorrelation")
+                axs[0][2].set_title("Walker mean and stdev")
+                idx = np.arange(len(par))
+                axs[i][0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+                # Get selfcorrelation using emcee
+                ac = emcee.autocorr.function(par)
+                
+                idx = np.arange(len(ac),step=1)
+                axs[i][1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+                axs[i][1].axhline(alpha=1., lw=1., color='red')
+                
+                alpha_chain_mean = np.mean(alpha_chain, axis=0)
+                alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
+                beta_chain_mean = np.mean(beta_chain, axis=0)
+                beta_chain_err = np.std(beta_chain, axis=0) / np.sqrt(nwalkers)
+                idx = np.arange(len(alpha_chain_mean))
+                axs[0][2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
+                                   lw=0.5, elinewidth=2., color='k')
+                axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
+                                   lw=0.5, elinewidth=2., color='k');
+                if namemc is not None:
+                    print("Printing file:",  namemc)
+                    plt.savefig(namemc)
+                    fig.close()
+                    print(namemc, "Printed")
+       
+                corner_plot(samples, labels, namecont)
+            
+        samples[:, 2] = np.exp(samples[:, 2])
+        a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+        b_perc = np.percentile(samples[1], [16, 50, 84]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]]
+        
+        return [alp, bet]
+        
     else:
         # initial position at maximum likelihood values
         ndim = 1
@@ -210,38 +230,46 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
         # Reshaping
         alpha_chain_flat = np.reshape(alpha_chain, (nwalkers*nsteps,))
 
-        fig = plt.figure(figsize=(16, 8))
-        axs = fig.subplots(1, 3)
-        labels = [r"$\alpha$"]
         samples = np.c_[alpha_chain_flat].T
-        for i, par in enumerate(samples):
-            axs[0].set_xlabel("Ensemble step")
-            axs[1].set_xlabel("Ensemble step")
-            axs[2].set_xlabel("Walker Step")
-            axs[0].set_ylabel(labels[i])
-            axs[0].set_title("Ensemble dispersion")
-            axs[1].set_title("Ensemble autocorrelation")
-            axs[2].set_title("Walker mean and stdev")
-            idx = np.arange(len(par))
-            axs[0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
-            # Get selfcorrelation using emcee
-            ac = emcee.autocorr.function(par)
 
-            idx = np.arange(len(ac),step=1)
-            axs[1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
-            axs[1].axhline(alpha=1., lw=1., color='red')
+        if(plot):
+            fig = plt.figure(figsize=(16, 8))
+            axs = fig.subplots(1, 3)
+            labels = [r"$\alpha$"]
+            
+            for i, par in enumerate(samples):
+                axs[0].set_xlabel("Ensemble step")
+                axs[1].set_xlabel("Ensemble step")
+                axs[2].set_xlabel("Walker Step")
+                axs[0].set_ylabel(labels[i])
+                axs[0].set_title("Ensemble dispersion")
+                axs[1].set_title("Ensemble autocorrelation")
+                axs[2].set_title("Walker mean and stdev")
+                idx = np.arange(len(par))
+                axs[0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+                # Get selfcorrelation using emcee
+                ac = emcee.autocorr.function(par)
+                
+                idx = np.arange(len(ac),step=1)
+                axs[1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+                axs[1].axhline(alpha=1., lw=1., color='red')
+                
+                alpha_chain_mean = np.mean(alpha_chain, axis=0)
+                alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
+                idx = np.arange(len(alpha_chain_mean))
+                axs[2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
+                                lw=0.5, elinewidth=2., color='k')
+                if namemc is not None:
+                    print("Printing file:",  namemc)
+                    plt.savefig(namemc)
+                    fig.close()
+                    print(namemc, "Printed")
 
-        alpha_chain_mean = np.mean(alpha_chain, axis=0)
-        alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
-        idx = np.arange(len(alpha_chain_mean))
-        axs[2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
-                   lw=0.5, elinewidth=2., color='k')
-        if namemc is not None:
-            print("Printing file:",  namemc)
-            plt.savefig(namemc)
-            print(namemc, "Printed")
+                corner_plot(samples, labels, namecont)
 
-        corner_plot(samples, labels, namecont)
+        samples[:, 2] = np.exp(samples[:, 2])
+        a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+        return [alp]
 
 def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True, moderr=False):    
     import matplotlib

@@ -1,6 +1,6 @@
 import json
 
-def read_rhos(stat_file, maxscale=None ):
+def read_rhos(stat_file, maxscale=None,  maxbin =None ):
     import numpy as np
 
     # Read the json file 
@@ -73,10 +73,18 @@ def read_rhos(stat_file, maxscale=None ):
             rho4p = rho4p[:idx]; rho5p = rho5p[:idx]; sig_rho0 = sig_rho0[:idx];
             sig_rho1 = sig_rho1[:idx]; sig_rho2 = sig_rho2[:idx]; sig_rho3 = sig_rho3[:idx];
             sig_rho4 = sig_rho4[:idx]; sig_rho5 = sig_rho5[:idx]
+
+        if(maxbin):
+            meanr = meanr[:maxbin]
+            rho0p = rho0p[:maxbin]; rho1p = rho1p[:maxbin]; rho2p = rho2p[:maxbin];
+            rho3p = rho3p[:maxbin]; rho4p = rho4p[:maxbin]; rho5p = rho5p[:maxbin];
+            sig_rho0 = sig_rho0[:maxbin]; sig_rho1 = sig_rho1[:maxbin];
+            sig_rho2 = sig_rho2[:maxbin]; sig_rho3 = sig_rho3[:maxbin];
+            sig_rho4 = sig_rho4[:maxbin]; sig_rho5 = sig_rho5[:maxbin]
         
         return meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 
 
-def read_taus(stat_file, maxscale=None ):
+def read_taus(stat_file, maxscale=None, maxbin =None ):
     import numpy as np
 
     # Read the json file 
@@ -123,6 +131,11 @@ def read_taus(stat_file, maxscale=None ):
             idx = len(meanr)
             tau0p = tau0p[:idx]; tau2p = tau2p[:idx]; tau5p = tau5p[:idx];
             sig_tau0 = sig_tau0[:idx]; sig_tau2 = sig_tau2[:idx]; sig_tau5 = sig_tau5[:idx]
+
+        if(maxbin):
+            meanr = meanr[: maxbin]; tau0p = tau0p[:maxbin];
+            tau2p = tau2p[:maxbin]; tau5p = tau5p[:maxbin];
+            sig_tau0 = sig_tau0[:maxbin]; sig_tau2 = sig_tau2[:maxbin]; sig_tau5 = sig_tau5[:maxbin]
 
         return meanr, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 
               
