@@ -1,3 +1,4 @@
+#runing rhos by quadrant.
 import os
 
 def parse_args():

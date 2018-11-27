@@ -73,7 +73,7 @@ def corner_plot(samples, labels, title):
     print("Printing file:",  title)
     plt.savefig(title)
     print(title, "Printed")
-def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False,  plot=True):
+def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False,  plot=True, nsig=1):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -141,13 +141,17 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
                 plt.savefig(namemc)
                 print(namemc, "Printed")
                 corner_plot(samples, labels, namecont)
-            
 
-        samples[:, 2] = np.exp(samples[:, 2])
-        a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
-        b_perc = np.percentile(samples[1], [16, 50, 84]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]] 
-        d_perc = np.percentile(samples[2], [16, 50, 84]); de =[d_perc[1], d_perc[0] - d_perc[1], d_perc[2] - d_perc[1]]
-        
+        samples[:, 2] = np.exp(samples[:, 2])       
+        if (nsig==1):
+            a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+            b_perc = np.percentile(samples[1], [16, 50, 84]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]] 
+            d_perc = np.percentile(samples[2], [16, 50, 84]); de =[d_perc[1], d_perc[0] - d_perc[1], d_perc[2] - d_perc[1]]
+        elif(nsig==2):
+            a_perc = np.percentile(samples[0], [2.3, 50, 97.7]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+            b_perc = np.percentile(samples[1], [2.3, 50, 97.7]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]] 
+            d_perc = np.percentile(samples[2], [2.3, 50, 97.7]); de =[d_perc[1], d_perc[0] - d_perc[1], d_perc[2] - d_perc[1]]
+
         return [alp, bet, de]
             
     elif(gflag and (not betaflag)):
@@ -210,9 +214,12 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
                 corner_plot(samples, labels, namecont)
             
         samples[:, 2] = np.exp(samples[:, 2])
-        a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
-        b_perc = np.percentile(samples[1], [16, 50, 84]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]]
-        
+        if (nsig==1):
+            a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+            b_perc = np.percentile(samples[1], [16, 50, 84]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]] 
+        elif(nsig==2):
+            a_perc = np.percentile(samples[0], [2.3, 50, 97.7]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+            b_perc = np.percentile(samples[1], [2.3, 50, 97.7]); bet =[b_perc[1], b_perc[0] - b_perc[1], b_perc[2] - b_perc[1]] 
         return [alp, bet]
         
     else:
@@ -268,7 +275,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='
                 corner_plot(samples, labels, namecont)
 
         samples[:, 2] = np.exp(samples[:, 2])
-        a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+        if (nsig==1):
+            a_perc = np.percentile(samples[0], [16, 50, 84]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
+        elif(nsig==2):
+            a_perc = np.percentile(samples[0], [2.3, 50, 97.7]); alp =[a_perc[1], a_perc[0] - a_perc[1], a_perc[2] - a_perc[1]]
         return [alp]
 
 def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True, moderr=False):    

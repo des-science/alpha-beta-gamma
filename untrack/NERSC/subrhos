@@ -1,0 +1,21 @@
+#!/bin/bash -l
+#SBATCH --partition=regular                             
+#SBATCH --nodes=10
+#SBATCH --cpus-per-task=32                                       
+#SBATCH --ntasks=10
+#SBATCH --constraint=haswell
+#SBATCH --error=ERROR.txt
+#SBATCH --output=OUTPUT.txt
+#SBATCH --time=12:30:00
+#SBATCH --license=SCRATCH
+#SBATCH --mail-type=END
+#SBATCH --mail-user=a.navarro.alsina@gmail.com
+
+# source /global/common/software/des/zuntz/setup
+source /global/common/software/des/zuntz/setup-nompi
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
+export NTASKS=$SLURM_NTASKS
+
+REPOHOME=/global/cscratch1/sd/alsina/alpha-beta-gamma/code
+cd $REPOHOME
+srun ./runrhos.sh

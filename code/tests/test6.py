@@ -1,4 +1,4 @@
-#runing taus and rhos by quadrant.
+#runing taus by quadrant.
 import os
 
 def parse_args():

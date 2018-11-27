@@ -98,7 +98,7 @@ def run_parspatch(outpath):
             d_c.append(mcmcpars[2][0]); d_l.append(mcmcpars[2][1]);d_r.append(mcmcpars[2][2])
         write_pars(outpath + 'parspatch' + str(patch) + '.json', meanr, a_c, a_l, a_r, b_c, b_l, b_r, d_c, d_l, d_r)
 
-def plotbarlog(outpath):
+def plotlog(outpath):
     import numpy as np
     import matplotlib
     matplotlib.use('Agg')
@@ -192,7 +192,7 @@ def plotbarlog(outpath):
     plt.savefig(outpath +'/eta_quadrants.pdf')
     print("Printed :", outpath +'/eta_quadrants.pdf')
         
-def plotbarlineal(outpath):
+def plotlineal(outpath,  bar=False):
     import numpy as np
     import matplotlib
     matplotlib.use('Agg')
@@ -207,38 +207,41 @@ def plotbarlineal(outpath):
         width = np.append(width, width[-1:])
         dx = meanr + (patch - 1)*width
         plt.figure(0)
-        plt.bar(dx, a_c, yerr=[ -np.array(a_l),
-                                             np.array(a_r)],
-                width=width,
-                color=colors[patch],
-                label=label, ec="k",
-                align="edge", capsize=0)
-        '''
-        plt.scatter(meanr, a_c, color=colors[patch],  label=label, marker='o', s=10)
-        plt.errorbar(meanr, a_c , yerr=[ -np.array(a_l),  np.array(a_r)] , color=colors[patch], capsize=0, linestyle='')
-        '''
+        if(bar):
+            plt.bar(dx, a_c, yerr=[ -np.array(a_l), np.array(a_r)],
+                    width=width, color=colors[patch], label=label,
+                    ec="k", align="edge", capsize=0)
+        else:
+            plt.scatter(meanr, a_c, color=colors[patch],  label=label, marker='o', s=10)
+            plt.errorbar(meanr, a_c , yerr=[ -np.array(a_l),
+                                             np.array(a_r)] ,
+                         color=colors[patch],
+                         capsize=0, linestyle='')
+        
         plt.figure(1)
-        plt.bar(dx, b_c, yerr=[ -np.array(b_l),
-                                             np.array(b_r)],
-                width=width,
-                color=colors[patch],
-                label=label, ec="k",
-                align="edge", capsize=0)
-        '''
-        plt.scatter(meanr, b_c, color=colors[patch],  label=label, marker='o', s=10)
-        plt.errorbar(meanr, b_c , yerr=[ -np.array(b_l),  np.array(b_r)] , color=colors[patch], capsize=0, linestyle='')
-        '''
+        if(bar):
+            plt.bar(dx, b_c, yerr=[ -np.array(b_l), np.array(b_r)],
+                    width=width, color=colors[patch], label=label,
+                    ec="k", align="edge", capsize=0)
+        else:
+            plt.scatter(meanr, b_c, color=colors[patch],  label=label, marker='o', s=10)
+            plt.errorbar(meanr, b_c , yerr=[ -np.array(b_l),
+                                             np.array(b_r)] ,
+                         color=colors[patch],
+                         capsize=0, linestyle='')
+        
         plt.figure(2)
-        plt.bar(dx, d_c, yerr=[ -np.array(d_l),
-                                             np.array(d_r)],
-                width=width,
-                color=colors[patch],
-                label=label, ec="k",
-                align="edge", capsize=0)
-        '''
-        plt.scatter(meanr, d_c, color=colors[patch],  label=label, marker='o', s=10)
-        plt.errorbar(meanr, d_c , yerr=[ -np.array(d_l),  np.array(d_r)] , color=colors[patch], capsize=0, linestyle='')
-        '''
+        if(bar):
+            plt.bar(dx, d_c, yerr=[ -np.array(d_l), np.array(d_r)],
+                    width=width, color=colors[patch], label=label,
+                    ec="k", align="edge", capsize=0)
+        else:
+            plt.scatter(meanr, d_c, color=colors[patch],  label=label, marker='o', s=10)
+            plt.errorbar(meanr, d_c , yerr=[ -np.array(d_l),
+                                             np.array(d_r)] ,
+                         color=colors[patch],
+                         capsize=0, linestyle='')
+        
     plt.figure(0)
     plt.legend(loc='best', fontsize=10)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
@@ -290,8 +293,8 @@ def main():
     outpath = "/home/dfa/sobreira/alsina/alpha-beta-gamma/code/tests/"
     
     #run_parspatch(outpath)
-    #plotbarlog(outpath)
-    plotbarlineal(outpath)
+    #plotlog(outpath)
+    plotlineal(outpath, bar=False)
     
 
 

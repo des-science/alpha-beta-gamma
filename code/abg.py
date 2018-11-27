@@ -93,8 +93,10 @@ def main():
     dof = len(rhos[0])
     moderr = False
 
-    for eq in [0, 1, 2, 4]:
+    #for eq in [0, 1, 2, 4]:
+    for eq in [None]:
         ## ALPHA
+        '''
         gflag, bflag = False, False
         i_guess = [0] #fiducial values
         fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
@@ -117,6 +119,7 @@ def main():
         namecont = outpath+'/contours_alpha-beta_eq' + str(eq) + '_.pdf'
         mcmcpars = MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
         print("mcmc_alpha-beta",  mcmcpars)    
+        '''
         
         ## ALPHA-BETA-ETA
         gflag, bflag = True, True
@@ -126,7 +129,7 @@ def main():
         print("reduced Chi2:", chisq/dof )
         namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta-eta_eq' + str(eq) + '_.pdf'
-        mcmcpars = MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        mcmcpars = MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr,  nsig=2 )
         print("mcmc_alpha-beta-eta",  mcmcpars) 
         
    
