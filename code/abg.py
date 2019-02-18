@@ -50,31 +50,31 @@ def main():
     sqrtn = 1
     plt.clf()
     pretty_rho1(meanr, rho1p, sig_rho1, sqrtn, rho3p, sig_rho3, rho4p, sig_rho4)
-    print("Printing file: ", outpath +'/rho1_all_rsrs.pdf')
-    plt.savefig(outpath +'/rho1_all_rsrs.pdf')
+    print("Printing file: ", outpath +'/rho1_all_rsrs.png')
+    plt.savefig(outpath +'/rho1_all_rsrs.png')
     plt.clf()
     pretty_rho2(meanr, rho2p, sig_rho2, sqrtn, rho5p, sig_rho5)
-    print("Printing file: ", outpath +'/rho2_all_rsrs.pdf')
-    plt.savefig(outpath +'/rho2_all_rsrs.pdf')
+    print("Printing file: ", outpath +'/rho2_all_rsrs.png')
+    plt.savefig(outpath +'/rho2_all_rsrs.png')
     plt.clf()
     pretty_rho0(meanr, rho0p, sig_rho0, sqrtn)
-    print("Printing file: ", outpath +'/rho0_all_rsrs.pdf')
-    plt.savefig(outpath +'/rho0_all_rsrs.pdf')
+    print("Printing file: ", outpath +'/rho0_all_rsrs.png')
+    plt.savefig(outpath +'/rho0_all_rsrs.png')
 
     #Reading and plotting reserved stars galaxies correlations
     meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(args.rsgcorr, args.maxscale)
     plt.clf()
     pretty_tau(meanr2, tau0p, sig_tau0, sqrtn, r'$\tau_{0}(\theta)$')
-    print("Printing file: ", outpath +'/tau0_all_rsgal.pdf')
-    plt.savefig(outpath +'/tau0_all_rsgal.pdf')
+    print("Printing file: ", outpath +'/tau0_all_rsgal.png')
+    plt.savefig(outpath +'/tau0_all_rsgal.png')
     plt.clf()
     pretty_tau(meanr2, tau2p, sig_tau2, sqrtn, r'$\tau_{2}(\theta)$')
-    print("Printing file: ", outpath +'/tau2_all_rsgal.pdf')
-    plt.savefig(outpath +'/tau2_all_rsgal.pdf')
+    print("Printing file: ", outpath +'/tau2_all_rsgal.png')
+    plt.savefig(outpath +'/tau2_all_rsgal.png')
     plt.clf()
     pretty_tau(meanr2, tau5p, sig_tau5, sqrtn, r'$\tau_{5}(\theta)$')
-    print("Printing file: ", outpath +'/tau5_all_rsgal.pdf')
-    plt.savefig(outpath +'/tau5_all_rsgal.pdf')
+    print("Printing file: ", outpath +'/tau5_all_rsgal.png')
+    plt.savefig(outpath +'/tau5_all_rsgal.png')
     
     
     #Finding best alpha beta gamma
@@ -127,8 +127,8 @@ def main():
         fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
         print("alpha, beta, gamma:" , fitted_params)
         print("reduced Chi2:", chisq/dof )
-        namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.pdf'
-        namecont = outpath+'/contours_alpha-beta-eta_eq' + str(eq) + '_.pdf'
+        namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.png'
+        namecont = outpath+'/contours_alpha-beta-eta_eq' + str(eq) + '_.png'
         mcmcpars = MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr,  nsig=2 )
         print("mcmc_alpha-beta-eta",  mcmcpars) 
         

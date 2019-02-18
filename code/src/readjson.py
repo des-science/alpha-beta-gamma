@@ -138,7 +138,41 @@ def read_taus(stat_file, maxscale=None, maxbin =None ):
             sig_tau0 = sig_tau0[:maxbin]; sig_tau2 = sig_tau2[:maxbin]; sig_tau5 = sig_tau5[:maxbin]
 
         return meanr, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 
-              
+def read_xi(stat_file, maxscale=None, maxbin =None ):
+    import numpy as np
+
+    # Read the json file 
+    with open(stat_file,'r') as f:
+        stats = json.load(f)
+        
+    #print' stats = ',stats
+    if len(stats) == 1:  # I used to save a list of length 1 that in turn was a list
+        stats = stats[0]
+            
+        ( meanlogr,
+          xip,
+          xip_im,
+          xim,
+          xim_im,
+          var,
+        ) = stats[:6]
+
+        #Finally this are the arrays with the data
+        meanr = np.exp(meanlogr)
+        xip = np.array(xip)
+        sig_xi = np.sqrt(var)
+
+        if(maxscale):
+            maxs = maxscale
+            meanr = meanr[meanr<maxs]
+            idx = len(meanr)
+            xip = xip[:idx]; sig_xi = sig_xi[:idx]; 
+
+        if(maxbin):
+            meanr = meanr[: maxbin]; xip = xip[:maxbin];
+            sig_xi = sig_xi[:maxbin]; 
+
+        return meanr, xip, sig_xi            
 
  
  

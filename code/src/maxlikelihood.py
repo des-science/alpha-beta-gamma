@@ -73,7 +73,7 @@ def corner_plot(samples, labels, title):
     print("Printing file:",  title)
     plt.savefig(title)
     print(title, "Printed")
-def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.pdf', namecont='contcurve.pdf', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False,  plot=True, nsig=1):
+def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='contcurve.png', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False,  plot=True, nsig=1):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -312,16 +312,16 @@ def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True,
     plt.ylabel(r"Prior")
     plt.xlim([xmin, xmax])
     plt.plot(alphas, prior)
-    print("Printing file: Prior_only_alpha.pdf ")
-    plt.savefig('Prior_only_alpha.pdf')#, dpi=150)
+    print("Printing file: Prior_only_alpha.png ")
+    plt.savefig('Prior_only_alpha.png')#, dpi=150)
     
     plt.clf()
     plt.xlabel(r"$\alpha$")
     plt.ylabel(r"Likelihood")
     plt.xlim([xmin, xmax])
     plt.plot(alphas, like)
-    print("Printing file: Likelihood_only_alpha.pdf ")
-    plt.savefig('Likelihood_only_alpha.pdf')#, dpi=150)
+    print("Printing file: Likelihood_only_alpha.png ")
+    plt.savefig('Likelihood_only_alpha.png')#, dpi=150)
     
     #plt.clf()
     #plt.xlabel(r"$\alpha$")
@@ -332,8 +332,8 @@ def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True,
     #plt.axvline(x=alpha_16, linestyle="dashed", color="red")
     #plt.axvline(x=alpha_84, linestyle="dashed", color="red")
     #plt.axvline(x=alpha_50, color="red");
-    #print("Printing file: Posterior_only_alpha.pdf ")
-    #plt.savefig('Posterior_only_alpha.pdf')#, dpi=150)
+    #print("Printing file: Posterior_only_alpha.png ")
+    #plt.savefig('Posterior_only_alpha.png')#, dpi=150)
 
         
         

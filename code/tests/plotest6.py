@@ -33,24 +33,24 @@ def main():
     pretty_rho(meanr2, tau0p2, sig_tau02, sqrtn, legend='P-+', lfontsize=10,  color='red', ylabel=r'$\tau_{0}$', ylim=False)
     pretty_rho(meanr3, tau0p3, sig_tau03, sqrtn, legend='P--', lfontsize=10,  color='green', ylabel=r'$\tau_{0}$', ylim=False)
     pretty_rho(meanr4, tau0p4, sig_tau04, sqrtn, legend='P+-', lfontsize=10,  color='black', ylabel=r'$\tau_{0}$', ylim=False)
-    print("Printing :", outpath +'/taus0_quadrants.pdf')
-    plt.savefig(outpath +'/taus0_quadrants.pdf')
+    print("Printing :", outpath +'/taus0_quadrants.png')
+    plt.savefig(outpath +'/taus0_quadrants.png')
 
     plt.clf()
     pretty_rho(meanr1, tau2p1, sig_tau21, sqrtn, legend='P++', lfontsize=10,  color='blue', ylabel=r'$\tau_{2}$', ylim=False)
     pretty_rho(meanr2, tau2p2, sig_tau22, sqrtn, legend='P-+', lfontsize=10,  color='red', ylabel=r'$\tau_{2}$', ylim=False)
     pretty_rho(meanr3, tau2p3, sig_tau23, sqrtn, legend='P--', lfontsize=10,  color='green', ylabel=r'$\tau_{2}$', ylim=False)
     pretty_rho(meanr4, tau2p4, sig_tau24, sqrtn, legend='P+-', lfontsize=10,  color='black', ylabel=r'$\tau_{2}$', ylim=False)
-    print("Printing :", outpath +'/taus2_quadrants.pdf')
-    plt.savefig(outpath +'/taus2_quadrants.pdf')
+    print("Printing :", outpath +'/taus2_quadrants.png')
+    plt.savefig(outpath +'/taus2_quadrants.png')
 
     plt.clf()
     pretty_rho(meanr1, tau5p1, sig_tau51, sqrtn, legend='P++', lfontsize=10,  color='blue', ylabel=r'$\tau_{5}$', ylim=False)
     pretty_rho(meanr2, tau5p2, sig_tau52, sqrtn, legend='P-+', lfontsize=10,  color='red', ylabel=r'$\tau_{5}$', ylim=False)
     pretty_rho(meanr3, tau5p3, sig_tau53, sqrtn, legend='P--', lfontsize=10,  color='green', ylabel=r'$\tau_{5}$', ylim=False)
     pretty_rho(meanr4, tau5p4, sig_tau54, sqrtn, legend='P+-', lfontsize=10,  color='black', ylabel=r'$\tau_{5}$', ylim=False)
-    print("Printing :", outpath +'/taus5_quadrants.pdf')
-    plt.savefig(outpath +'/taus5_quadrants.pdf')
+    print("Printing :", outpath +'/taus5_quadrants.png')
+    plt.savefig(outpath +'/taus5_quadrants.png')
 
 
 if __name__ == "__main__":

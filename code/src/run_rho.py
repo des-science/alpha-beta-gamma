@@ -388,7 +388,7 @@ def measure_tau(data_stars, data_galaxies, Rs, max_sep, tag=None, prefix='piff',
         
     return results
 
-def measure_xi(data_galaxies, Rs, max_sep, tag=None, prefix='piff', mod=True):
+def measure_xi(data_galaxies, Rs, max_sep, mod=True):
     """Compute the rho statistics
     """
     import treecorr
@@ -412,15 +412,7 @@ def measure_xi(data_galaxies, Rs, max_sep, tag=None, prefix='piff', mod=True):
     print('decgal = ',decgal)
     
     egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
-
-    ecat.name = 'ecat'
-    decat.name = 'decat'
-    wcat.name = 'wcat'
     egal_cat.name = 'egal_cat'
-    
-    if tag is not None:
-        for cat in [ ecat, decat, wcat ]:
-            cat.name = tag + ":"  + cat.name
 
     bin_config = dict(
         sep_units = 'arcmin',
@@ -511,18 +503,9 @@ def do_tau_stats(data_stars, data_galaxies, Rs,  bands, tilings, outpath, prefix
         vartaus = [vartau0, vartau2, vartau5]
         write_tau_stats(vartaus, stat_file,*stats, shapenoise=shapenoise)
 
-def do_xi_stats(data_galaxies, Rs,  bands, tilings, outpath, prefix='piff', name='all', bandcombo=True, mod=True,  shapenoise=False):
+def do_xi_stats(data_galaxies, Rs, outpath, name='all', bandcombo=True, mod=True,  shapenoise=False):
     import numpy as np 
-    print('Start CANONICAL: ',prefix,name)
-    
-    
-    # Measure the canonical rho stats using all pairs:
-    use_bands = band_combinations(bands, allcombo=bandcombo)
-    for band in use_bands:
-        print('band ',band)
-        #mask_galaxies = np.in1d(data_galaxies['band'],band)
-        tag = ''.join(band)
-        #mod max_sep
-        stats = measure_xi(data_galaxies, Rs,  max_sep=300, tag=tag, prefix=prefix, mod=mod)
-        stat_file = os.path.join(outpath, "xi_%s_%s.json"%(name,tag))
-        write_tau_stats(stat_file,*stats, shapenoise=shapenoise)
+    print('Start CANONICAL: ',name)
+    stats = measure_xi(data_galaxies, Rs,  max_sep=300, mod=mod)
+    stat_file = os.path.join(outpath, "xi_%s_%s.json"%(name,'riz'))
+    write_xi_stat(stat_file,*stats, shapenoise=shapenoise)
