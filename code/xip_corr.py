@@ -2,7 +2,7 @@ import os
 
 def parse_args():
     import argparse
-    parser = argparse.ArgumentParser(description='Correlation galaxies and reserved stars')
+    parser = argparse.ArgumentParser(description='Shear correlation function with metacal. ')
     
     parser.add_argument('--metacal_cat',
                         #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
@@ -63,8 +63,7 @@ def main():
     print("R11s=",R11s)
     print("R22s=",R22s)
     
-    do_xi_stat(data_galaxies, Rs, bands, tilings, outpath,
-                   name='xi_mod', bandcombo=args.bandcombo, mod=True, shapenoise=True)
+    do_xi_stats(data_galaxies, Rs, outpath, name='xi_mod', bandcombo=args.bandcombo, mod=True, shapenoise=True)
 
 
 if __name__ == "__main__":

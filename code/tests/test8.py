@@ -1,8 +1,9 @@
+#run abn test and save files arrays of parameters going out to a maximum bin. 
 #plotting each term in the equation of correlations, to see if there are reason to cancel some part of the model.
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/plots',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/tests/',
                         help='location of the output of the files')
 
     args = parser.parse_args()
@@ -52,9 +53,8 @@ def read_pars(name):
     
 def run_parspatch(outpath):
     from readjson import read_rhos, read_taus
-    from plot_stats import pretty_rho
     from chi2 import minimizeCHI2
-    from maxlikelihood import MCMC
+    from maxlikelihood import MCMC, percentiles
     import numpy as np
 
     nwalkers,  nsteps = 100,  1000
@@ -90,9 +90,10 @@ def run_parspatch(outpath):
             fit_pars, chisq = minimizeCHI2(data, i_guess, eq=eq,
                                            gflag=gflag, bflag=bflag,
                                            moderr=moderr)
-            mcmcpars = MCMC(fit_pars,data, nwalkers, nsteps, eq=eq,
+            samples = MCMC(fit_pars,data, nwalkers, nsteps, eq=eq,
                             gflag=gflag, bflag=bflag, moderr=moderr,
                             plot=False )
+            mcmcpars = percentiles(samples, nsig=2) 
             a_c.append(mcmcpars[0][0]); a_l.append(mcmcpars[0][1]);a_r.append(mcmcpars[0][2])
             b_c.append(mcmcpars[1][0]); b_l.append(mcmcpars[1][1]);b_r.append(mcmcpars[1][2])
             d_c.append(mcmcpars[2][0]); d_l.append(mcmcpars[2][1]);d_r.append(mcmcpars[2][2])
@@ -250,9 +251,9 @@ def plotlineal(outpath,  bar=False):
     plt.xlim( [ 4e-1, 300] )
     plt.ylim( [ - 0.4, 0.4] )
     plt.tight_layout()
-    print("Printing :", outpath +'alpha_quadrants.pdf')
-    plt.savefig(outpath +'alpha_quadrants.pdf')
-    print("Printed :", outpath +'alpha_quadrants.pdf')
+    print("Printing :", outpath +'alpha_quadrants.png')
+    plt.savefig(outpath +'alpha_quadrants.png')
+    print("Printed :", outpath +'alpha_quadrants.png')
     plt.figure(1)
     plt.legend(loc='lower right', fontsize=10)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
@@ -261,9 +262,9 @@ def plotlineal(outpath,  bar=False):
     plt.xlim( [ 4e-1, 300] )
     plt.ylim( [ - 75, 40] )
     plt.tight_layout()
-    print("Printing :", outpath +'beta_quadrants.pdf')
-    plt.savefig(outpath +'/beta_quadrants.pdf')
-    print("Printed :", outpath +'beta_quadrants.pdf')
+    print("Printing :", outpath +'beta_quadrants.png')
+    plt.savefig(outpath +'/beta_quadrants.png')
+    print("Printed :", outpath +'beta_quadrants.png')
     plt.figure(2)
     plt.legend(loc='best', fontsize=10)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
@@ -272,9 +273,9 @@ def plotlineal(outpath,  bar=False):
     plt.xlim( [ 4e-1, 300] )
     plt.ylim( [ -600, 600] )
     plt.tight_layout()
-    print("Printing :", outpath +'eta_quadrants.pdf')
-    plt.savefig(outpath +'eta_quadrants.pdf')
-    print("Printed :", outpath +'eta_quadrants.pdf')
+    print("Printing :", outpath +'eta_quadrants.png')
+    plt.savefig(outpath +'eta_quadrants.png')
+    print("Printed :", outpath +'eta_quadrants.png')
         
 def main():
     import os
@@ -289,10 +290,8 @@ def main():
             os.makedirs(outpath)
     except OSError:
         if not os.path.exists(outpath): raise
-
-    outpath = "/home/dfa/sobreira/alsina/alpha-beta-gamma/code/tests/"
     
-    #run_parspatch(outpath)
+    run_parspatch(outpath)
     #plotlog(outpath)
     plotlineal(outpath, bar=False)
     

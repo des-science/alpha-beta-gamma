@@ -31,7 +31,7 @@ def main():
     from readjson import read_rhos, read_taus
     from plot_stats import pretty_rho1, pretty_rho2, pretty_rho0,  pretty_tau
     from chi2 import CHI2,  minimizeCHI2,  plotCHI2, plotCHI2shifted
-    from maxlikelihood import MCMC, OneParMaxLike
+    from maxlikelihood import MCMC, percentiles, OneParMaxLike
     import numpy as np
 
     
@@ -92,44 +92,63 @@ def main():
     nwalkers,  nsteps = 100,  1000
     dof = len(rhos[0])
     moderr = False
+    nsig = 2
 
     #for eq in [0, 1, 2, 4]:
     for eq in [None]:
-        ## ALPHA
         '''
+        ## ALPHA
         gflag, bflag = False, False
         i_guess = [0] #fiducial values
-        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
+        fitted_params, chisq = minimizeCHI2(data, i_guess, eq=eq,
+                                            gflag=gflag, bflag=bflag,
+                                            moderr=moderr)
         print("alpha" , fitted_params)
         print("reduced Chi2 :", chisq/dof )
         namemc = None
         #namemc = outpath+'/mcmc_alpha_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha_eq' + str(eq) + '_.pdf'
-        mcmcpars =  MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        samples = MCMC(fitted_params,data,nwalkers,nsteps, namemc,
+                       namecont, eq=eq, gflag=gflag, bflag=bflag,
+                       moderr=moderr )
+        mcmcpars = percentiles(samples, nsig=nsig) 
         print("mcmc_alpha",  mcmcpars)    
     
         ## ALPHA-BETA
         gflag, bflag = False, True
         i_guess = [0,-1] #fiducial values
-        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
+        fitted_params, chisq = minimizeCHI2(data, i_guess, eq=eq,
+                                            gflag=gflag, bflag=bflag,
+                                            moderr=moderr)
         print("alpha, beta" , fitted_params)
         print("reduced Chi2:", chisq/dof )
         namemc =  None
         #namemc = outpath+'/mcmc_alpha-beta_eq' + str(eq) + '_.pdf'
         namecont = outpath+'/contours_alpha-beta_eq' + str(eq) + '_.pdf'
-        mcmcpars = MCMC(fitted_params,data,nwalkers,nsteps, namemc, namecont, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
+        samples = MCMC(fitted_params,data,nwalkers,nsteps, namemc,
+                       namecont, eq=eq, gflag=gflag, bflag=bflag,
+                       moderr=moderr )
+        mcmcpars = percentiles(samples, nsig=nsig) 
         print("mcmc_alpha-beta",  mcmcpars)    
         '''
         
         ## ALPHA-BETA-ETA
         gflag, bflag = True, True
         i_guess = [0,-1,- 1] #fiducial values
-        fitted_params, chisq =  minimizeCHI2(data, i_guess,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr)
+        fitted_params, chisq = minimizeCHI2(data, i_guess, eq=eq,
+                                            gflag=gflag, bflag=bflag,
+                                            moderr=moderr)
         print("alpha, beta, gamma:" , fitted_params)
         print("reduced Chi2:", chisq/dof )
         namemc = outpath+'/mcmc_alpha-beta-eta_eq' + str(eq) + '_.png'
         namecont = outpath+'/contours_alpha-beta-eta_eq' + str(eq) + '_.png'
-        mcmcpars = MCMC(fitted_params,data, nwalkers, nsteps, namemc, namecont,  eq=eq, gflag=gflag, bflag=bflag, moderr=moderr,  nsig=2 )
+        samples = MCMC(fitted_params,data, nwalkers, nsteps, namemc,
+                       namecont, eq=eq, gflag=gflag, bflag=bflag,
+                       moderr=moderr )
+        #print(samples)
+        cov = np.cov(samples)
+        print(cov)
+        mcmcpars = percentiles(samples, nsig=nsig) 
         print("mcmc_alpha-beta-eta",  mcmcpars) 
         
    
