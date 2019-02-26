@@ -1,6 +1,7 @@
 #Plot the xipobs and the additional shift.
 #plot each term of the ixpobs shift
 #plot xi_teorico
+
 def plotxipandbias(pars, pars_er, rhosfilename, tausfilename, xifilename, outpath):
     import matplotlib
     matplotlib.use('Agg')

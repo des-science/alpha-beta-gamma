@@ -263,6 +263,14 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='
         samples[:, 2] = np.exp(samples[:, 2])
         return samples
 
+def bestparameters(samples):
+    import numpy as np
+    allpars = []
+    for i in range (0, len(samples)):
+        par = np.percentile(samples[i], [50]);
+        allpars.append(par)
+    return allpars
+            
 def percentiles(samples, nsig=1):
     import numpy as np
     allpars_percent_list = []

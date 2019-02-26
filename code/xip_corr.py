@@ -12,7 +12,7 @@ def parse_args():
                          help='Limit to the given bands')
     parser.add_argument('--bandcombo', default=False,
                         action='store_const', const=True,
-                        help='run rho2 for all combination of bands, if false run particular combination defined in band')
+                        help='run rho2 for all combination of bands, if false run particular combination defined in bands')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma',
                         help='location of the output of the files')
     
