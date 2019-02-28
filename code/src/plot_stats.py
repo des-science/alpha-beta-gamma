@@ -4,12 +4,22 @@ import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
 
 def pretty_rho(meanr, rho, sig, sqrtn,  legend=None, lfontsize=24, color='black', marker='o', ylabel=r'$\rho(\theta)$', ylim=True):
+    '''
     plt.plot(meanr, rho, color=color, label=legend, marker=marker)
     plt.plot(meanr, -rho, color=color, ls=':', marker=marker)
     if sig is not None:
         plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color=color, ls='', marker=marker)
         plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color=color, ls='', marker=marker)
         rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color=color, marker=marker)
+    '''
+    plt.plot(meanr, rho, color=color, label=legend)
+    plt.plot(meanr, -rho, color=color, ls=':')
+    #rigth quadrants
+    plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0], color=color, ls='', marker=marker,  capsize=2)
+    plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0], color=color, ls='', marker=marker,  capsize=2)
+    #leftquadrants
+    plt.errorbar( -meanr, rho, yerr=sig, color=color,  marker='^',  capsize=2)
+    plt.errorbar( -meanr,-rho, yerr=sig, color=color,  marker='^', ls=':', capsize=2)
     plt.legend(loc='best', fontsize=lfontsize)
     if(ylim):
         plt.ylim( [1.e-8, 1.e-5] )
@@ -27,6 +37,7 @@ def pretty_rho0(meanr, rho, sig, sqrtn):
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')
     plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color='blue', ls='', marker='o')
     rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
+    rho0_line = plt.errorbar(-meanr,- rho, yerr=sig, color='blue', marker='o', ls=':')
     plt.legend([rho0_line],[r'$\rho_0(\theta)$'],loc='upper right', fontsize=24)
     #plt.ylim( [1.e-9, 5.e-6] )
     plt.tick_params(axis='both', which='major', labelsize=24)
@@ -45,18 +56,21 @@ def pretty_rho1(meanr, rho, sig, sqrtn, rho3=None, sig3=None, rho4=None, sig4=No
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')
     plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color='blue', ls='', marker='o')
     rho1_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
+    #rho1_line = plt.errorbar(-meanr,-rho, yerr=sig, color='blue', marker='o', ls=':')
     if rho3 is not None:
         plt.plot(meanr*1.03, rho3, color='green')
         plt.plot(meanr*1.03, -rho3, color='green', ls=':')
         plt.errorbar(meanr[rho3>0]*1.03, rho3[rho3>0], yerr=sig3[rho3>0]/sqrtn, color='green', ls='', marker='s')
         plt.errorbar(meanr[rho3<0]*1.03, -rho3[rho3<0], yerr=sig3[rho3<0]/sqrtn, color='green', ls='', marker='s')
         rho3_line = plt.errorbar(-meanr, rho3, yerr=sig3, color='green', marker='s')
+        #rho3_line = plt.errorbar(-meanr,-rho3, yerr=sig3, color='green', marker='s', ls=':')
     if rho4 is not None:
         plt.plot(meanr*1.06, rho4, color='red')
         plt.plot(meanr*1.06, -rho4, color='red', ls=':')
         plt.errorbar(meanr[rho4>0]*1.06, rho4[rho4>0], yerr=sig4[rho4>0]/sqrtn, color='red', ls='', marker='^')
         plt.errorbar(meanr[rho4<0]*1.06, -rho4[rho4<0], yerr=sig4[rho4<0]/sqrtn, color='red', ls='', marker='^')
         rho4_line = plt.errorbar(-meanr, rho4, yerr=sig4, color='red', marker='^')
+        #rho4_line = plt.errorbar(-meanr,-rho4, yerr=sig4, color='red', marker='^', ls=':')
     #sv_req = mp.Patch(color='#FFFF82')
     if rho3 is not None and rho4 is not None:
         plt.legend([rho1_line, rho3_line, rho4_line],
@@ -95,12 +109,14 @@ def pretty_rho2(meanr, rho, sig, sqrtn, rho5=None, sig5=None ):
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')
     plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color='blue', ls='', marker='o')
     rho2_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
+    #rho2_line = plt.errorbar(-meanr,-rho, yerr=sig, color='blue', marker='o', ls=':')
     if rho5 is not None:
         plt.plot(meanr*1.03, rho5, color='green')
         plt.plot(meanr*1.03, -rho5, color='green', ls=':')
         plt.errorbar(meanr[rho5>0]*1.03, rho5[rho5>0], yerr=sig5[rho5>0]/sqrtn, color='green', ls='', marker='s')
         plt.errorbar(meanr[rho5<0]*1.03, -rho5[rho5<0], yerr=sig5[rho5<0]/sqrtn, color='green', ls='', marker='s')
         rho5_line = plt.errorbar(-meanr, rho5, yerr=sig5, color='green', marker='s')
+        #rho5_line = plt.errorbar(-meanr,-rho5, yerr=sig5, color='green', marker='s', ls=':')
     #sv_req = mp.Patch(color='#FFFF82')
 
     if rho5 is not None :
@@ -134,6 +150,7 @@ def pretty_tau(meanr, rho, sig, sqrtn, title):
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')
     plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0]/sqrtn, color='blue', ls='', marker='o')
     rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
+    #rho0_line = plt.errorbar(-meanr,-rho, yerr=sig, color='blue', marker='o', ls=':')
     plt.legend([rho0_line],[title],loc='upper right', fontsize=24)
     #plt.ylim( [1.e-9, 5.e-6] )
     plt.tick_params(axis='both', which='major', labelsize=24)
