@@ -65,8 +65,6 @@ def main():
         
     if(args.tomo):
         print('Starting Tomography!')
-        binpairs =  bin_pairs(4)
-        print(binpairs)
         galkeys = ['ra','dec','e_1','e_2','R11','R22']
         data_gal =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
         print("Total objects in catalog:", len(data_gal))
@@ -101,12 +99,13 @@ def main():
             data_gal=  data_gal[select][ind]
             data_gal_list.append(data_gal)
             Rs_list.append(Rs)
-        
-        do_xi_stats_tomo(data_gal_list, Rs_list, i, j, outpath, name=
-                         today +'xi_mod_'+ str(i + 1) +'_' +str(j + 1)
-                         , max_sep=300, sep_units='arcmin',
-                         bandcombo=args.bandcombo, mod=args.mod,
-                         shapenoise=args.sn)
+        for i, j in bin_pairs(4):
+            do_xi_stats_tomo(data_gal_list, Rs_list, i, j, outpath,
+                             name= today +'xi_mod_'+ str(i + 1) +'_'
+                             +str(j + 1) , max_sep=300,
+                             sep_units='arcmin',
+                             bandcombo=args.bandcombo, mod=args.mod,
+                             shapenoise=args.sn)
     
     galkeys = ['ra','dec','e_1','e_2','R11','R22']
     data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
