@@ -23,5 +23,5 @@ cd /home/dfa/sobreira/alsina/alpha-beta-gamma/code
 INSTALL=/home/dfa/sobreira/alsina/sw
 START_PATH=/home/dfa/sobreira/alsina/alpha-beta-gamma/code
 
-$INSTALL/pyhton/2714/install/bin/python $START_PATH/galaxies_rstars_corr.py 
+$INSTALL/pyhton/2714/install/bin/python $START_PATH/galaxies_rstars_corr.py --tomo 
 
