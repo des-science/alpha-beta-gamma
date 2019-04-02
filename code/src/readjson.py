@@ -1,8 +1,7 @@
 import json
+import numpy as np
 
 def read_rhos(stat_file, maxscale=None,  maxbin =None ):
-    import numpy as np
-
     # Read the json file 
     with open(stat_file,'r') as f:
         stats = json.load(f)
@@ -85,8 +84,6 @@ def read_rhos(stat_file, maxscale=None,  maxbin =None ):
         return meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 
 
 def read_taus(stat_file, maxscale=None, maxbin =None ):
-    import numpy as np
-
     # Read the json file 
     with open(stat_file,'r') as f:
         stats = json.load(f)
@@ -139,7 +136,6 @@ def read_taus(stat_file, maxscale=None, maxbin =None ):
 
         return meanr, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 
 def read_xi(stat_file, maxscale=None, maxbin =None ):
-    import numpy as np
 
     # Read the json file 
     with open(stat_file,'r') as f:
@@ -174,5 +170,13 @@ def read_xi(stat_file, maxscale=None, maxbin =None ):
 
         return meanr, xip, sig_xi            
 
- 
- 
+def read_dxip(filename):
+    with open(filename,'r') as f:
+        stats = json.load(f)
+        if len(stats) == 1:  
+            stats = stats[0]
+            ( meanr,dxip, sig_dxip) = stats[:3]
+            meanr = np.array(meanr)
+            dxip = np.array(dxip)
+            sig_dxip = np.array(sig_dxip)
+            return meanr, dxip, sig_dxip

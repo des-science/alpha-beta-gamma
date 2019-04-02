@@ -6,8 +6,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Shear correlation function with metacal. ')
     
     parser.add_argument('--metacal_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
-                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/cats_des_y3/Y3_mastercat_v2_6_20_18.h5', 
+                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
+                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/cats_des_y3/Y3_mastercat_v2_6_20_18.h5', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--bands', default='riz', type=str,
                          help='Limit to the given bands')
@@ -78,9 +78,6 @@ def main():
         n = h.File(args.nz_source, 'r')
         zbin_array = np.array(n['nofz/zbin'])
         
-        ind2 = np.where( zbin_array==1 )[0]
-        ind3 = np.where( zbin_array==2 )[0]
-        ind4 = np.where( zbin_array==3 )[0]
 
         data_gal_list = []; Rs_list = []
         nbins = 4
@@ -95,11 +92,10 @@ def main():
                 data_gal['e_1'][select_1m][ind_1m].mean() )/dgamma
             R22s = (data_gal['e_2'][select_2p][ind_2p].mean() -
                   data_gal['e_2'][select_2m][ind_2m].mean() )/dgamma
-            Rs = [R11s, R22s]
-            data_gal=  data_gal[select][ind]
-            data_gal_list.append(data_gal)
+            Rs = [R11s, R22s] 
+            data_gal_list.append(data_gal[select][ind])
             Rs_list.append(Rs)
-        for i, j in bin_pairs(4):
+        for i, j in bin_pairs(nbins):
             do_xi_stats_tomo(data_gal_list, Rs_list, i, j, outpath,
                              name= today +'xi_mod_'+ str(i + 1) +'_'
                              +str(j + 1) , max_sep=300,

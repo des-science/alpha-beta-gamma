@@ -446,7 +446,7 @@ def measure_xi_tomo(datagal_list, Rs_list, i, j,  max_sep=300, sep_units='arcmin
     Rs_i = Rs_list[i]
     R11_i =  data_galaxies_i['R11']
     R22_i =  data_galaxies_i['R22']
-    R11s_i =  Rs_i[0]; R22s =  Rs_i[1]
+    R11s_i =  Rs_i[0]; R22s_i =  Rs_i[1]
     e1gal_i = data_galaxies_i['e_1']/(R11s_i + np.mean(R11_i))
     e2gal_i = data_galaxies_i['e_2']/(R22s_i + np.mean(R22_i))
     #Modified ellipticities galaxies
@@ -456,8 +456,8 @@ def measure_xi_tomo(datagal_list, Rs_list, i, j,  max_sep=300, sep_units='arcmin
         
     ragal_i = data_galaxies_i['ra']
     decgal_i = data_galaxies_i['dec']
-    print('ragal = ',ragal)
-    print('decgal = ',decgal)
+    print('ragal_i = ',ragal_i)
+    print('decgal_i = ',decgal_i)
     
     egal_cat_i = treecorr.Catalog(ra=ragal_i, dec=decgal_i, ra_units='deg', dec_units='deg', g1=e1gal_i, g2=e2gal_i)
     egal_cat_i.name = 'egal_cat_i'
@@ -466,7 +466,7 @@ def measure_xi_tomo(datagal_list, Rs_list, i, j,  max_sep=300, sep_units='arcmin
     Rs_j = Rs_list[j]
     R11_j =  data_galaxies_j['R11']
     R22_j =  data_galaxies_j['R22']
-    R11s =  Rs_j[0]; R22s =  Rs_j[1]
+    R11s_j =  Rs_j[0]; R22s_j =  Rs_j[1]
     e1gal_j = data_galaxies_j['e_1']/(R11s_j + np.mean(R11_j))
     e2gal_j = data_galaxies_j['e_2']/(R22s_j + np.mean(R22_j))
     #Modified ellipticities galaxies
@@ -476,8 +476,8 @@ def measure_xi_tomo(datagal_list, Rs_list, i, j,  max_sep=300, sep_units='arcmin
         
     ragal_j = data_galaxies_j['ra']
     decgal_j = data_galaxies_j['dec']
-    print('ragal = ',ragal)
-    print('decgal = ',decgal)
+    print('ragal_j = ',ragal_j)
+    print('decgal_j = ',decgal_j)
     
     egal_cat_j = treecorr.Catalog(ra=ragal_j, dec=decgal_j, ra_units='deg', dec_units='deg', g1=e1gal_j, g2=e2gal_j)
     egal_cat_j.name = 'egal_cat_j'
@@ -538,7 +538,7 @@ def do_rho_stats(data, bands, tilings, outpath, max_sep=300, sep_units='arcmin',
         print('len(data[mask]) = ',len(data[mask]))
         tag = ''.join(band)
         stats = measure_rho(data[mask], max_sep=max_sep, sep_units=sep_units, tag=tag, prefix=prefix,  mod=mod,  obs=obs)
-        stat_file = os.path.join(outpath, "rho_%s_%s.json"%(name,tag))
+        stat_file = os.path.join(outpath, "rho_%s_%s.json"%(tag, name))
         write_stats(stat_file,*stats, shapenoise=shapenoise)
 
 def do_tau_stats( data_galaxies, Rs, data_stars,  bands, tilings, outpath, max_sep=300, sep_units='arcmin', prefix='piff',  name='tau_corr',   bandcombo=False, mod=True,  shapenoise=True):
@@ -556,7 +556,7 @@ def do_tau_stats( data_galaxies, Rs, data_stars,  bands, tilings, outpath, max_s
         tag = ''.join(band)
         #mod max_sep
         stats = measure_tau(data_stars[mask_stars], data_galaxies, Rs,  max_sep=max_sep, sep_units=sep_units,  tag=tag, prefix=prefix, mod=mod)
-        stat_file = os.path.join(outpath, "tau_%s_%s.json"%(name,tag))
+        stat_file = os.path.join(outpath, "tau_%s_%s.json"%(tag, name))
         vartau0, vartau2, vartau5 =  getVariances(data_stars, data_galaxies, Rs, *stats, prefix=prefix, mod=mod)
         vartaus = [vartau0, vartau2, vartau5]
         write_tau_stats(vartaus, stat_file,*stats, shapenoise=shapenoise)
@@ -565,12 +565,12 @@ def do_xi_stats(data_galaxies, Rs, outpath, max_sep=300, sep_units='arcmin', nam
     import numpy as np 
     print('Start CANONICAL: ',name)
     stats = measure_xi(data_galaxies, Rs,  max_sep=max_sep, sep_units=sep_units,  mod=mod)
-    stat_file = os.path.join(outpath, "xi_%s_%s.json"%(name,'riz'))
+    stat_file = os.path.join(outpath, "xi_%s_%s.json"%('riz', name))
     write_xi_stat(stat_file,*stats, shapenoise=shapenoise)
 
 def do_xi_stats_tomo(datagal_list, Rs_list, i, j, outpath, max_sep=300, sep_units='arcmin', name='all', bandcombo=True, mod=True,  shapenoise=False):
     import numpy as np 
     print('Start Xi measurement: ',name)
-    stats = measure_xi(datagal_list, Rs_list, i, j,  max_sep=max_sep, sep_units=sep_units,  mod=mod)
-    stat_file = os.path.join(outpath, "xi_%s_%s.json"%(name,'riz'))
+    stats = measure_xi_tomo(datagal_list, Rs_list, i, j,  max_sep=max_sep, sep_units=sep_units,  mod=mod)
+    stat_file = os.path.join(outpath, "xi_%s_%s.json"%('riz', name))
     write_xi_stat(stat_file,*stats, shapenoise=shapenoise)

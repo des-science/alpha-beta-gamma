@@ -1,12 +1,12 @@
 import os
-today = '26-03-19_'
+today = '01-04-19_'
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Produce Tau correlations, i.e correlation among galaxies and reserved stars')
     
     parser.add_argument('--metacal_cat',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
-                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/cats_des_y3/Y3_mastercat_v2_6_20_18.h5', 
+                        #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
+                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/cats_des_y3/Y3_mastercat_v2_6_20_18.h5', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -85,6 +85,14 @@ def main():
     
     
     if(args.tomo):
+        #Make directory where the ouput data will be
+        ipath =  os.path.join(args.outpath, 'tomo_taus' )
+        outpath = os.path.expanduser(ipath)
+        try:
+            if not os.path.exists(outpath):
+                os.makedirs(outpath)
+        except OSError:
+            if not os.path.exists(outpath): raise
         print('Starting Tomography!')
         galkeys = ['ra','dec','e_1','e_2','R11','R22']
         data_gal =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
@@ -98,12 +106,7 @@ def main():
 
         n = h.File(args.nz_source, 'r')
         zbin_array = np.array(n['nofz/zbin'])
-        
-        ind2 = np.where( zbin_array==1 )[0]
-        ind3 = np.where( zbin_array==2 )[0]
-        ind4 = np.where( zbin_array==3 )[0]
 
-        data_gal_list = []; Rs_list = []
         nbins = 4
         for bin_c in range(nbins):
             print('Starting bin!',  bin_c)
@@ -116,12 +119,11 @@ def main():
                 data_gal['e_1'][select_1m][ind_1m].mean() )/dgamma
             R22s = (data_gal['e_2'][select_2p][ind_2p].mean() -
                   data_gal['e_2'][select_2m][ind_2m].mean() )/dgamma
-            Rs = [R11s, R22s]
-            data_gal=  data_gal[select][ind]
+            Rs = [R11s, R22s] 
 
-            do_tau_stats( data_gal, Rs, data_stars, bands, tilings,
-                          outpath, max_sep=300, sep_units='arcmin',
-                          name= today + 'all_galaxy-reserved_mod_bin_' + str(bin_c + 1) ,
+            do_tau_stats( data_gal[select][ind], Rs, data_stars, bands, tilings,
+                          outpath,    max_sep=300, sep_units='arcmin',
+                          name= today + 'all_galaxy-reserved_mod_bin_' + str(bin_c + 1) + '_' + str(bin_c + 1) ,
                           bandcombo=args.bandcombo, mod=args.mod,
                           shapenoise=args.sn)
 
