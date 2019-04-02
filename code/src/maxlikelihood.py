@@ -1,9 +1,20 @@
-#Log natural of the prior 
-def logprior(pars, gflag=True,bflag = True):
+#Log natural of the prior
+import matplotlib.pyplot as plt
+plt.style.use('SVA1StyleSheet.mplstyle')
+
+def logprior(pars, gflag=True,bflag = True,  uwmprior=False):
     import numpy as np
-    l = 1000
-    alpha_min, beta_min, eta_min  = -l,-l,-l
-    alpha_max, beta_max, eta_max  = l,l,l
+    if(uwmprior):
+        al = - 2; au =  2
+        bl = - 1; bu =  3
+        el =- 3; eu = 1
+    else:
+        l = 1000
+        al = -l; au =  l
+        bl = -l; bu =  l
+        el = -l; eu = l
+    alpha_min, beta_min, eta_min  = al,bl,el
+    alpha_max, beta_max, eta_max  = au,bu,eu
     if(gflag and bflag):
         #print("Using alpha, beta and delta")
         alpha, beta, eta = pars
@@ -29,14 +40,14 @@ def logprior(pars, gflag=True,bflag = True):
 def loglike(chisq):
     return -0.5*chisq
 ##Log natural of the posterior
-def logpost(pars, data,svalue=None, eq=None, gflag=True,bflag = True, moderr=False):
+def logpost(pars, data,svalue=None, eq=None, gflag=True,bflag = True, moderr=False, uwmprior=False):
     import numpy as np
     from chi2 import CHI2, CHI2shifted
     if(svalue):
         chisq = CHI2shifted(pars, data,svalue, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
     else:
         chisq = CHI2(pars, data,eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
-    lp = logprior(pars, gflag=gflag,bflag = bflag)
+    lp = logprior(pars, gflag=gflag,bflag = bflag, uwmprior=uwmprior)
     if not np.isfinite(lp):
         return -np.inf
     return lp + loglike(chisq)
@@ -45,10 +56,18 @@ def alpha_percentil(p, mu, data, svalue=None, eq=None):
     from scipy.integrate import quad
     from scipy.optimize import brentq
     import numpy as np
-    max_loglike= logpost(mu,data, svalue=svalue, eq=None, gflag=False, bflag=False, moderr=False)
+    max_loglike= logpost(mu,data, svalue=svalue, eq=None, gflag=False, bflag=False, moderr=False, uwmprior=False)
     print(mu,  max_loglike)
     def cumulative_like(alpha):
-        integral, _ = quad(lambda x: np.exp(logpost(x, data, svalue=svalue,  eq=eq, gflag=False, bflag=False, moderr=False ) - max_loglike), -np.inf, alpha)
+        integral, _ = quad(lambda x: np.exp(logpost(x, data,
+                                                    svalue=svalue,
+                                                    eq=eq,
+                                                    gflag=False,
+                                                    bflag=False,
+                                                    moderr=False ,
+                                                    uwmprior=False) -
+                                            max_loglike),
+                           -np.inf, alpha)
         return integral
     total_int = cumulative_like(np.inf)
     #print(total_int)
@@ -56,10 +75,6 @@ def alpha_percentil(p, mu, data, svalue=None, eq=None):
     return perc
 
 def corner_plot(samples, labels, title):
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    plt.style.use('SVA1StyleSheet.mplstyle')
     import corner
     import numpy as np
     burn = 5000
@@ -67,17 +82,17 @@ def corner_plot(samples, labels, title):
     fig = corner.corner(samples_burned.T, labels=labels,
                         quantiles=[0.16, 0.5, 0.84],  #-1sigma,0sigma,1sigma
                         levels=(1-np.exp(-0.5), 1-np.exp(-2), 1-np.exp(-9./2)), #1sigma, 2sigma and 3sigma contours
-                        show_titles=True, title_kwargs={"fontsize": 12}, title_fmt= '.3f', 
+                        show_titles=True, title_kwargs={"fontsize": 12}, title_fmt= '.4f', 
                         smooth1d=None, plot_contours=True,  
                         no_fill_contours=False, plot_density=True, use_math_text=True, )
     print("Printing file:",  title)
     plt.savefig(title)
+    plt.close(fig)
     print(title, "Printed")
-def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='contcurve.png', svalue=None,  eq=None, gflag=True,bflag = True , moderr=False,  plot=True):
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    plt.style.use('SVA1StyleSheet.mplstyle')
+def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
+         namecont='contcurve.png', svalue=None, eq=None,
+         gflag=True,bflag = True , moderr=False, uwmprior=False,
+         plot=True):
     import emcee  
     import numpy as np
     if(gflag and bflag):
@@ -86,7 +101,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='
         ndim = 3
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag, moderr) )
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost,
+                                        threads=4,
+                                        args=(data,svalue,eq,gflag,bflag,
+                                              moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
         print("Run finished")
@@ -137,6 +155,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='
             
             print("Printing file:",  namemc)
             plt.savefig(namemc)
+            plt.close(fig)
             print(namemc, "Printed")
             corner_plot(samples, labels, namecont)
 
@@ -153,7 +172,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='
         ndim = 2
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag, moderr) )
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost,
+                                        threads=4,
+                                        args=(data,svalue,eq,gflag,bflag,
+                                              moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
         print("Run finished")
@@ -192,14 +214,18 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='
             beta_chain_mean = np.mean(beta_chain, axis=0)
             beta_chain_err = np.std(beta_chain, axis=0) / np.sqrt(nwalkers)
             idx = np.arange(len(alpha_chain_mean))
-            axs[0][2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
-                               lw=0.5, elinewidth=2., color='k')
-            axs[1][2].errorbar(x=idx, y=beta_chain_mean, yerr=beta_chain_err, errorevery=50, ecolor='red',
-                               lw=0.5, elinewidth=2., color='k');
+            axs[0][2].errorbar(x=idx, y=alpha_chain_mean,
+                               yerr=alpha_chain_err, errorevery=50,
+                               ecolor='red', lw=0.5, elinewidth=2.,
+                               color='k')
+            axs[1][2].errorbar(x=idx, y=beta_chain_mean,
+                               yerr=beta_chain_err, errorevery=50,
+                               ecolor='red', lw=0.5, elinewidth=2.,
+                               color='k');
             if namemc is not None:
                 print("Printing file:",  namemc)
                 plt.savefig(namemc)
-                fig.close()
+                plt.close(fig)
                 print(namemc, "Printed")
                 corner_plot(samples, labels, namecont)
             
@@ -212,7 +238,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='
         ndim = 1
         pos = [best_pars + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
         # MCMC chain with 50 walkers and 1000 steps
-        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost, threads=4,  args=(data,svalue,eq,gflag,bflag, moderr) )
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost,
+                                        threads=4,
+                                        args=(data,svalue,eq,gflag,bflag,
+                                              moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
         print("Run finished")
@@ -250,12 +279,14 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png', namecont='
                 alpha_chain_mean = np.mean(alpha_chain, axis=0)
                 alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
                 idx = np.arange(len(alpha_chain_mean))
-                axs[2].errorbar(x=idx, y=alpha_chain_mean, yerr=alpha_chain_err, errorevery=50, ecolor='red',
-                                lw=0.5, elinewidth=2., color='k')
+                axs[2].errorbar(x=idx, y=alpha_chain_mean,
+                                yerr=alpha_chain_err, errorevery=50,
+                                ecolor='red', lw=0.5, elinewidth=2.,
+                                color='k')
                 if namemc is not None:
                     print("Printing file:",  namemc)
                     plt.savefig(namemc)
-                    fig.close()
+                    plt.close(fig)
                     print(namemc, "Printed")
 
                 corner_plot(samples, labels, namecont)
@@ -268,7 +299,7 @@ def bestparameters(samples):
     allpars = []
     for i in range (0, len(samples)):
         par = np.percentile(samples[i], [50]);
-        allpars.append(par)
+        allpars.append(par[0])
     return allpars
             
 def percentiles(samples, nsig=1):
@@ -284,11 +315,7 @@ def percentiles(samples, nsig=1):
     
     return allpars_percent_list
 
-def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True, moderr=False):    
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    plt.style.use('SVA1StyleSheet.mplstyle')
+def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True, uwmprior=False,  moderr=False):    
     from chi2 import CHI2shifted
     import numpy as np
     alpha_16 = alpha_percentil(0.16, best_pars, data, svalue=svalue,  eq=eq)
@@ -302,13 +329,13 @@ def OneParMaxLike(best_pars,data,eq=None, svalue=None , gflag=True,bflag = True,
     xmin, xmax, npoints = -0.05, 0.05, 100
     alphas = np.linspace(xmin, xmax, npoints)
     #logprior and prior
-    lprior = [logprior(x, gflag=gflag ,bflag = bflag)  for x in alphas]
+    lprior = [logprior(x, gflag=gflag ,bflag = bflag, uwmprior=uwmprior)  for x in alphas]
     prior = np.exp(lprior)
     #loglikelihood and likelihood
     llike = [loglike(CHI2shifted(x,data, svalue=svalue,eq=eq, gflag=gflag, bflag=bflag, moderr=moderr ))  for x in alphas]
     like= np.exp(llike)
     #logposterior and posterior
-    lpost = [logpost(x, data,svalue=svalue, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr ) for x in alphas]
+    lpost = [logpost(x, data,svalue=svalue, eq=eq, gflag=gflag, bflag=bflag, moderr=moderr, uwmprior=uwmprior ) for x in alphas]
     posterior = np.exp(lpost)
     plt.clf()
     plt.xlabel(r"$\alpha$")
