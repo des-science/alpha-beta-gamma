@@ -1,14 +1,25 @@
 #run abn test and save files arrays of parameters going out to a maximum bin. 
 #plotting each term in the equation of correlations, to see if there are reason to cancel some part of the model.
+import os
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.style.use('SVA1StyleSheet.mplstyle')
+
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/tests/',
-                        help='location of the output of the files')
+    parser.add_argument('--rhosfolder',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rhos_patch/',
+                        help='location of the folder containing all the rhos files. They must end in the number of the patch')
+    parser.add_argument('--tausfolder',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/taus4patch/',help='location of the folder containing all the taus files. They must endin the number of the patch')
+    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/taus4patch/', help='location of the output of the files')
 
     args = parser.parse_args()
 
     return args
+
 def write_pars(name, meanr, a_c, a_l, a_r, b_c, b_l, b_r, d_c, d_l, d_r):
     import json
     stats = [
@@ -51,20 +62,31 @@ def read_pars(name):
     a_c = np.array(a_c); a_l = np.array(a_l); a_r = np.array(a_r)
     return meanr, a_c, a_l, a_r, b_c, b_l, b_r, d_c, d_l,d_r
     
-def run_parspatch(outpath):
+def findpatchfile(ipath, i):
+    import numpy as np
+    files = np.array(os.listdir(ipath))
+    filesnoext= [os.path.splitext(file)[0] for file in files  ] 
+    b1 = np.array([ f.endswith(str(i)) for f in filesnoext ])
+    out_file = files[b1]
+    if (len(out_file)!=1):
+        print('WARNING: bin file is repeated or does not exist')
+    return (out_file[0])
+                  
+def run_parspatch(outpath, rhosfolder, tausfolder):
     from readjson import read_rhos, read_taus
     from chi2 import minimizeCHI2
     from maxlikelihood import MCMC, percentiles
     import numpy as np
 
     nwalkers,  nsteps = 100,  1000
-    eq = None; moderr = False
+    eq = 'All'; moderr = False
     gflag, bflag = True, True
-    i_guess = [0,-1,- 1] #fiducial values
+    nsig = 2
+    i_guess0 = [ -0.01, 1,- 1] #fiducial values
     data = {}
-    for patch in range(1, 5):
-        rhosp =  "/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_patch" + str(patch) + "_irz.json"
-        tausp =  "/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_all_galaxy-reserved_mod_patch" + str(patch) + "_irz.json"
+    for i in range(1, 5):
+        rhosp =  rhosfolder + findpatchfile(rhosfolder, i)
+        tausp =  tausfolder + findpatchfile(tausfolder, i)
 
         a_c = []; a_l = []; a_r = []
         b_c = []; b_l = []; b_r = []
@@ -87,17 +109,17 @@ def run_parspatch(outpath):
             data['taus'] = taus
             data['sigtaus'] = sigtaus
 
-            fit_pars, chisq = minimizeCHI2(data, i_guess, eq=eq,
+            fit_pars, chisq = minimizeCHI2(data, i_guess0, eq=eq,
                                            gflag=gflag, bflag=bflag,
                                            moderr=moderr)
             samples = MCMC(fit_pars,data, nwalkers, nsteps, eq=eq,
                             gflag=gflag, bflag=bflag, moderr=moderr,
                             plot=False )
-            mcmcpars = percentiles(samples, nsig=2) 
+            mcmcpars = percentiles(samples, nsig=nsig) 
             a_c.append(mcmcpars[0][0]); a_l.append(mcmcpars[0][1]);a_r.append(mcmcpars[0][2])
             b_c.append(mcmcpars[1][0]); b_l.append(mcmcpars[1][1]);b_r.append(mcmcpars[1][2])
             d_c.append(mcmcpars[2][0]); d_l.append(mcmcpars[2][1]);d_r.append(mcmcpars[2][2])
-        write_pars(outpath + 'parspatch' + str(patch) + '.json', meanr, a_c, a_l, a_r, b_c, b_l, b_r, d_c, d_l, d_r)
+        write_pars(outpath + 'parspatch' + str(i) + '.json', meanr, a_c, a_l, a_r, b_c, b_l, b_r, d_c, d_l, d_r)
 
 def plotlog(outpath):
     import numpy as np
@@ -195,13 +217,9 @@ def plotlog(outpath):
         
 def plotlineal(outpath,  bar=False):
     import numpy as np
-    import matplotlib
-    matplotlib.use('Agg')
-    import matplotlib.pyplot as plt
-    plt.style.use('SVA1StyleSheet.mplstyle')
     colors = ['black', 'green', 'blue', 'red', 'gray', 'pink']
     for patch in range(1, 5):
-        meanr, a_c, a_l, a_r, b_c, b_l, b_r, d_c, d_l, d_r = read_pars(outpath + 'parspatch' + str(patch) + '.json')
+        meanr, a_c, a_l, a_r, b_c, b_l, b_r, d_c, d_l, d_r = read_pars(outpath+'parspatch'+str(patch)+'.json')
         
         label = "P" + str(patch)
         width = np.diff(meanr)*0.25
@@ -291,7 +309,7 @@ def main():
     except OSError:
         if not os.path.exists(outpath): raise
     
-    run_parspatch(outpath)
+    run_parspatch(outpath, args.rhosfolder, args.tausfolder)
     #plotlog(outpath)
     plotlineal(outpath, bar=False)
     

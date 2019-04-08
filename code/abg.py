@@ -9,7 +9,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     
     parser.add_argument('--taus',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tau_26-03-19_all_galaxy-reserved_mod_irz.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tau_irz_01-04-19_all_galaxy-reserved_mod.json',
                         help='Json file with the reserved stars -galaxies correlations')
     parser.add_argument('--rhos',
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_epiff_magcut_sn_irz.json',
@@ -115,7 +115,7 @@ def getxipbias(samples, rhosfilename, plotname='terms_dxip.png',  plots=False):
             pretty_rho(meanr, (b**2)*rho1p, np.sqrt(var1), legend=r'$\beta^{2}\rho_{1}$',lfontsize=lfontsize,  color='green', ylabel='Correlations', ylim=False)
             pretty_rho(meanr, (2*a*b)*rho2p, np.sqrt(var3), legend=r'$2\alpha\beta \rho_{2}$',lfontsize=lfontsize,  color='yellow', ylabel='Correlations', ylim=False)
             print('Printing',  plotname)
-            plt.savefig(plotnam, dpi=200)
+            plt.savefig(plotname, dpi=200)
         if (len(samples)==1):
             pretty_rho(meanr, (a**2)*rho0p, np.sqrt(var0), legend=r'$\alpha^{2} \rho_{0}$',lfontsize=lfontsize,  color='red', ylabel='Correlations', ylim=False)
             print('Printing',  plotname)

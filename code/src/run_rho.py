@@ -236,19 +236,18 @@ def measure_rho(data, max_sep=300, sep_units='arcmin',  tag=None, prefix='piff',
         w1obs = w1obs - np.array(np.mean(w1obs))
         w2obs = w2obs - np.array(np.mean(w2obs))
         
+    ra = data['ra']
+    dec = data['dec']
+    print('ra = ',ra)
+    print('dec = ',dec)
+    if(obs):
+        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
+        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
     else:
-        ra = data['ra']
-        dec = data['dec']
-        print('ra = ',ra)
-        print('dec = ',dec)
-        if(obs):
-            ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=e1, g2=e2)
-            decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-            wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
-        else:
-            ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
-            decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-            wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+        ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+        decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
     ecat.name = 'ecat'
     decat.name = 'decat'
     wcat.name = 'wcat'
@@ -258,17 +257,18 @@ def measure_rho(data, max_sep=300, sep_units='arcmin',  tag=None, prefix='piff',
 
     bin_config = dict(
         sep_units = sep_units,
-        #sep_units = 'degrees',
-        bin_slop = 0.1,
-
-        min_sep = 0.5,
-        max_sep = max_sep,
-        bin_size = 0.2,
-
-        #min_sep = 2.5,
-        #max_sep = 250,
-        #nbins = 20,
-    )
+        nbins = 20,
+        min_sep = 2.5,
+        max_sep = 250,)
+        
+    #sep_units = 'degrees',
+    '''
+    bin_slop = 0.1,
+    min_sep = 0.5,
+    max_sep = max_sep,
+    bin_size = 0.2,
+    '''   
+    
 
     results = []
     for (cat1, cat2) in [(ecat, ecat), 
@@ -359,16 +359,17 @@ def measure_tau(data_stars, data_galaxies, Rs, max_sep=300, sep_units='arcmin', 
 
     bin_config = dict(
         sep_units = sep_units,
-        #sep_units = 'degrees',
-        bin_slop = 0.1,
-        min_sep = 0.5,
-        max_sep = max_sep,
-        bin_size = 0.2,
-
-        #min_sep = 2.5,
-        #max_sep = 250,
-        #nbins = 20,
-    )
+        min_sep = 2.5,
+        max_sep = 250,
+        nbins = 20,)
+    #sep_units = 'degrees',
+    '''
+    bin_slop = 0.1,
+    min_sep = 0.5,
+    max_sep = max_sep,
+    bin_size = 0.2,
+    '''
+    
 
     results = []
     for (cat1, cat2) in [(egal_cat, ecat), 
@@ -414,11 +415,16 @@ def measure_xi(data_galaxies, Rs, max_sep=300, sep_units='arcmin',  mod=True):
 
     bin_config = dict(
         sep_units = sep_units,
-        bin_slop = 0.1,
-        min_sep = 0.5,
-        max_sep = max_sep,
-        bin_size = 0.2,
-    )
+        min_sep = 2.5,
+        max_sep = 250,
+        nbins = 20,)
+    '''
+    bin_slop = 0.1,
+    min_sep = 0.5,
+    max_sep = max_sep,
+    bin_size = 0.2,
+    '''
+    
 
     results = []
     for (cat1, cat2) in [(egal_cat, egal_cat)]:
@@ -484,11 +490,16 @@ def measure_xi_tomo(datagal_list, Rs_list, i, j,  max_sep=300, sep_units='arcmin
 
     bin_config = dict(
         sep_units = sep_units,
-        bin_slop = 0.1,
-        min_sep = 0.5,
-        max_sep = max_sep,
-        bin_size = 0.2,
-    )
+        min_sep = 2.5,
+        max_sep = 250,
+        nbins = 20,)
+    '''
+    bin_slop = 0.1,
+    min_sep = 0.5,
+    max_sep = max_sep,
+    bin_size = 0.2,
+    '''
+    
 
     results = []
     for (cat1, cat2) in [(egal_cat_i, egal_cat_j)]:

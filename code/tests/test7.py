@@ -1,6 +1,6 @@
 #runing rhos by quadrant.
 import os
-
+today = '08-04-19_'
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Correlation of reserved stars')
@@ -22,6 +22,15 @@ def parse_args():
                         help='just use the objects with the RESERVED flag')
     parser.add_argument('--frac', default=1., type=float,
                         help='Choose a random fraction of the input stars')
+    parser.add_argument('--mod', default=True,
+                        action='store_const', const=True,
+                        help='If true it substracts the mean to each field before calculate correlations')
+    parser.add_argument('--sn', default=True,
+                        action='store_const', const=True,
+                        help='If true multiply by 2 the variances of all correlations. Shape-noise error.')
+    parser.add_argument('--obs', default=False,
+                        action='store_const', const=True,
+                        help='Use e_obs instead of e_piff to calculate modified rho stats')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma',
                         help='location of the output of the files')
     
@@ -66,25 +75,17 @@ def main():
     meanra = np.mean(data_stars['ra'])
     meandec = np.mean(data_stars['dec'])
 
-    data_stars1 = data_stars[(data_stars['ra']>meanra)&(data_stars['dec']>meandec)]
-    do_rho_stats(data_stars1, bands, tilings, outpath,
-                   name='all_reserved_mod_patch1', bandcombo=args.bandcombo, mod=True, shapenoise=True)
-
-    data_stars2 = data_stars[(data_stars['ra']<meanra)&(data_stars['dec']>meandec)]
-    do_rho_stats(data_stars2,  bands, tilings, outpath,
-                   name='all_reserved_mod_patch2', bandcombo=args.bandcombo, mod=True, shapenoise=True)
-
-    data_stars3 = data_stars[(data_stars['ra']<meanra)&(data_stars['dec']<meandec)]
-    do_rho_stats(data_stars3, bands, tilings, outpath,
-                   name='all_reserved_mod_patch3', bandcombo=args.bandcombo, mod=True, shapenoise=True)
-
-    data_stars4 = data_stars[(data_stars['ra']>meanra)&(data_stars['dec']<meandec)]
-    do_rho_stats(data_stars4, bands, tilings, outpath,
-                   name='all_reserved_mod_patch4', bandcombo=args.bandcombo, mod=True, shapenoise=True)
-
-    
-
-    
+    patchstars = [];
+    patchstars.append((data_stars['ra']>meanra)&(data_stars['dec']>meandec))
+    patchstars.append((data_stars['ra']<meanra)&(data_stars['dec']>meandec))
+    patchstars.append((data_stars['ra']<meanra)&(data_stars['dec']<meandec))
+    patchstars.append((data_stars['ra']>meanra)&(data_stars['dec']<meandec))
+    for pat in range(4):
+        do_rho_stats(data_stars[patchstars[pat]], bands, tilings,
+                     outpath, max_sep=300, sep_units='arcmin', name=
+                     today + 'mod_epiff_magcut_sn'+ '_patch_' +
+                     str(pat + 1) , bandcombo=args.bandcombo,
+                     mod=args.mod, obs=args.obs, shapenoise=args.sn)  
     
 
 if __name__ == "__main__":
