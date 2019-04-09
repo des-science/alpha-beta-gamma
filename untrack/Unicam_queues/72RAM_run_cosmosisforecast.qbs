@@ -1,10 +1,10 @@
 #!/bin/bash
 #PBS -M a.navarro.alsina@gmail.com
 #PBS -m abe
-#PBS -N par144RAM
-#PBS -e par144RAM.err
-#PBS -o par144RAM.out
-#PBS -q par144RAM
+#PBS -N par72RAM
+#PBS -e par72RAM.err
+#PBS -o par72RAM.out
+#PBS -q par72RAM
 #PBS -l nodes=1:ppn=16
 
 source /home/sw/masternode/intel/2015/install/composerxe/bin/compilervars.sh intel64
@@ -23,5 +23,5 @@ cd /home/dfa/sobreira/alsina/alpha-beta-gamma/code
 INSTALL=/home/dfa/sobreira/alsina/sw
 START_PATH=/home/dfa/sobreira/alsina/alpha-beta-gamma/code
 
-$INSTALL/pyhton/2714/install/bin/python $START_PATH/tests/test6.py --tomo
+$INSTALL/pyhton/2714/install/bin/python $START_PATH/reserved_stars_corr.py 
 

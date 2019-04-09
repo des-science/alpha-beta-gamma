@@ -20,8 +20,9 @@ export PATH=/home/dfa/sobreira/alsina/sw/cfitsio/install/bin:$PATH
 export LD_LIBRARY_PATH=/home/dfa/sobreira/alsina/sw/cfitsio/install/lib:/home/dfa/sobreira/alsina/sw/ccfits/25/install/lib:/home/dfa/sobreira/alsina/sw/tmv/install/lib:/home/dfa/sobreira/alsina/sw/boost/166/install/lib:$LD_LIBRARY_PATH
 
 cd /home/dfa/sobreira/alsina/alpha-beta-gamma/code
+
 INSTALL=/home/dfa/sobreira/alsina/sw
 START_PATH=/home/dfa/sobreira/alsina/alpha-beta-gamma/code
 
-$INSTALL/pyhton/2714/install/bin/python $START_PATH/tests/test6.py --tomo
+$INSTALL/pyhton/2714/install/bin/python $START_PATH/reserved_stars_corr.py 
 

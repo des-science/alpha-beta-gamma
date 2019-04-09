@@ -7,7 +7,7 @@ def parse_args():
     
     parser.add_argument('--metacal_cat',
                         #default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18_subsampled.h5',
-                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3_mastercat_v2_6_20_18.h5', 
+                        default='/home2/dfa/sobreira/alsina/catalogs/y3_master/Y3fullmaster/Y3_mastercat_v2_6_20_18.h5', 
                         help='Full Path to the Metacalibration catalog')
     parser.add_argument('--piff_cat',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3a1-v29',
@@ -146,7 +146,7 @@ def main():
                 
     galkeys = ['ra','dec','e_1','e_2','R11','R22']
     data_gal =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
-    print("Total objects in catalog:", len(data_galaxies))
+    print("Total objects in catalog:", len(data_gal))
     dgamma = 2*0.01
     f = h.File(args.metacal_cat, 'r')
     index =  f['index']
@@ -155,12 +155,11 @@ def main():
     select_1m = np.array(index['select_1m'])
     select_2p = np.array(index['select_2p']) #added by Lucas: 
     select_2m = np.array(index['select_2m']) #added by Lucas
-    R11s = (data_galaxies['e_1'][select_1p].mean() - data_galaxies['e_1'][select_1m].mean() )/dgamma
-    R22s = (data_galaxies['e_2'][select_2p].mean() - data_galaxies['e_2'][select_2m].mean() )/dgamma
+    R11s = (data_gal['e_1'][select_1p].mean() - data_gal['e_1'][select_1m].mean() )/dgamma
+    R22s = (data_gal['e_2'][select_2p].mean() - data_gal['e_2'][select_2m].mean() )/dgamma
     #added by Lucas: modified to to select_2p and 2m
     Rs = [R11s, R22s]
-    data_galaxies =  data_galaxies[select]
-    print("Total objects after masking",  len(data_galaxies))
+    print("Total objects after masking",  len(data_gal))
     print("R11s=",R11s)
     print("R22s=",R22s)
 
@@ -169,18 +168,18 @@ def main():
     patchstars.append((data_stars['ra']<meanra)&(data_stars['dec']>meandec))
     patchstars.append((data_stars['ra']<meanra)&(data_stars['dec']<meandec))
     patchstars.append((data_stars['ra']>meanra)&(data_stars['dec']<meandec))
-    patchgal.append((data_gal[select]['ra']>meanra)&(data_galaxies[select]['dec']>meandec))
-    patchgal.append((data_gal[select]['ra']<meanra)&(data_galaxies[select]['dec']>meandec))
-    patchgal.append((data_gal[select]['ra']<meanra)&(data_galaxies[select]['dec']<meandec))
-    patchgal.append((data_gal[select]['ra']>meanra)&(data_galaxies[select]['dec']<meandec))
+    patchgal.append((data_gal[select]['ra']>meanra)&(data_gal[select]['dec']>meandec))
+    patchgal.append((data_gal[select]['ra']<meanra)&(data_gal[select]['dec']>meandec))
+    patchgal.append((data_gal[select]['ra']<meanra)&(data_gal[select]['dec']<meandec))
+    patchgal.append((data_gal[select]['ra']>meanra)&(data_gal[select]['dec']<meandec))
     for pat in range(4):
         patchstarbool =  patchstars[pat]
         data_starsaux = data_stars[patchstarbool]
         patchgalbool = patchgal[pat]
-        do_tau_stats( data_gal[patchgalbool], Rs,
+        do_tau_stats( data_gal[select][patchgalbool], Rs,
                       data_starsaux, bands, tilings, outpath,
                       max_sep=300, sep_units='arcmin', name= today +
-                      'mod_bin_' + str(bin_c+ 1) + '_patch_' + str(pat + 1),
+                      'mod_bin_' + 'patch_' + str(pat + 1),
                       bandcombo=args.bandcombo, mod=args.mod,
                       shapenoise=args.sn)
 

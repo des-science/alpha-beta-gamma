@@ -13,8 +13,8 @@ def parse_args():
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rhos_patch/',
                         help='location of the folder containing all the rhos files. They must end in the number of the patch')
     parser.add_argument('--tausfolder',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/taus4patch/',help='location of the folder containing all the taus files. They must endin the number of the patch')
-    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/taus4patch/', help='location of the output of the files')
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tauspatch/',help='location of the folder containing all the taus files. They must endin the number of the patch')
+    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tauspatch/', help='location of the output of the files')
 
     args = parser.parse_args()
 
@@ -81,7 +81,7 @@ def run_parspatch(outpath, rhosfolder, tausfolder):
     nwalkers,  nsteps = 100,  1000
     eq = 'All'; moderr = False
     gflag, bflag = True, True
-    nsig = 2
+    nsig = 1
     i_guess0 = [ -0.01, 1,- 1] #fiducial values
     data = {}
     for i in range(1, 5):
@@ -91,7 +91,7 @@ def run_parspatch(outpath, rhosfolder, tausfolder):
         a_c = []; a_l = []; a_r = []
         b_c = []; b_l = []; b_r = []
         d_c = []; d_l = []; d_r = []
-        for ibin in range(1, 33):
+        for ibin in range(1, 21):
             meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p,\
             sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4,\
             sig_rho5 = read_rhos(rhosp, maxbin=ibin)
@@ -266,7 +266,7 @@ def plotlineal(outpath,  bar=False):
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(r'$\alpha$', fontsize=24)
     plt.xscale('log')
-    plt.xlim( [ 4e-1, 300] )
+    plt.xlim( [ 2, 300] )
     plt.ylim( [ - 0.4, 0.4] )
     plt.tight_layout()
     print("Printing :", outpath +'alpha_quadrants.png')
@@ -277,7 +277,7 @@ def plotlineal(outpath,  bar=False):
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(r'$\beta$', fontsize=24)
     plt.xscale('log')
-    plt.xlim( [ 4e-1, 300] )
+    plt.xlim( [2, 300] )
     plt.ylim( [ - 75, 40] )
     plt.tight_layout()
     print("Printing :", outpath +'beta_quadrants.png')
@@ -288,7 +288,7 @@ def plotlineal(outpath,  bar=False):
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(r'$\eta$', fontsize=24)
     plt.xscale('log')
-    plt.xlim( [ 4e-1, 300] )
+    plt.xlim( [2, 300] )
     plt.ylim( [ -600, 600] )
     plt.tight_layout()
     print("Printing :", outpath +'eta_quadrants.png')

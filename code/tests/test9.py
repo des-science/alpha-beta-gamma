@@ -13,7 +13,7 @@ def parse_args():
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_irz_26-03-19_all_reserved_mod_epiff_magcut_sn.json',
                         help='Json file with the reserved stars -reserved stars correlations')
     parser.add_argument('--tausfolder',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/',help='location of the folder containing all the taus files. They must endin the number of the patch')
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/',help='location of the folder containing all the taus files. They must end in the number of the patch')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/', help='location of the output of the files')
     parser.add_argument('--filename', default='abg_dxip_tomo.fits', help='Name of the fit file where info of dxip will be saved ')
     parser.add_argument('--maxscale', default=15,  type=float, 
