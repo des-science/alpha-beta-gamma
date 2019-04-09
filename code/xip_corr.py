@@ -64,6 +64,9 @@ def main():
         if not os.path.exists(outpath): raise
         
     if(args.tomo):
+        #Make directory where the ouput data will be
+        ipath =  os.path.join(args.outpath, 'tomo_xipobs' )
+        outpath = os.path.expanduser(ipath)
         print('Starting Tomography!')
         galkeys = ['ra','dec','e_1','e_2','R11','R22']
         data_gal =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
