@@ -445,11 +445,11 @@ def main():
         print e
         pass
     
-    #plotfiducial(args.fiducial,  out)
-    #plotcontaminant(args.contaminant, out)
+    plotfiducial(args.fiducial,  out)
+    plotcontaminant(args.contaminant, out)
     plotcontaminantandfiducial(args.contaminant, args.fiducial, out)
-    #plotcontaminated(args.contaminated, out)
-    #checkcontamination(args.contaminated,args.fiducial,  out)
+    plotcontaminated(args.contaminated, out)
+    checkcontamination(args.contaminated,args.fiducial,  out)
     
 
 

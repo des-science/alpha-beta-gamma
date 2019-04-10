@@ -9,7 +9,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     
     parser.add_argument('--taus',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tau_irz_01-04-19_all_galaxy-reserved_mod_bin_4_4.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tau_irz_01-04-19_all_galaxy-reserved_mod.json',
                         help='Json file with the reserved stars -galaxies correlations')
     parser.add_argument('--rhos',
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_irz_26-03-19_all_reserved_mod_epiff_magcut_sn.json',
@@ -208,7 +208,7 @@ def main():
     data['sigtaus'] = sigtaus
     
     #Finding best alpha beta gamma
-    nwalkers,  nsteps = 100,  1000
+    nwalkers,  nsteps = 100,  10000
     moderr = False
     nsig = 1
     eq = 'All'

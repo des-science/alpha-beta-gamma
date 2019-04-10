@@ -62,22 +62,25 @@ def main():
             lowi1 =idxbins1[0]; upi1 = idxbins1[-1]
             lowi2 =idxbins2[0]; upi2 = idxbins2[-1]
             covmatrixfit_ori[lowi1:upi1,lowi1:upi1] += covmatrixfit_cont[lowi2:upi2,lowi2:upi2]
-            print(np.diag(covmatrixfit_cont[lowi2:upi2,lowi2:upi2]))
+            #print(np.diag(covmatrixfit_cont[lowi2:upi2,lowi2:upi2]))
         if(len(dxipbin ) !=0 ):
             xipfit_ori['VALUE'][bin1] -=dxipbin
 
     hdulist = fits.open(args.original)
     #delete all covariance and xip
+    oldheaders =  [hdulist[1].header, hdulist[2].header]
     hdulist.pop(index=1);
     hdulist.pop(index=1);
-    print(hdulist)
+    #print(hdulist)
 
     covmathdu = fits.ImageHDU(covmatrixfit_ori, name='COVMAT')
     hdulist.insert(1, covmathdu)
     xiphdu = fits.BinTableHDU(xipfit_ori, name='xipt')
     hdulist.insert(2, xiphdu)
-    print(hdulist)
- 
+    hdulist[1].header = oldheaders[0]
+    hdulist[2].header = oldheaders[1]
+    print(hdulist[1].header)
+    print(hdulist[2].header)
     hdulist.writeto(outpath + args.filename, clobber=True)
     
 if __name__ == "__main__":
