@@ -14,9 +14,9 @@ def parse_args():
                         help='Json file with the reserved stars -reserved stars correlations')
     parser.add_argument('--tausfolder',
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/',help='location of the folder containing all the taus files. They must end in the number of the patch')
-    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/', help='location of the output of the files')
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/', help='location of the output of the files')
     parser.add_argument('--filename', default='abg_dxip_tomo.fits', help='Name of the fit file where info of dxip will be saved ')
-    parser.add_argument('--maxscale', default=15,  type=float, 
+    parser.add_argument('--maxscale', default=10,  type=float, 
                         help='Limit the analysis to certain maximum scale, units are determined by .json file with the correlations')
     parser.add_argument('--uwmprior', default=False,
                         action='store_const', const=True, help='Run all tomographic correlations')
@@ -121,7 +121,7 @@ def RUNtest(args,  data, nwalkers, nsteps, i_guess, gflag, bflag,  eq='All',  mo
     mcmcpars = percentiles(samples, nsig=nsig) 
     print('mcmc parameters',  mcmcpars)
     meanr, dxip, vardxip = getxipbias(samples, args.rhos, nameterms)
-    return meanr, dxip, np.sqrt(vardxip) 
+    return meanr, dxip, vardxip 
 
 def write_fit(data, names, filename):
     import fitsio
@@ -130,9 +130,11 @@ def write_fit(data, names, filename):
     if not os.path.isfile(filename):
         fits = FITS(filename,'rw')
         fits.write(data, names=names, clobber=False)
+        print("Writing file: ", filename)
     else:
         fits = FITS(filename,'rw')
         fits[-1].append(data)
+        print("Apending File: ",  filename)
 def main():
     import sys
     args = parse_args()
@@ -154,7 +156,7 @@ def main():
         
 
          
-    nwalkers,  nsteps = 10,  1000
+    nwalkers,  nsteps = 100,  1000
     moderr = False
     nsig = 1
     eq = 'All'
@@ -219,7 +221,7 @@ def main():
             angbinarray = np.array([i for i in range(len(meanr))])
             array_list = [bin1array, bin2array, angbinarray, angarray,  valuearray ]
             for array, name in zip(array_list, names): outdata[name] = array 
-            write_fit(outdata, names, args.filename)
+            write_fit(outdata, names, outpath + args.filename)
         
             
         ## ALPHA-BETA
@@ -241,11 +243,11 @@ def main():
                                            nsteps, i_guess, gflag, bflag, eq, moderr,
                                            nsig) 
 
-    hdulist = fits.open(args.filename)
+    hdulist = fits.open(outpath +args.filename)
     hdulist[1].name = 'xip'
     covmathdu = fits.ImageHDU(covmat, name='COVMAT')
     hdulist.insert(1, covmathdu) 
-    hdulist.writeto(args.filename, clobber=True)
+    hdulist.writeto(outpath + args.filename, clobber=True)
     print(covmat)
     
 if __name__ == "__main__":

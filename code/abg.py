@@ -9,10 +9,10 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     
     parser.add_argument('--taus',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tau_irz_01-04-19_all_galaxy-reserved_mod.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tau_irz_01-04-19_all_galaxy-reserved_mod_bin_4_4.json',
                         help='Json file with the reserved stars -galaxies correlations')
     parser.add_argument('--rhos',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_all_reserved_mod_epiff_magcut_sn_irz.json',
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rho_irz_26-03-19_all_reserved_mod_epiff_magcut_sn.json',
                         help='Json file with the reserved stars -reserved stars correlations')
     parser.add_argument('--maxscale', default=None, type=float, 
                         help='Limit the analysis to certain maximum scale, units are determined by .json file with the correlations')
@@ -58,7 +58,7 @@ def getxipbias(samples, rhosfilename, plotname='terms_dxip.png',  plots=False):
 
     a = b = n = 0; vara =  varb =  varn = 0; covab = covan = covbn = 0
     bestpar = bestparameters(samples)
-    par_matcov = np.cov(samples)
+    par_matcov = np.cov(samples) 
     if (par_matcov.size==1 ): variances = par_matcov
     else: variances = np.diagonal(par_matcov)
     covariances = sum( (par_matcov[i,i+1: ].tolist() for i in range(len(samples) - 1)) , [] )
@@ -83,6 +83,7 @@ def getxipbias(samples, rhosfilename, plotname='terms_dxip.png',  plots=False):
 
     #Ploting each term of the bias
     if(plots):
+        xlim = [2., 300.]
         #supposing that a,b and n are idependent of rhos(scale independent)
         var0 = ((2*a*rho0p)**2)*vara +  (a**2)*(sig_rho0**2)
         var1 = ((2*b*rho1p)**2)*varb +  (b**2)*(sig_rho1**2)
@@ -102,22 +103,22 @@ def getxipbias(samples, rhosfilename, plotname='terms_dxip.png',  plots=False):
         plt.clf()
         lfontsize = 7
         if (len(samples)==3):
-            pretty_rho(meanr, (a**2)*rho0p, np.sqrt(var0), legend=r'$\alpha^{2} \rho_{0}$',lfontsize=lfontsize,  color='red', ylabel='Correlations', ylim=False)
-            pretty_rho(meanr, (b**2)*rho1p, np.sqrt(var1), legend=r'$\beta^{2}\rho_{1}$',lfontsize=lfontsize,  color='green', ylabel='Correlations', ylim=False)
-            pretty_rho(meanr, (n**2)*rho3p, np.sqrt(var2), legend=r'$\eta^{2}\rho_{3}$', lfontsize=lfontsize, color='black', ylabel='Correlations', ylim=False)
-            pretty_rho(meanr, (2*a*b)*rho2p, np.sqrt(var3), legend=r'$2\alpha\beta \rho_{2}$',lfontsize=lfontsize,  color='yellow', ylabel='Correlations', ylim=False)
-            pretty_rho(meanr, (2*b*n)*rho4p, np.sqrt(var4), legend=r'$2\beta\eta\rho_{4}$',lfontsize=lfontsize,  color='blue', ylabel='Correlations', ylim=False)
-            pretty_rho(meanr, (2*n*a)*rho5p, np.sqrt(var5), legend=r'$2\eta\alpha\rho_{5}$', lfontsize=lfontsize, color='gray', ylabel='Correlations', ylim=False)
+            pretty_rho(meanr, (a**2)*rho0p, np.sqrt(var0), legend=r'$\alpha^{2} \rho_{0}$',lfontsize=lfontsize,  color='red', ylabel='Correlations', xlim=xlim)
+            pretty_rho(meanr, (b**2)*rho1p, np.sqrt(var1), legend=r'$\beta^{2}\rho_{1}$',lfontsize=lfontsize,  color='green', ylabel='Correlations', xlim=xlim)
+            pretty_rho(meanr, (n**2)*rho3p, np.sqrt(var2), legend=r'$\eta^{2}\rho_{3}$', lfontsize=lfontsize, color='black', ylabel='Correlations', xlim=xlim)
+            pretty_rho(meanr, (2*a*b)*rho2p, np.sqrt(var3), legend=r'$2\alpha\beta \rho_{2}$',lfontsize=lfontsize,  color='yellow', ylabel='Correlations', xlim=xlim)
+            pretty_rho(meanr, (2*b*n)*rho4p, np.sqrt(var4), legend=r'$2\beta\eta\rho_{4}$',lfontsize=lfontsize,  color='blue', ylabel='Correlations', xlim=xlim)
+            pretty_rho(meanr, (2*n*a)*rho5p, np.sqrt(var5), legend=r'$2\eta\alpha\rho_{5}$', lfontsize=lfontsize, color='gray', ylabel='Correlations', xlim=xlim)
             print('Printing',  plotname)
             plt.savefig(plotname, dpi=200)
         if (len(samples)==2):
-            pretty_rho(meanr, (a**2)*rho0p, np.sqrt(var0), legend=r'$\alpha^{2} \rho_{0}$',lfontsize=lfontsize,  color='red', ylabel='Correlations', ylim=False)
-            pretty_rho(meanr, (b**2)*rho1p, np.sqrt(var1), legend=r'$\beta^{2}\rho_{1}$',lfontsize=lfontsize,  color='green', ylabel='Correlations', ylim=False)
-            pretty_rho(meanr, (2*a*b)*rho2p, np.sqrt(var3), legend=r'$2\alpha\beta \rho_{2}$',lfontsize=lfontsize,  color='yellow', ylabel='Correlations', ylim=False)
+            pretty_rho(meanr, (a**2)*rho0p, np.sqrt(var0), legend=r'$\alpha^{2} \rho_{0}$',lfontsize=lfontsize,  color='red', ylabel='Correlations', xlim=xlim)
+            pretty_rho(meanr, (b**2)*rho1p, np.sqrt(var1), legend=r'$\beta^{2}\rho_{1}$',lfontsize=lfontsize,  color='green', ylabel='Correlations', xlim=xlim)
+            pretty_rho(meanr, (2*a*b)*rho2p, np.sqrt(var3), legend=r'$2\alpha\beta \rho_{2}$',lfontsize=lfontsize,  color='yellow', ylabel='Correlations', xlim=xlim)
             print('Printing',  plotname)
             plt.savefig(plotname, dpi=200)
         if (len(samples)==1):
-            pretty_rho(meanr, (a**2)*rho0p, np.sqrt(var0), legend=r'$\alpha^{2} \rho_{0}$',lfontsize=lfontsize,  color='red', ylabel='Correlations', ylim=False)
+            pretty_rho(meanr, (a**2)*rho0p, np.sqrt(var0), legend=r'$\alpha^{2} \rho_{0}$',lfontsize=lfontsize,  color='red', ylabel='Correlations', xlim=xlim)
             print('Printing',  plotname)
             plt.savefig(plotname, dpi=200)
     
@@ -131,7 +132,7 @@ def getxipbias(samples, rhosfilename, plotname='terms_dxip.png',  plots=False):
     var_dxip = (f1**2)*vara + (f2**2)*varb + (f3**2)*varn + \
     (f4**2)*(sig_rho0**2) + (f5**2)*(sig_rho1**2) + \
     (f6**2)*(sig_rho2**2) + (f7**2)*(sig_rho3**2) + \
-    (f8**2)*(sig_rho4**2) + (f9**2)*(sig_rho5**2) + 2*(f1*f2*covab + f1*f3*covan + f2*f3*covbn)         
+    (f8**2)*(sig_rho4**2) + (f9**2)*(sig_rho5**2) + 2*(f1*f2*covab + f1*f3*covan + f2*f3*covbn)
     return meanr, dxip, var_dxip
     
 def RUNtest(args,  data, nwalkers, nsteps, i_guess, gflag, bflag,  eq='All',  moderr=False,  nsig=1,  namemc=None,  namecont=None, nameterms='terms_xip.png'):
@@ -176,10 +177,19 @@ def main():
     except OSError:
         if not os.path.exists(outpath): raise
 
-    
+    plotspath = os.path.expanduser(args.outpath + 'plots/')
+    try:
+        if not os.path.exists(plotspath):
+            os.makedirs(plotspath)
+    except OSError:
+        if not os.path.exists(outpath): raise
+
+        
     if (args.plots):
-        plotallrhos(args.rhos, outpath=outpath +'plots')
-        plotalltaus(args.taus, outpath=outpath +'plots')
+        xlim = [2., 300.]
+        #Make directory where the ouput data will be 
+        plotallrhos(args.rhos, outpath=plotspath, xlim=xlim)
+        plotalltaus(args.taus, outpath=plotspath, xlim=xlim)
    
       
     # Save all the correlations in arrays
@@ -198,7 +208,7 @@ def main():
     data['sigtaus'] = sigtaus
     
     #Finding best alpha beta gamma
-    nwalkers,  nsteps = 100,  10000
+    nwalkers,  nsteps = 100,  1000
     moderr = False
     nsig = 1
     eq = 'All'
@@ -211,52 +221,52 @@ def main():
         print("### Runing alpha, beta and eta test ### ")
         gflag, bflag = True, True
         i_guess = i_guess0
-        namemc = outpath+'plots/mcmc_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namecont = outpath+'plots/contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        nameterms = outpath+'plots/termsdxip_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namemc = plotspath + 'mcmc_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namecont = plotspath +'contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        nameterms = plotspath +'termsdxip_alpha-beta-eta_eq_' + str(eq) + '_.png'
         vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms)
-        writedxip( *vals,  filename=outpath+ 'dxip-alpha-beta-eta.json' )
+        writedxip( *vals,  filename=outpath + 'dxip-alpha-beta-eta.json' )
         writedxip_txt( *vals, outpath=outpath )
         if(args.plots):
             plt.clf()
-            pretty_rho( *vals, legend=r"$\delta \xi_{+}$",  ylabel=r"$\delta \xi_{+}$",  ylim= False)
-            fname = 'plots/xibias_ABE.png' 
-            print(outpath +fname)
-            plt.savefig(outpath +fname, dpi=150)        
+            pretty_rho( *vals, legend=r"$\delta \xi_{+}$",  ylabel=r"$\delta \xi_{+}$",  xlim=xlim)
+            fname = 'xibias_ABE.png' 
+            print(plotspath +fname)
+            plt.savefig(plotspath +fname, dpi=150)        
            
     ## ALPHA-BETA
     if(args.ab):
         print("### Runing alpha and beta test ### ")
         gflag, bflag = False, True
         i_guess = i_guess0[:2] #fiducial values
-        namemc = outpath+'plots/mcmc_alpha-beta_eq_' + str(eq) + '_.png'
-        namecont = outpath+'plots/contours_alpha-beta_eq_' + str(eq) + '_.png'
-        nameterms = outpath+'plots/termsdxip_alpha-beta_eq_' + str(eq) + '_.png'
+        namemc = plotspath + 'mcmc_alpha-beta_eq_' + str(eq) + '_.png'
+        namecont = plotspath + 'contours_alpha-beta_eq_' + str(eq) + '_.png'
+        nameterms = plotspath + 'termsdxip_alpha-beta_eq_' + str(eq) + '_.png'
         vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms)
-        writedxip( *vals,  filename=outpath+ 'dxip-alpha-beta.json' )
+        writedxip( *vals,  filename=outpath +'dxip-alpha-beta.json' )
         if(args.plots):
             plt.clf()
-            pretty_rho( *vals, legend=r"$\delta \xi_{+}$",  ylabel=r"$\delta \xi_{+}$",  ylim= False)
-            fname = 'plots/xibias_AB.png' 
-            print(outpath +fname)
-            plt.savefig(outpath +fname, dpi=150)
+            pretty_rho( *vals, legend=r"$\delta \xi_{+}$",  ylabel=r"$\delta \xi_{+}$",  xlim=xlim)
+            fname = 'xibias_AB.png' 
+            print(plotspath+fname)
+            plt.savefig(plotspath +fname, dpi=150)
                
     ## ALPHA
     if(args.a):
         print("### Runing alpha test ### ")
         gflag, bflag = False, False
         i_guess = i_guess0[:1] #fiducial values
-        namemc = outpath+'plots/mcmc_alpha_eq_' + str(eq) + '_.png'
-        namecont = outpath+'plots/contours_alpha_eq_' + str(eq) + '_.png'
-        nameterms = outpath+'plots/termsdxip_alpha_eq_' + str(eq) + '_.png'
+        namemc = plotspath +'mcmc_alpha_eq_' + str(eq) + '_.png'
+        namecont = plotspath +'contours_alpha_eq_' + str(eq) + '_.png'
+        nameterms = plotspath +'termsdxip_alpha_eq_' + str(eq) + '_.png'
         vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms)
         writedxip( *vals,  filename=outpath+ 'dxip-alpha.json' )
         if(args.plots):
             plt.clf()
-            pretty_rho( *vals, legend=r"$\delta \xi_{+}$",  ylabel=r"$\delta \xi_{+}$",  ylim= False)
-            fname = 'plots/xibias_A.png' 
-            print(outpath +fname)
-            plt.savefig(outpath +fname, dpi=150)
+            pretty_rho( *vals, legend=r"$\delta \xi_{+}$",  ylabel=r"$\delta \xi_{+}$",  xlim=xlim)
+            fname = 'xibias_A.png' 
+            print(plotspath +fname)
+            plt.savefig(plotspath +fname, dpi=150)
                
 if __name__ == "__main__":
     main()

@@ -107,6 +107,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
                                               moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
+        
         print("Run finished")
         # Getting chains
         alpha_chain = sampler.chain[:,:,0]
@@ -119,6 +120,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
         delta_chain_flat = np.reshape(delta_chain, (nwalkers*nsteps,))
 
         samples = np.c_[alpha_chain_flat, beta_chain_flat, delta_chain_flat].T
+        #samples =  np.array([ sub[10:] for sub in samples ]) 
 
         if (plot):
             fig = plt.figure(figsize=(16, 12))
@@ -159,7 +161,6 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
             print(namemc, "Printed")
             corner_plot(samples, labels, namecont)
 
-        samples[:, 2] = np.exp(samples[:, 2])
         return samples
         
             
@@ -229,7 +230,6 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
                 print(namemc, "Printed")
                 corner_plot(samples, labels, namecont)
             
-        samples[:, 2] = np.exp(samples[:, 2])
         return samples
         
     else:
@@ -291,7 +291,6 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
 
                 corner_plot(samples, labels, namecont)
 
-        samples[:, 2] = np.exp(samples[:, 2])
         return samples
 
 def bestparameters(samples):

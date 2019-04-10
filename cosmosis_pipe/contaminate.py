@@ -18,10 +18,6 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-
-  
-
-
 def main():
     import fitsio
     import itertools
@@ -65,7 +61,8 @@ def main():
         if (len(idxbins2)!=0):
             lowi1 =idxbins1[0]; upi1 = idxbins1[-1]
             lowi2 =idxbins2[0]; upi2 = idxbins2[-1]
-            covmatrixfit_ori[lowi1:upi1,lowi1:upi1] += covmatrixfit_cont[lowi2:upi2,lowi2:upi2] 
+            covmatrixfit_ori[lowi1:upi1,lowi1:upi1] += covmatrixfit_cont[lowi2:upi2,lowi2:upi2]
+            print(np.diag(covmatrixfit_cont[lowi2:upi2,lowi2:upi2]))
         if(len(dxipbin ) !=0 ):
             xipfit_ori['VALUE'][bin1] -=dxipbin
 

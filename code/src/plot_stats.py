@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
 
-def pretty_rho(meanr, rho, sig, sqrtn=1,  legend=None, lfontsize=24, color='black', marker='o', ylabel=r'$\rho(\theta)$', ylim=True):
+def pretty_rho(meanr, rho, sig, sqrtn=1,  legend=None, lfontsize=24, color='black', marker='o', ylabel=r'$\rho(\theta)$', xlim=None,  ylim=None):
     '''
     plt.plot(meanr, rho, color=color, label=legend, marker=marker)
     plt.plot(meanr, -rho, color=color, ls=':', marker=marker)
@@ -19,17 +19,20 @@ def pretty_rho(meanr, rho, sig, sqrtn=1,  legend=None, lfontsize=24, color='blac
     plt.errorbar( -meanr, rho, yerr=sig, color=color,  marker='^',  capsize=2)
     plt.errorbar( -meanr,-rho, yerr=sig, color=color,  marker='^', ls=':', capsize=2)
     plt.legend(loc='best', fontsize=lfontsize)
-    if(ylim):
-        plt.ylim( [1.e-8, 1.e-4] )
+    if ylim is not None:
+        plt.ylim( ylim )
+    if xlim is None: 
+        plt.xlim( [0.5,300.] )
+    else:
+        plt.xlim(xlim)
     plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(ylabel, fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     plt.tight_layout()
 
-def pretty_rho0(meanr, rho, sig, sqrtn):
+def pretty_rho0(meanr, rho, sig, sqrtn, xlim=None):
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')
@@ -39,14 +42,17 @@ def pretty_rho0(meanr, rho, sig, sqrtn):
     plt.legend([rho0_line],[r'$\rho_0(\theta)$'],loc='upper right', fontsize=24)
     #plt.ylim( [1.e-9, 5.e-6] )
     plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
+    if xlim is None: 
+        plt.xlim( [0.5,300.] )
+    else:
+        plt.xlim(xlim)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(r'$\rho(\theta)$', fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     plt.tight_layout()
 
-def pretty_rho1(meanr, rho, sig, sqrtn, rho3=None, sig3=None, rho4=None, sig4=None):
+def pretty_rho1(meanr, rho, sig, sqrtn, rho3=None, sig3=None, rho4=None, sig4=None, xlim=None):
     import matplotlib.patches as mp
     
     plt.plot(meanr, rho, color='blue')
@@ -76,7 +82,7 @@ def pretty_rho1(meanr, rho, sig, sqrtn, rho3=None, sig3=None, rho4=None, sig4=No
                    loc='upper right', fontsize=24)
         #plt.ylim( [1.e-9, 5.e-6] )
         #plt.ylim( [1.e-9, 2.e-5] )
-        plt.ylim( [1.e-10, 5.e-6] )
+        #plt.ylim( [1.e-10, 5.e-6] )
     elif True:
         plt.legend([rho1_line, sv_req],
                    [r'$\rho_1(\theta)$', r'Requirement'],
@@ -89,14 +95,17 @@ def pretty_rho1(meanr, rho, sig, sqrtn, rho3=None, sig3=None, rho4=None, sig4=No
                    loc='upper right')
         plt.ylim( [1.e-9, 3.e-6] )
     plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
+    if xlim is None: 
+        plt.xlim( [0.5,300.] )
+    else:
+        plt.xlim(xlim)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(r'$\rho(\theta)$', fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     plt.tight_layout()
 
-def pretty_rho2(meanr, rho, sig, sqrtn, rho5=None, sig5=None ):
+def pretty_rho2(meanr, rho, sig, sqrtn, rho5=None, sig5=None, xlim=None ):
     import matplotlib.patches as mp
     # The requirements on rho2 are less stringent.  They are larger by a factor 1/alpha.
     # Let's use alpha = 0.03.
@@ -122,7 +131,7 @@ def pretty_rho2(meanr, rho, sig, sqrtn, rho5=None, sig5=None ):
                    [r'$\rho_2(\theta)$', r'$\rho_5(\theta)$'],
                    loc='upper right', fontsize=24)
         #plt.ylim( [1.e-7, 5.e-4] )
-        plt.ylim( [1.e-8, 1.e-5] )
+        #plt.ylim( [1.e-8, 1.e-5] )
     elif True: # For paper
         plt.legend([rho2_line, sv_req],
                    [r'$\rho_2(\theta)$', r'Requirement'],
@@ -135,14 +144,17 @@ def pretty_rho2(meanr, rho, sig, sqrtn, rho5=None, sig5=None ):
                    loc='upper right')
         plt.ylim( [1.e-7, 3.e-4] )
     plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
+    if xlim is None: 
+        plt.xlim( [0.5,300.] )
+    else:
+        plt.xlim(xlim)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(r'$\rho(\theta)$', fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     plt.tight_layout()
 
-def pretty_tau(meanr, rho, sig, sqrtn, title):
+def pretty_tau(meanr, rho, sig, sqrtn, title, xlim=None):
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0]/sqrtn, color='blue', ls='', marker='o')
@@ -152,46 +164,49 @@ def pretty_tau(meanr, rho, sig, sqrtn, title):
     plt.legend([rho0_line],[title],loc='upper right', fontsize=24)
     #plt.ylim( [1.e-9, 5.e-6] )
     plt.tick_params(axis='both', which='major', labelsize=24)
-    plt.xlim( [0.5,300.] )
+    if xlim is None: 
+        plt.xlim( [0.5,300.] )
+    else:
+        plt.xlim(xlim)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
     plt.ylabel(title, fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
     plt.tight_layout()
 
-def plotallrhos(filename, outpath):
+def plotallrhos(filename, outpath, xlim=None):
     from readjson import read_rhos
     
     meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(filename)
     sqrtn = 1
     plt.clf()
-    pretty_rho1(meanr, rho1p, sig_rho1, sqrtn, rho3p, sig_rho3, rho4p, sig_rho4)
+    pretty_rho1(meanr, rho1p, sig_rho1, sqrtn, rho3p, sig_rho3, rho4p, sig_rho4,  xlim=xlim)
     print("Printing file: ", outpath +'rho1_all_rsrs.png')
     plt.savefig(outpath +'rho1_all_rsrs.png')
     plt.clf()
-    pretty_rho2(meanr, rho2p, sig_rho2, sqrtn, rho5p, sig_rho5)
+    pretty_rho2(meanr, rho2p, sig_rho2, sqrtn, rho5p, sig_rho5,  xlim=xlim)
     print("Printing file: ", outpath +'rho2_all_rsrs.png')
     plt.savefig(outpath +'rho2_all_rsrs.png')
     plt.clf()
-    pretty_rho0(meanr, rho0p, sig_rho0, sqrtn)
+    pretty_rho0(meanr, rho0p, sig_rho0, sqrtn,  xlim=xlim)
     print("Printing file: ", outpath +'rho0_all_rsrs.png')
     plt.savefig(outpath +'rho0_all_rsrs.png')
 
-def plotalltaus(filename, outpath):
+def plotalltaus(filename, outpath, xlim=None):
     from readjson import read_taus
     
     meanr2, tau0p, tau2p, tau5p, sig_tau0, sig_tau2, sig_tau5 =  read_taus(filename)
     sqrtn = 1
     plt.clf()
-    pretty_tau(meanr2, tau0p, sig_tau0, sqrtn, r'$\tau_{0}(\theta)$')
+    pretty_tau(meanr2, tau0p, sig_tau0, sqrtn, r'$\tau_{0}(\theta)$', xlim=xlim)
     print("Printing file: ", outpath +'tau0_all_rsgal.png')
     plt.savefig(outpath +'tau0_all_rsgal.png')
     plt.clf()
-    pretty_tau(meanr2, tau2p, sig_tau2, sqrtn, r'$\tau_{2}(\theta)$')
+    pretty_tau(meanr2, tau2p, sig_tau2, sqrtn, r'$\tau_{2}(\theta)$', xlim=xlim)
     print("Printing file: ", outpath +'tau2_all_rsgal.png')
     plt.savefig(outpath +'tau2_all_rsgal.png')
     plt.clf()
-    pretty_tau(meanr2, tau5p, sig_tau5, sqrtn, r'$\tau_{5}(\theta)$')
+    pretty_tau(meanr2, tau5p, sig_tau5, sqrtn, r'$\tau_{5}(\theta)$', xlim=xlim)
     print("Printing file: ", outpath +'tau5_all_rsgal.png')
     plt.savefig(outpath +'tau5_all_rsgal.png')
 

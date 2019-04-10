@@ -13,8 +13,8 @@ def parse_args():
                         default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/rhos_patch/',
                         help='location of the folder containing all the rhos files. They must end in the number of the patch')
     parser.add_argument('--tausfolder',
-                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/taus1patch/',help='location of the folder containing all the taus files. They must endin the number of the patch')
-    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/tauspatch/', help='location of the output of the files')
+                        default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/taus4patch/',help='location of the folder containing all the taus files. They must endin the number of the patch')
+    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/tomo_taus/taus4patch/', help='location of the output of the files')
 
     args = parser.parse_args()
 
