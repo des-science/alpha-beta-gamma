@@ -107,8 +107,8 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
                                               moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
-        
         print("Run finished")
+        
         # Getting chains
         alpha_chain = sampler.chain[:,:,0]
         beta_chain = sampler.chain[:,:,1]

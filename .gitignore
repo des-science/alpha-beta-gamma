@@ -110,6 +110,7 @@ venv.bak/
 *.png
 
 out/
+runs/
 cosmosis/
 test_output_d_l/
 plots/

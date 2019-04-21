@@ -232,6 +232,16 @@ def main():
             meanr, dxip, vardxip = RUNtest(args, data, nwalkers,
                                            nsteps, i_guess, gflag, bflag, eq, moderr,
                                            nsig)
+            covmat[nrows*(i-1):nrows*i,nrows*(j-1) :nrows*j] = np.diag(vardxip)
+            
+            angarray = meanr
+            valuearray =  dxip
+            bin1array = np.array([i]*len(meanr))
+            bin2array = np.array([j]*len(meanr))
+            angbinarray = np.array([i for i in range(len(meanr))])
+            array_list = [bin1array, bin2array, angbinarray, angarray,  valuearray ]
+            for array, name in zip(array_list, names): outdata[name] = array 
+            write_fit(outdata, names, outpath + args.filename)
 
             
         ## ALPHA
@@ -241,7 +251,17 @@ def main():
             i_guess = i_guess0[:1] #fiducial values
             meanr, dxip, vardxip = RUNtest(args, data, nwalkers,
                                            nsteps, i_guess, gflag, bflag, eq, moderr,
-                                           nsig) 
+                                           nsig)
+            covmat[nrows*(i-1):nrows*i,nrows*(j-1) :nrows*j] = np.diag(vardxip)
+            
+            angarray = meanr
+            valuearray =  dxip
+            bin1array = np.array([i]*len(meanr))
+            bin2array = np.array([j]*len(meanr))
+            angbinarray = np.array([i for i in range(len(meanr))])
+            array_list = [bin1array, bin2array, angbinarray, angarray,  valuearray ]
+            for array, name in zip(array_list, names): outdata[name] = array 
+            write_fit(outdata, names, outpath + args.filename)
 
     hdulist = fits.open(outpath +args.filename)
     hdulist[1].name = 'xip'

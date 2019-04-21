@@ -38,6 +38,13 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+def corrmatrix(cov):
+    import numpy as np
+    cov = np.mat(cov)
+    D = np.diag(np.sqrt(np.diag(cov)))
+    d = np.linalg.inv(D)
+    corr = d*cov*d
+    return corr
 def writedxip(meanr, dxip, sig_dxip,  filename='dxip.json' ):
     import json
     stats = [meanr.tolist(), dxip.tolist(),  sig_dxip.tolist()]
@@ -135,7 +142,7 @@ def getxipbias(samples, rhosfilename, plotname='terms_dxip.png',  plots=False):
     (f8**2)*(sig_rho4**2) + (f9**2)*(sig_rho5**2) + 2*(f1*f2*covab + f1*f3*covan + f2*f3*covbn)
     return meanr, dxip, var_dxip
     
-def RUNtest(args,  data, nwalkers, nsteps, i_guess, gflag, bflag,  eq='All',  moderr=False,  nsig=1,  namemc=None,  namecont=None, nameterms='terms_xip.png'):
+def RUNtest(args,  data, nwalkers, nsteps, i_guess, gflag, bflag,  eq='All',  moderr=False,  nsig=1,  namemc=None,  namecont=None, nameterms='terms_xip.png' ,  namecovmat=None):
     from chi2 import minimizeCHI2
     from maxlikelihood import MCMC, percentiles
     import numpy as np
@@ -155,7 +162,19 @@ def RUNtest(args,  data, nwalkers, nsteps, i_guess, gflag, bflag,  eq='All',  mo
                    namecont, eq=eq, gflag=gflag, bflag=bflag,
                    moderr=moderr, uwmprior=args.uwmprior,
                    plot=True )
-
+    
+    par_matcov = np.cov(samples)
+    corr=corrmatrix(par_matcov)
+    print(par_matcov)
+    print(corr)
+    cov_vmin=np.min(corr)
+    plt.imshow(corr,cmap='viridis'+'_r', interpolation='nearest',
+               aspect='auto', origin='lower', vmin=cov_vmin, vmax=1.)
+    plt.colorbar()
+    plt.title(r'$\alpha \mid \beta \mid \eta $')
+    plt.savefig(namecovmat, dpi=500)
+    print(namecovmat, 'Printed!')
+    
     mcmcpars = percentiles(samples, nsig=nsig) 
     print('mcmc parameters',  mcmcpars)
     meanr, dxip, vardxip = getxipbias(samples, args.rhos, nameterms,  args.plots)
@@ -187,8 +206,10 @@ def main():
         
     if (args.plots):
         xlim = [2., 300.]
+        ylims = [[4.e-5, 3.e-4],[1.e-11,1.e-7 ],[3.e-8 ,1.e-6 ]]
+        rhostitle = 'TreeCorr errors'
         #Make directory where the ouput data will be 
-        plotallrhos(args.rhos, outpath=plotspath, xlim=xlim)
+        plotallrhos(args.rhos, outpath=plotspath, title=rhostitle,  xlim=xlim,  ylims=ylims)
         plotalltaus(args.taus, outpath=plotspath, xlim=xlim)
    
       
@@ -208,7 +229,7 @@ def main():
     data['sigtaus'] = sigtaus
     
     #Finding best alpha beta gamma
-    nwalkers,  nsteps = 100,  10000
+    nwalkers,  nsteps = 100,  1000
     moderr = False
     nsig = 1
     eq = 'All'
@@ -224,7 +245,8 @@ def main():
         namemc = plotspath + 'mcmc_alpha-beta-eta_eq_' + str(eq) + '_.png'
         namecont = plotspath +'contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
         nameterms = plotspath +'termsdxip_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms)
+        namecovmat = plotspath +'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms, namecovmat)
         writedxip( *vals,  filename=outpath + 'dxip-alpha-beta-eta.json' )
         writedxip_txt( *vals, outpath=outpath )
         if(args.plots):
@@ -242,7 +264,8 @@ def main():
         namemc = plotspath + 'mcmc_alpha-beta_eq_' + str(eq) + '_.png'
         namecont = plotspath + 'contours_alpha-beta_eq_' + str(eq) + '_.png'
         nameterms = plotspath + 'termsdxip_alpha-beta_eq_' + str(eq) + '_.png'
-        vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms)
+        namecovmat = plotspath +'covmatrix_alpha-beta_eq_' + str(eq) + '_.png'
+        vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms, namecovmat)
         writedxip( *vals,  filename=outpath +'dxip-alpha-beta.json' )
         if(args.plots):
             plt.clf()
@@ -259,7 +282,8 @@ def main():
         namemc = plotspath +'mcmc_alpha_eq_' + str(eq) + '_.png'
         namecont = plotspath +'contours_alpha_eq_' + str(eq) + '_.png'
         nameterms = plotspath +'termsdxip_alpha_eq_' + str(eq) + '_.png'
-        vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms)
+        namecovmat = plotspath +'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        vals = RUNtest(args, data, nwalkers, nsteps, i_guess, gflag, bflag, eq, moderr, nsig,  namemc, namecont, nameterms, namecovmat)
         writedxip( *vals,  filename=outpath+ 'dxip-alpha.json' )
         if(args.plots):
             plt.clf()
