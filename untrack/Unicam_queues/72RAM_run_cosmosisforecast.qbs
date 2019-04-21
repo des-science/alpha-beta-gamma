@@ -19,9 +19,11 @@ export PYTHONPATH=$PYTHONPATH:/home/dfa/sobreira/alsina/sw/galsim/install/lib/py
 export PATH=/home/dfa/sobreira/alsina/sw/cfitsio/install/bin:$PATH
 export LD_LIBRARY_PATH=/home/dfa/sobreira/alsina/sw/cfitsio/install/lib:/home/dfa/sobreira/alsina/sw/ccfits/25/install/lib:/home/dfa/sobreira/alsina/sw/tmv/install/lib:/home/dfa/sobreira/alsina/sw/boost/166/install/lib:$LD_LIBRARY_PATH
 
-cd /home/dfa/sobreira/alsina/alpha-beta-gamma/code
-INSTALL=/home/dfa/sobreira/alsina/sw
-START_PATH=/home/dfa/sobreira/alsina/alpha-beta-gamma/code
+cd /home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/runs/forecast72RAM/
+source /home/dfa/sobreira/alsina/sw/cosmosis/cosmosis/setup-my-cosmosis
 
-$INSTALL/pyhton/2714/install/bin/python $START_PATH/reserved_stars_corr.py 
+INSTALL=/home/dfa/sobreira/alsina/sw
+START_PATH=/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/runs/forecast72RAM
+
+mpirun --mca btl vader,self, -n 16 $INSTALL/cosmosis/cosmosis/bin/cosmosis --mpi $START_PATH/run_d_l.ini
 
