@@ -100,7 +100,7 @@ def main():
     
     import numpy as np
     from read_psf_cats import read_data, toList, read_h5
-    from run_rho import  do_tau_stats
+    from run_rho import  measure_tau
     import h5py as h
     
     args = parse_args()
