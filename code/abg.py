@@ -168,6 +168,7 @@ def RUNtest(args,  data, nwalkers, nsteps, i_guess, gflag, bflag,  eq='All',  mo
     print(par_matcov)
     print(corr)
     cov_vmin=np.min(corr)
+    plt.clf()
     plt.imshow(corr,cmap='viridis'+'_r', interpolation='nearest',
                aspect='auto', origin='lower', vmin=cov_vmin, vmax=1.)
     plt.colorbar()

@@ -1,5 +1,5 @@
 #Create fit file with all the biases and the covariance matrix of dxip
-# not implelement cross redshift bins, nor scale bins.
+# not implemented cross redshift bins, nor scale bins.
 import os
 import matplotlib
 matplotlib.use('Agg')

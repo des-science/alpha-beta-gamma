@@ -26,7 +26,7 @@ def pretty_rho(meanr, rho, sig,  legend=None, lfontsize=24, color='black', marke
     plt.ylabel(ylabel, fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
-    if(title): plt.title(title)
+    if title is not None: plt.title(title)
     plt.tight_layout()
 
 def pretty_rho0(meanr, rho, sig, title= None,  xlim=None, ylim=None):
@@ -45,7 +45,7 @@ def pretty_rho0(meanr, rho, sig, title= None,  xlim=None, ylim=None):
     plt.ylabel(r'$\rho(\theta)$', fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
-    if(title): plt.title(title)
+    if title is not None: plt.title(title)
     plt.tight_layout()
 
 def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, title= None,xlim=None, ylim=None):
@@ -84,61 +84,68 @@ def pretty_rho1(meanr, rho, sig, rho3=None, sig3=None, rho4=None, sig4=None, tit
     plt.ylabel(r'$\rho(\theta)$', fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
-    if(title): plt.title(title)
+    if title is not None: plt.title(title)
     plt.tight_layout()
 
-def pretty_rho2(meanr, rho, sig,  rho5=None, sig5=None, title= None, xlim=None, ylim=None ):
-    import matplotlib.patches as mp
-    # The requirements on rho2 are less stringent.  They are larger by a factor 1/alpha.
-    # Let's use alpha = 0.03.
-    alpha = 0.03
-
+def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, tauleg=False, title= None, xlim=None, ylim=None):
+ 
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0], color='blue', ls='', marker='o')
     plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0], color='blue', ls='', marker='o')
-    rho2_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
+    rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
     #rho2_line = plt.errorbar(-meanr,-rho, yerr=sig, color='blue', marker='o', ls=':')
+    if rho2 is not None:
+        plt.plot(meanr*1.03, rho2, color='green')
+        plt.plot(meanr*1.03, -rho2, color='green', ls=':')
+        plt.errorbar(meanr[rho2>0]*1.03, rho2[rho2>0], yerr=sig2[rho2>0], color='green', ls='', marker='s')
+        plt.errorbar(meanr[rho2<0]*1.03, -rho2[rho2<0], yerr=sig2[rho2<0], color='green', ls='', marker='s')
+        rho2_line = plt.errorbar(-meanr, rho2, yerr=sig2, color='green', marker='s')
+        #rho2_line = plt.errorbar(-meanr,-rho2, yerr=sig2, color='green', marker='s', ls=':')
     if rho5 is not None:
-        plt.plot(meanr*1.03, rho5, color='green')
-        plt.plot(meanr*1.03, -rho5, color='green', ls=':')
-        plt.errorbar(meanr[rho5>0]*1.03, rho5[rho5>0], yerr=sig5[rho5>0], color='green', ls='', marker='s')
-        plt.errorbar(meanr[rho5<0]*1.03, -rho5[rho5<0], yerr=sig5[rho5<0], color='green', ls='', marker='s')
-        rho5_line = plt.errorbar(-meanr, rho5, yerr=sig5, color='green', marker='s')
-        #rho5_line = plt.errorbar(-meanr,-rho5, yerr=sig5, color='green', marker='s', ls=':')
-        
-    if rho5 is not None :
-        plt.legend([rho2_line, rho5_line ],
-                   [r'$\rho_2(\theta)$', r'$\rho_5(\theta)$'],
-                   loc='upper right', fontsize=24)
+        plt.plot(meanr*1.03, rho5, color='red')
+        plt.plot(meanr*1.03, -rho5, color='red', ls=':')
+        plt.errorbar(meanr[rho5>0]*1.03, rho5[rho5>0], yerr=sig5[rho5>0], color='red', ls='', marker='^')
+        plt.errorbar(meanr[rho5<0]*1.03, -rho5[rho5<0], yerr=sig5[rho5<0], color='red', ls='', marker='^')
+        rho5_line = plt.errorbar(-meanr, rho5, yerr=sig5, color='red', marker='^')
+        #rho5_line = plt.errorbar(-meanr,-rho5, yerr=sig5, color='red', marker='^', ls=':')
+    if tauleg:
+        plt.legend([rho0_line, rho2_line, rho5_line],
+                   [r'$\tau_0(\theta)$', r'$\tau_2(\theta)$',
+                    r'$\tau_5(\theta)$'], loc='upper right', fontsize=24)
+         plt.ylabel(r'$\tau(\theta)$', fontsize=24)
+    else:
+        plt.legend([rho0_line, rho2_line, rho5_line],
+                   [r'$\rho_0(\theta)$', r'$\rho_2(\theta)$',
+                    r'$\rho_5(\theta)$'], loc='upper right', fontsize=24)
+        plt.ylabel(r'$\rho(\theta)$', fontsize=24)
 
     plt.tick_params(axis='both', which='major', labelsize=24)
     if ylim is not None: plt.ylim( ylim )
     if xlim is not None: plt.xlim(xlim)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel(r'$\rho(\theta)$', fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
-    if(title): plt.title(title)
+    if title is not None: plt.title(title)
     plt.tight_layout()
 
-def pretty_tau(meanr, rho, sig, title= None, xlim=None,  ylim=None):
+def pretty_tau(meanr, rho, sig, legend=None , title= None, xlim=None,  ylim=None):
     plt.plot(meanr, rho, color='blue')
     plt.plot(meanr, -rho, color='blue', ls=':')
     plt.errorbar(meanr[rho>0], rho[rho>0], yerr=sig[rho>0], color='blue', ls='', marker='o')
     plt.errorbar(meanr[rho<0], -rho[rho<0], yerr=sig[rho<0], color='blue', ls='', marker='o')
     rho0_line = plt.errorbar(-meanr, rho, yerr=sig, color='blue', marker='o')
     #rho0_line = plt.errorbar(-meanr,-rho, yerr=sig, color='blue', marker='o', ls=':')
-    plt.legend([rho0_line],[title],loc='upper right', fontsize=24)
+    if legend is not None: plt.legend([rho0_line],[legend],loc='upper right', fontsize=24)
     #plt.ylim( [1.e-9, 5.e-6] )
     plt.tick_params(axis='both', which='major', labelsize=24)
     if ylim is not None: plt.ylim( ylim )
     if xlim is not None: plt.xlim(xlim)
     plt.xlabel(r'$\theta$ (arcmin)', fontsize=24)
-    plt.ylabel(title, fontsize=24)
+    plt.ylabel(legend, fontsize=24)
     plt.xscale('log')
     plt.yscale('log', nonposy='clip')
-    if(title): plt.title(title)
+    if title is not None: plt.title(title)
     plt.tight_layout()
 
 def plotcorrmat(cov):
@@ -158,23 +165,19 @@ def plotallrhos(filename, outpath, title= None, xlim=None, ylims=None):
     if ylims is not None: ylim0, ylim1, ylim2 = ylims
     meanr, rho0p, rho1p, rho2p, rho3p, rho4p, rho5p, sig_rho0, sig_rho1, sig_rho2, sig_rho3, sig_rho4, sig_rho5 = read_rhos(filename)
     plt.clf()
-    pretty_rho0(meanr, rho0p, sig_rho0, title=title, xlim=xlim, ylim=ylim0)
-    print("Printing file: ", outpath +'rho0_all_rsrs.png')
-    plt.savefig(outpath +'rho0_all_rsrs.png')
-    plt.clf()
     pretty_rho1(meanr, rho1p, sig_rho1,  rho3p, sig_rho3, rho4p, sig_rho4, title=title, xlim=xlim,  ylim=ylim1)
     print("Printing file: ", outpath +'rho1_all_rsrs.png')
     plt.savefig(outpath +'rho1_all_rsrs.png')
     plt.clf()
-    pretty_rho2(meanr, rho2p, sig_rho2,  rho5p, sig_rho5, title=title, xlim=xlim,  ylim=ylim2)
+    pretty_rho2(meanr,  rho0p, sig_rho0, rho2p, sig_rho2,  rho5p, sig_rho5, title=title, xlim=xlim,  ylim=ylim2)
     print("Printing file: ", outpath +'rho2_all_rsrs.png')
     plt.savefig(outpath +'rho2_all_rsrs.png')
     
 def plotallrhosfits(filenames, outpath, title= None, xlim=None, ylims=None):
     import numpy as np
     from readfits import read_corr
-    ylim0, ylim1, ylim2 = [None, None, None]
-    if ylims is not None: ylim0, ylim1, ylim2 = ylims
+    ylim0, ylim1 = [None, None]
+    if ylims is not None: ylim0, ylim1 = ylims
     meanr, rho0, cov_rho0 = read_corr(filenames[0])
     meanr, rho1, cov_rho1 = read_corr(filenames[1])
     meanr, rho2, cov_rho2 = read_corr(filenames[2])
@@ -188,15 +191,11 @@ def plotallrhosfits(filenames, outpath, title= None, xlim=None, ylims=None):
     sig_rho4 =  np.sqrt(np.diag(cov_rho4))
     sig_rho5 =  np.sqrt(np.diag(cov_rho5))
     plt.clf()
-    pretty_rho0(meanr, rho0, sig_rho0, title=title, xlim=xlim, ylim=ylim0)
-    print("Printing file: ", outpath +'rho0_all_rsrs.png')
-    plt.savefig(outpath +'rho0_all_rsrs.png')
-    plt.clf()
-    pretty_rho1(meanr, rho1, sig_rho1, rho3, sig_rho3, rho4, sig_rho4, title=title, xlim=xlim, ylim=ylim1)
+    pretty_rho1(meanr, rho1, sig_rho1, rho3, sig_rho3, rho4, sig_rho4, title=title, xlim=xlim, ylim=ylim0)
     print("Printing file: ", outpath +'rho1_all_rsrs.png')
     plt.savefig(outpath +'rho1_all_rsrs.png')
     plt.clf()
-    pretty_rho2(meanr, rho2, sig_rho2,  rho5, sig_rho5, title=title, xlim=xlim, ylim=ylim2)
+    pretty_rho2(meanr, rho0, sig_rho0,rho2, sig_rho2,  rho5, sig_rho5, title=title, xlim=xlim, ylim=ylim1)
     print("Printing file: ", outpath +'rho2_all_rsrs.png')
     plt.savefig(outpath +'rho2_all_rsrs.png')
     
@@ -212,17 +211,9 @@ def plotalltausfits(filenames, outpath, title= None,xlim=None,  ylims=None):
     sig_tau2 =  np.sqrt(np.diag(cov_tau2))
     sig_tau5 =  np.sqrt(np.diag(cov_tau5))
     plt.clf()
-    pretty_tau(meanr2, tau0, sig_tau0, r'$\tau_{0}(\theta)$',title=title,  xlim=xlim, ylim=ylim0)
-    print("Printing file: ", outpath +'tau0_all_rsgal.png')
-    plt.savefig(outpath +'tau0_all_rsgal.png')
-    plt.clf()
-    pretty_tau(meanr2, tau2, sig_tau2, r'$\tau_{2}(\theta)$',title=title,  xlim=xlim, ylim=ylim1)
-    print("Printing file: ", outpath +'tau2_all_rsgal.png')
-    plt.savefig(outpath +'tau2_all_rsgal.png')
-    plt.clf()
-    pretty_tau(meanr2, tau5, sig_tau5, r'$\tau_{5}(\theta)$',title=title,  xlim=xlim, ylim=ylim2)
-    print("Printing file: ", outpath +'tau5_all_rsgal.png')
-    plt.savefig(outpath +'tau5_all_rsgal.png')
+    pretty_rho2(meanr, tau0, sig_tau0, tau2, sig_tau2, tau5, sig_tau5, tauleg=True, title=title, xlim=xlim, ylim=ylim1)
+    print("Printing file: ", outpath +'tau_all_rsrs.png')
+    plt.savefig(outpath +'tau_all_rsgal.png')
 def plotallrhoscorrmatfits(filenames, outpath):
     import fitsio
     names = ['rho0_covmat.png', 'rho1_covmat.png', 'rho2_covmat.png', 'rho3_covmat.png', 'rho4_covmat.png', 'rho5_covmat.png']
@@ -236,7 +227,7 @@ def plotallrhoscorrmatfits(filenames, outpath):
         print(outpath +names[i], 'Printed!')
 def plotalltauscorrmatfits(filenames, outpath):
     import fitsio
-    names = ['tau0_covmat.png', 'tau2_covmat.png', 'tau_covmat.png']
+    names = ['tau0_covmat.png', 'tau2_covmat.png', 'tau5_covmat.png']
     titles =  [r'$\rho_{0}(\theta)$', r'$\rho_{2}(\theta)$', r'$\rho_{5}(\theta)$' ]
     for i,f in enumerate(filenames):
         covmat = fitsio.read(f, ext=1)

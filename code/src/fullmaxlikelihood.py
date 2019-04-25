@@ -42,12 +42,12 @@ def loglike(chisq):
 ##Log natural of the posterior
 def logpost(pars, data, eq=None, gflag=True,bflag = True, moderr=False, uwmprior=False):
     import numpy as np
-    from fullchi2_join import CHI2
+    from fullchi2 import CHI2
     chisq = CHI2(pars, data,eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
-    lprior = logprior(pars, gflag=gflag,bflag = bflag, uwmprior=uwmprior)
+    lp = logprior(pars, gflag=gflag,bflag = bflag, uwmprior=uwmprior)
     if not np.isfinite(lp):
         return -np.inf
-    return lpior + loglike(chisq)
+    return lp + loglike(chisq)
 
 def corner_plot(samples, labels, title):
     import corner

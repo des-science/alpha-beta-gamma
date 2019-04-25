@@ -24,8 +24,6 @@ def main():
     sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
     #sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
 
- 
-    
     args = parse_args()
 
     #Make directory where the ouput data will be

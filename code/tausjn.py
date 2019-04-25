@@ -31,12 +31,6 @@ def parse_args():
     parser.add_argument('--mod', default=True,
                         action='store_const', const=True,
                         help='If true it substracts the mean to each field before calculate correlations')
-    parser.add_argument('--sn', default=True,
-                        action='store_const', const=True,
-                        help='If true multiply by 2 the variances of all correlations. Shape-noise error.')
-    parser.add_argument('--xim', default=False,
-                        action='store_const', const=True,
-                        help='trecorr return xim instead of xip')
     parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/',
                         help='location of the output of the files')
     parser.add_argument('--tomo', default=False,
@@ -45,14 +39,14 @@ def parse_args():
     parser.add_argument('--nz_source',
                         default='/home2/dfa/sobreira/alsina/catalogs/y3_master/nz_source_zbin.h5',
                         help='Full Path to the Only stars Piff catalog')
-    parser.add_argument('--filename', default='alltausp_jk.fits', help='Name of the fit file where info of dxip will be saved ')
+    parser.add_argument('--filename', default='alltaus_4jk.fits', help='Name of the fit file where info of dxip will be saved ')
     
     
     args = parser.parse_args()
 
     return args
 
-def jk_kmeans(ra,dec,njk,plot=False):
+def jk_kmeans(ra_sam, dec_sam, ra,dec,njk,plot=False):
 	'''
 	Function that takes RA and Dec from a given catalog and computes JK regions using kmeans_radec module by Erin Sheldon.
 
@@ -66,20 +60,98 @@ def jk_kmeans(ra,dec,njk,plot=False):
         jk = JK region for each galaxy: integer ranging from 0 to njk-1. It is numpy array with the same length as ra and dec. 
 
 	'''
-        radec = np.zeros((len(ra),2))
-        radec[:,0] = ra
-        radec[:,1] = dec
-        km = kmeans_radec.kmeans_sample(radec,njk,maxiter=100,tol=1e-01)
+        from astropy.coordinates import SkyCoord, Angle
+        from astropy import units
+        radec = np.zeros((len(ra),2)); radec_sam = np.zeros((len(ra_sam),2))
+        radec[:,0] = ra; radec_sam[:,0] = ra_sam
+        radec[:,1] = dec; radec_sam[:,1] = dec_sam
+        km = kmeans_radec.kmeans_sample(radec_sam,njk,maxiter=500,tol=1e-05)
         jk = km.find_nearest(radec)
         if not km.converged:
                 print 'k means did not converge'
         if plot:
-                plt.figure()
-                plt.scatter(ra,dec,c=jk,lw=0,cmap='Paired',rasterized=True)
-                plt.xlabel(r'RA',fontsize=12)
-                plt.ylabel(r'Dec',fontsize=12)
-                plt.savefig('jk_kmeans.pdf')
+            coords = SkyCoord(ra=ra, dec=dec, unit='degree')
+            ra = coords.ra.wrap_at(180 * units.deg)
+            dec = coords.dec
+            plt.figure()
+            plt.scatter(ra,dec,c=jk,lw=0,cmap='Paired',rasterized=True)
+            plt.xlabel(r'RA',fontsize=12)
+            plt.ylabel(r'Dec',fontsize=12)
+            plt.tight_layout()
+            plt.savefig('jk_kmeans.png')
         return jk
+
+def measure_tau(data_stars, data_galaxies, max_sep=250, sep_units='arcmin', prefix='piff', mod=True):
+    """Compute the tau statistics
+    """
+    import treecorr
+    import numpy as np
+    e1 = data_stars['obs_e1']
+    e2 = data_stars['obs_e2']
+    p_e1 = data_stars[prefix+'_e1']
+    p_e2 = data_stars[prefix+'_e2']
+    T = data_stars['obs_T']
+    p_T = data_stars[prefix+'_T']
+
+    de1 = e1-p_e1
+    de2 = e2-p_e2
+    dt = (T-p_T)/T
+
+    #w1 = p_e1*dt
+    #w2 = p_e2*dt
+    w1 = e1*dt
+    w2 = e2*dt
+
+    e1gal = data_galaxies['e_1']
+    e2gal = data_galaxies['e_2']
+    
+    #Modified ellipticities reserved stars and galaxies
+    if(mod):
+        p_e1 = p_e1 - np.array(np.mean(p_e1))
+        p_e2 = p_e2 - np.array(np.mean(p_e2))
+        de1 = de1 - np.array(np.mean(de1))
+        de2 = de2 - np.array(np.mean(de2))
+        w1 = w1 - np.array(np.mean(w1))
+        w2 = w2 - np.array(np.mean(w2))
+        e1gal = (e1gal - np.array(np.mean(e1gal)))
+        e2gal = (e2gal - np.array(np.mean(e2gal)))
+
+        
+    ra = data_stars['ra']
+    dec = data_stars['dec']
+    print('ra = ',ra)
+    print('dec = ',dec)
+    ragal = data_galaxies['ra']
+    decgal = data_galaxies['dec']
+    print('ragal = ',ragal)
+    print('decgal = ',decgal)
+    
+    
+    ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
+    decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
+    wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+    egal_cat = treecorr.Catalog(ra=ragal, dec=decgal, ra_units='deg', dec_units='deg', g1=e1gal, g2=e2gal)
+
+    bin_config = dict( sep_units = sep_units, min_sep = 2.5, max_sep = 250, nbins = 20,)
+    #bin_config = dict(sep_units = 'degrees', bin_slop = 0.1, min_sep = 0.5, max_sep = max_sep, bin_size = 0.2)
+  
+    results = []
+    for (cat1, cat2) in [(egal_cat, ecat), 
+                         (egal_cat, decat),
+                          (egal_cat, wcat) ]:
+        print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
+
+        rho = treecorr.GGCorrelation(bin_config, verbose=2)
+
+        if cat1 is cat2:
+            rho.process(cat1)
+        else:
+            rho.process(cat1, cat2)
+        print('mean xi+ = ',rho.xip.mean())
+        print('mean xi- = ',rho.xim.mean())
+        results.append(rho)
+        
+    return results
 
 def write_fit(data, names, filename):
     import fitsio
@@ -99,8 +171,7 @@ def main():
     #sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
     
     import numpy as np
-    from read_psf_cats import read_data, toList, read_h5
-    from run_rho import  measure_tau
+    from read_psf_cats import read_data, toList, read_metacal
     import h5py as h
     
     args = parse_args()
@@ -113,13 +184,21 @@ def main():
     except OSError:
         if not os.path.exists(outpath): raise
         
-
+    names=['JKR','ANGBIN','THETA','TAU0P','TAU0M','VAR_TAU0','TAU2P','TAU2M','VAR_TAU2','TAU5P','TAU5M', 'VAR_TAU5']
+    forms = ['i4', 'i4', 'f8',  'f8',  'f8', 'f8',  'f8',  'f8', 'f8',  'f8',  'f8', 'f8']
+    dtype = dict(names = names, formats=forms)
+    nrows = 20
+    outdata = np.recarray((nrows, ), dtype=dtype)
+    
   
     #Reading Mike stars catalog
     keys = ['ra', 'dec','obs_e1', 'obs_e2', 'obs_T',
             'piff_e1', 'piff_e2', 'piff_T', 'mag']
  
     exps = toList(args.exps_file)
+    data_sam, bands, tilings = read_data(exps, args.piff_cat , keys,
+                                          limit_bands=args.bands,
+                                          use_reserved=args.use_reserved, frac=0.01)
     data_stars, bands, tilings = read_data(exps, args.piff_cat , keys,
                                      limit_bands=args.bands,
                                      use_reserved=args.use_reserved)
@@ -129,116 +208,58 @@ def main():
     
     
     if(args.tomo):
-        #Make directory where the ouput data will be
-        ipath =  os.path.join(args.outpath, 'tomo_taus' )
-        outpath = os.path.expanduser(ipath)
-        try:
-            if not os.path.exists(outpath):
-                os.makedirs(outpath)
-        except OSError:
-            if not os.path.exists(outpath): raise
         print('Starting Tomography!')
         galkeys = ['ra','dec','e_1','e_2','R11','R22']
-        data_gal =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
-        print("Total objects in catalog:", len(data_gal))
-        dgamma = 2*0.01
-        f = h.File(args.metacal_cat, 'r')
-        index =  f['index']
-        select = np.array(index['select'])
-        select_1p = np.array(index['select_1p']); select_1m = np.array(index['select_1m'])
-        select_2p = np.array(index['select_2p']); select_2m = np.array(index['select_2m']) 
-
-        names=['JKR', 'ANGBIN','THETA', 'TAUO0', 'VAR_TAUO0', 'TAUO2', 'VAR_TAUO2','TAUO5', 'VAR_TAUO5']
-        forms = ['i4', 'i4', 'f8',  'f8',  'f8', 'f8',  'f8',  'f8', 'f8']
-        dtype = dict(names = names, formats=forms)
-        nrows = 20
-        outdata = np.recarray((nrows, ), dtype=dtype)
-
-        n = h.File(args.nz_source, 'r')
-        zbin_array = np.array(n['nofz/zbin'])
         nbins = 4
         for bin_c in range(nbins):
             print('Starting bin!',  bin_c)
-            ind = np.where( zbin_array==bin_c )[0]
-            ind_1p = np.where(np.array(n['nofz/zbin_1p'])==bin_c)
-            ind_1m = np.where(np.array(n['nofz/zbin_1m'])==bin_c)
-            ind_2p = np.where(np.array(n['nofz/zbin_2p'])==bin_c)
-            ind_2m = np.where(np.array(n['nofz/zbin_2m'])==bin_c)
-
-            njk = 100
-            #jkindexes_stars = jk_kmeans(data_stars['ra'], data_stars['dec'] ,njk,plot=False)
-            jkindexes_gals = jk_kmeans(data_gal['ra'][select][ind], data_gal['dec'][select][ind] ,njk,plot=False)
+            data_gal = read_metacal(args.metacal_cat,  galkeys,  zbin=bin_c,  nz_source_file=args.nz_source)
+            
+            njk = 4
+            ##TODO generate km first an later finnearest,
+            jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_gal['ra'], data_gal['dec'],njk)
     
             for jkidx in range(njk):
                 print("running jackkniffe region",  jkidx)
                 booljk = [jkindexes_gals!=jkidx ] 
-                R11s = (data_gal['e_1'][select_1p][ind_1p][booljk].mean() -
-                        data_gal['e_1'][select_1m][ind_1m][booljk].mean() )/dgamma
-                R22s = (data_gal['e_2'][select_2p][ind_2p][booljk].mean() -
-                        data_gal['e_2'][select_2m][ind_2m][booljk].mean() )/dgamma
-                Rs = [R11s, R22s] 
-                #tau0, tau2, tau5= measure_tau(data_stars[jkindexes_stars!=jkidx ], data_gal[select][ind][booljk], Rs,   mod=args.mod, obs=args.obs)
-                tau0, tau2, tau5= measure_tau(data_stars[jkindexes_stars!=jkidx ], data_gal[select][ind][booljk], Rs,   mod=args.mod, obs=args.obs)
+                tau0, tau2, tau5= measure_tau(data_stars, data_gal[booljk], mod=args.mod)
                 jkrarr =  np.array([jkidx]*nrows)
                 angarr = np.arange(nrows)
                 thetaarr = np.exp(tau0.meanlogr)
-                if args.xim:
-                    tau0arr = tau0.xim; tau2arr = tau2.xim;  tau5arr = tau5.xim;
-                else:
-                    tau0arr = tau0.xip; tau2arr = tau2.xip;  tau5arr = tau5.xip;
-                    vartau0arr = 2*tau0.varxi; vartau2arr = 2*tau2.varxi; vartau5arr = 2*tau5.varxi;
-                    array_list = [jkrarr, angar, thetaarr, tau0arr,
-                                  vartau0arr, tau2arr, vartau2arr, tau5arr,
-                                  vartau5arr, ]
+                tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
+                tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
+                vartau0arr = 2*tau0.varxi; vartau2arr = 2*tau2.varxi; vartau5arr = 2*tau5.varxi;
+                array_list = [jkrarr, angar, thetaarr,
+                              tau0parr,tau0marr, vartau0arr,
+                              tau2parr,tau2marr, vartau2arr,
+                              tau5parr,tau5marr, vartau5arr, ]
                 for array, name in zip(array_list, names): outdata[name] = array
-                write_fit(outdata, names, outpath+'alltausp_jk_'+str(bin_c+1)+'_'+str(bin_c+1)+'.fits' )
+                write_fit(outdata, names, outpath+'alltaus_4jk_'+str(bin_c+1)+'_'+str(bin_c+1)+'.fits' )
 
 
             
     galkeys = ['ra','dec','e_1','e_2','R11','R22']
-    data_galaxies =  read_h5(args.metacal_cat, 'catalog/metacal/unsheared',  galkeys )
+    data_galaxies =  read_metacal(args.metacal_cat,  galkeys )
     print("Total objects in catalog:", len(data_galaxies))
-    dgamma = 2*0.01
-    f = h.File(args.metacal_cat, 'r')
-    index =  f['index']
-    select = np.array(index['select'])
-    select_1p = np.array(index['select_1p'])
-    select_1m = np.array(index['select_1m'])
-    select_2p = np.array(index['select_2p']) #added by Lucas: 
-    select_2m = np.array(index['select_2m']) #added by Lucas
-
-    R11s = (data_galaxies['e_1'][select_1p].mean() - data_galaxies['e_1'][select_1m].mean() )/dgamma
-    R22s = (data_galaxies['e_2'][select_2p].mean() - data_galaxies['e_2'][select_2m].mean() )/dgamma
-    Rs = [R11s, R22s]
-    data_galaxies = data_galaxies[select]
-    del f, index, select_1p, select_1m, select_2p,  select_2m, select
-
-  
-    names=['JKR', 'ANGBIN','THETA', 'TAUO0', 'VAR_TAUO0', 'TAUO2', 'VAR_TAUO2','TAUO5', 'VAR_TAUO5']
-    forms = ['i4', 'i4', 'f8',  'f8',  'f8', 'f8',  'f8',  'f8', 'f8']
-    dtype = dict(names = names, formats=forms)
-    nrows = 20
-    outdata = np.recarray((nrows, ), dtype=dtype)
-
-    njk = 50
-    #jkindexes_stars = jk_kmeans(data_stars['ra'], data_stars['dec'] ,njk,plot=False)
-    jkindexes_gals = jk_kmeans(data_galaxies['ra'], data_galaxies['dec'] ,njk,plot=False)
+ 
+   
+    njk = 4
+ 
+    jkindexes_gals = jk_kmeans(data_sam['ra'], data_sam['dec'], data_galaxies['ra'], data_galaxies['dec'],njk)
     
     for jkidx in range(njk):
         print("running jackkniffe region",  jkidx)
         booljk = [jkindexes_gals!=jkidx ]  
-        #tau0, tau2, tau5= measure_tau(data_stars[jkindexes_stars!=jkidx ], data_galaxies[booljk], Rs,   mod=args.mod, obs=args.obs)
-        tau0, tau2, tau5= measure_tau(data_stars, data_galaxies[booljk], Rs,   mod=args.mod, obs=args.obs)
+        tau0, tau2, tau5= measure_tau(data_stars, data_galaxies[booljk], mod=args.mod)
         jkrarr =  np.array([jkidx]*nrows)
         angarr = np.arange(nrows)
         thetaarr = np.exp(tau0.meanlogr)
-        if args.xim:
-            tau0arr = tau0.xim; tau2arr = tau2.xim;  tau5arr = tau5.xim;
-        else:
-            tau0arr = tau0.xip; tau2arr = tau2.xip;  tau5arr = tau5.xip;
+        tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
+        tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
         vartau0arr = 2*tau0.varxi; vartau2arr = 2*tau2.varxi; vartau5arr = 2*tau5.varxi;
-        array_list = [jkrarr, angar, thetaarr, tau0arr, vartau0arr,
-                      tau2arr, vartau2arr, tau5arr, vartau5arr, ]
+        array_list = [jkrarr, angar, thetaarr, tau0parr,tau0marr,
+                      vartau0arr, tau2parr,tau2marr, vartau2arr,
+                      tau5parr,tau5marr, vartau5arr, ]
         for array, name in zip(array_list, names): outdata[name] = array
         write_fit(outdata, names, outpath + args.filename)
     

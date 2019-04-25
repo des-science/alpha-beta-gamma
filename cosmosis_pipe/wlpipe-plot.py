@@ -14,7 +14,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/2pt_sim_1110_baseline_Y3cov.fits',
                         help='fit file with fiducial data vectors, covariance matrix and so on.')
     parser.add_argument('--contaminant',
-                        default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/abg_dxip_tomo.fits',
+                        default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/ab_dxi.fits',
                         help='fit file with contamination data vector, covariance matrix')
     parser.add_argument('--contaminated',
                         default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/2pt_sim_1110_baseline_Y3cov_contaminated.fits', 
@@ -445,11 +445,11 @@ def main():
         print e
         pass
     
-    plotfiducial(args.fiducial,  out)
-    plotcontaminant(args.contaminant, out)
+    #plotfiducial(args.fiducial,  out)
+    #plotcontaminant(args.contaminant, out)
     plotcontaminantandfiducial(args.contaminant, args.fiducial, out)
-    plotcontaminated(args.contaminated, out)
-    checkcontamination(args.contaminated,args.fiducial,  out)
+    #plotcontaminated(args.contaminated, out)
+    #checkcontamination(args.contaminated,args.fiducial,  out)
     
 
 

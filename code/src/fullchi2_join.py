@@ -25,6 +25,12 @@ def modelvector(rhos, params, eq=None, gflag=True, bflag=True):
         return mvec1
     elif(eq==2):
         return mvec2
+    elif(eq==[0,1]):
+        return mvec0 + mvec1
+    elif(eq==[0,2]):
+        return mvec0 + mvec2
+    elif(eq==[1,2]):
+        return mvec1 + mvec2    
     else:
         return mvec0 +  mvec1 +  mvec2
         
@@ -56,6 +62,12 @@ def modelcov(covrhos, params, eq =None, gflag=True, bflag=True):
         return mvar1
     elif(eq==2):
         return mvar2
+    elif(eq==[0,1]):
+        return mvar0 + mvar1
+    elif(eq==[0,2]):
+        return mvar0 + mvar2
+    elif(eq==[1,2]):
+        return mvar1 + mvar2  
     else:
         return mvar0 +  mvar1 +  mvar2
    
@@ -66,6 +78,12 @@ def datavector(taus, eq=None):
         return taus[1]
     elif(eq==2):
         return taus[2]
+    elif(eq==[0,1]):
+        return taus[0] + taus[1]
+    elif(eq==[0,2]):
+        return taus[0] + taus[2]
+    elif(eq==[1,2]):
+        return taus[1] + taus[2]
     else:
         return taus[0] + taus[1] + taus[2]
 def datacov(covtaus, eq=None):
@@ -75,9 +93,15 @@ def datacov(covtaus, eq=None):
         return covtaus[1]
     elif(eq==2):
         return covtaus[2]
+    elif(eq==[0,1]):
+        return covtaus[0] + covtaus[1]
+    elif(eq==[0,2]):
+        return covtaus[0] + covtaus[2]
+    elif(eq==[1,2]):
+        return covtaus[1] + covtaus[2]
     else:
         return covtaus[0] + covtaus[1] + covtaus[2]
-    
+     
 def CHI2(params, data, eq=None,  gflag=True,  bflag=True, moderr=False):
     rhosp = data['rhosp'];covrhosp = data['covrhosp']
     rhosm = data['rhosm'];covrhosm = data['covrhosm']

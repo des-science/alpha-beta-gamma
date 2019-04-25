@@ -10,7 +10,7 @@ def parse_args():
                         default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/2pt_sim_1110_baseline_Y3cov.fits',
                         help='File containing xip to be modified')
     parser.add_argument('--contaminant',
-                        default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/abe_dxip.fits',
+                        default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/ab_dxi.fits',
                         help='Path for the outputs of this code')
     parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/', help='location of the output of the files')
     parser.add_argument('--filename',
@@ -24,6 +24,7 @@ def main():
     import fitsio
     import itertools
     import numpy as np
+    import itertools
     from fitsio import FITS,FITSHDR
     from astropy.io import fits
     
@@ -41,10 +42,11 @@ def main():
     fiducialfit = args.original
     covmatrixfit_ori=fitsio.read(fiducialfit,ext=1)
     xipfit_ori=fitsio.read(fiducialfit,ext=2)
+    ximfit_ori=fitsio.read(fiducialfit,ext=3)
 
     contaminantfit = args.contaminant
-    covmatrixfit_cont=fitsio.read(contaminantfit,ext=1)
     xipfit_cont=fitsio.read(contaminantfit,ext=2)
+    dxipbin = xipfit_cont['VALUE']
     #print(fitcontable)
 
     nrows = 20
@@ -55,19 +57,25 @@ def main():
     for p in itertools.product(a, b):
         bin_pairs.append(p)
     for i,j in bin_pairs:
-        bin1 = (xipfit_ori['BIN1']==i)&(xipfit_ori['BIN2']==j)
-        dxipbin = xipfit_cont['VALUE']
-        if(len(dxipbin ) !=0 ):
-            xipfit_ori['VALUE'][bin1] -=dxipbin
+        binp = (xipfit_ori['BIN1']==i)&(xipfit_ori['BIN2']==j)
+        binm = (ximfit_ori['BIN1']==i)&(ximfit_ori['BIN2']==j)
+        idxbinsp =  list(itertools.compress(xrange(len(binp)),  binp))
+        idxbinsm =  list(itertools.compress(xrange(len(binm)),  binm))
+        if (len(idxbinsp)!=0): xipfit_ori['VALUE'][binp] -=dxipbin
+        if (len(idxbinsm)!=0): ximfit_ori['VALUE'][binm] -=dxipbin
 
     hdulist = fits.open(args.original)
     #delete all xip but saving header
-    oldheaders =  [hdulist[2].header]
+    oldheaders =  [hdulist[2].header, hdulist[3].header]
+    hdulist.pop(index=2);
     hdulist.pop(index=2);
  
-    xiphdu = fits.BinTableHDU(xipfit_ori, name='xipt')
+    xiphdu = fits.BinTableHDU(xipfit_ori)
+    ximhdu = fits.BinTableHDU(ximfit_ori)
     hdulist.insert(2, xiphdu)
-    hdulist[2].header = oldheaders[2]
+    hdulist.insert(3, ximhdu)
+    hdulist[2].header = oldheaders[0]
+    hdulist[3].header = oldheaders[1]
     hdulist.writeto(outpath + args.filename, clobber=True)
     
 if __name__ == "__main__":

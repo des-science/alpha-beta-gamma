@@ -202,7 +202,7 @@ def write_xi_stat( stat_file, rho0, shapenoise=False):
         json.dump([stats], fp)
     print('Done writing ',stat_file)
 
-def measure_rho(data, max_sep=300, sep_units='arcmin',  tag=None, prefix='piff', mod=True,  obs=False):
+def measure_rho(data, max_sep=300, sep_units='arcmin',  tag=None, prefix='piff', mod=True,  obs=False ):
     """Compute the rho statistics
     """
     import treecorr
@@ -222,6 +222,7 @@ def measure_rho(data, max_sep=300, sep_units='arcmin',  tag=None, prefix='piff',
     w2 = p_e2*dt
     w1obs = e1*dt 
     w2obs = e2*dt 
+        
     
     #Modified ellipticities
     if(mod):
@@ -247,7 +248,8 @@ def measure_rho(data, max_sep=300, sep_units='arcmin',  tag=None, prefix='piff',
     else:
         ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
         decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
-        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+        #wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1, g2=w2)
+        wcat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=w1obs, g2=w2obs)
     ecat.name = 'ecat'
     decat.name = 'decat'
     wcat.name = 'wcat'
