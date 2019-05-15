@@ -361,6 +361,7 @@ def read_h5(filename, folder, keys):
 def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
     import numpy as np
     import h5py as h
+    import gc
     dgamma = 2*0.01
     
     f = h.File(filename, 'r')
@@ -407,4 +408,6 @@ def read_metacal(filename,  keys,  zbin=None,  nz_source_file=None):
     data['e_1'] = data['e_1']/(R11s + np.mean(data['R11']))
     data['e_2'] = data['e_2']/(R22s + np.mean(data['R22']))
     print('Metal read sucesfully')
+    del f, cat
+    gc.collect()
     return data

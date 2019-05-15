@@ -112,8 +112,9 @@ def pretty_rho2(meanr, rho, sig, rho2=None, sig2=None, rho5=None, sig5=None, tau
     if tauleg:
         plt.legend([rho0_line, rho2_line, rho5_line],
                    [r'$\tau_0(\theta)$', r'$\tau_2(\theta)$',
-                    r'$\tau_5(\theta)$'], loc='upper right', fontsize=24)
-         plt.ylabel(r'$\tau(\theta)$', fontsize=24)
+                    r'$\tau_5(\theta)$'], loc='upper right',
+                   fontsize=24)
+        plt.ylabel(r'$\tau(\theta)$', fontsize=24)
     else:
         plt.legend([rho0_line, rho2_line, rho5_line],
                    [r'$\rho_0(\theta)$', r'$\rho_2(\theta)$',
@@ -341,3 +342,122 @@ def plot_tomograpically_bin(ax, i, j,  x, y, xerr=None, yerr=None,xlabel='', yla
         ax[j-1][i-1].set_xlabel(xlabel)
     if (i == 1):
         ax[j-1][i-1].set_ylabel(ylabel)
+
+def corner_plot(samples, labels, title):
+    import corner
+    import numpy as np
+    #burn = 5000
+    samples= np.c_[[par[int(0.2 * len(par)):] for par in samples]].T
+    fig = corner.corner(samples, labels=labels,
+                        quantiles=[0.16, 0.5, 0.84],  #-1sigma,0sigma,1sigma
+                        levels=(1-np.exp(-0.5), 1-np.exp(-2), 1-np.exp(-9./2)), #1sigma, 2sigma and 3sigma contours
+                        show_titles=True, title_kwargs={"fontsize": 12}, title_fmt= '.4f', 
+                        smooth1d=None, plot_contours=True,  
+                        no_fill_contours=False, plot_density=True, use_math_text=True, )
+    print("Printing file:",  title)
+    plt.tight_layout()
+    plt.savefig(title)
+    plt.close(fig)
+    print(title, "Printed")
+def plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont):
+    import numpy as np
+    import emcee
+    aflag, bflag, eflag =  mflags
+    fig = plt.figure(figsize=(16, 12))
+    ndim =  len(samples)        
+    if(ndim ==1):
+         axs = fig.subplots(1, 3)
+         if( aflag and (not bflag) and (not eflag)):
+             labels = [r"$\alpha$"]
+         elif( (not aflag) and bflag and (not eflag)):
+             labels = [r"$\beta$"]
+         elif( (not aflag) and (not bflag) and eflag):
+             labels = [r"$\eta$"]
+         axs[0].set_xlabel("Ensemble step")
+         axs[1].set_xlabel("Ensemble step")
+         axs[2].set_xlabel("Walker Step")
+         axs[0].set_title("Ensemble dispersion")
+         axs[1].set_title("Ensemble autocorrelation")
+         axs[2].set_title("Walker mean and stdev")
+         alpha_chain = chains
+         alpha_chain_mean = np.mean(alpha_chain, axis=0)
+         alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
+         idx = np.arange(len(alpha_chain_mean))
+         axs[2].errorbar(x=idx, y=alpha_chain_mean,
+                         yerr=alpha_chain_err, errorevery=50,
+                         ecolor='red', lw=0.5, elinewidth=2.,
+                         color='k')
+    elif(ndim ==2):
+        axs = fig.subplots(2, 3)
+        if( aflag and bflag and (not eflag)):
+            labels = [r"$\alpha$", r"$\beta$"]
+        elif(aflag and (not bflag) and eflag ):
+            labels = [r"$\alpha$", r"$\eta$"]
+        elif( (not aflag) and bflag and eflag ):
+            labels = [r"$\beta$", r"$\eta$"]
+        axs[1][0].set_xlabel("Ensemble step")
+        axs[1][1].set_xlabel("Ensemble step")
+        axs[1][2].set_xlabel("Walker Step")
+        axs[0][0].set_title("Ensemble dispersion")
+        axs[0][1].set_title("Ensemble autocorrelation")
+        axs[0][2].set_title("Walker mean and stdev")
+        alpha_chain, beta_chain = chains
+        alpha_chain_mean = np.mean(alpha_chain, axis=0)
+        alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
+        beta_chain_mean = np.mean(beta_chain, axis=0)
+        beta_chain_err = np.std(beta_chain, axis=0) / np.sqrt(nwalkers)
+        idx = np.arange(len(alpha_chain_mean))
+        axs[0][2].errorbar(x=idx, y=alpha_chain_mean,
+                           yerr=alpha_chain_err, errorevery=50,
+                           ecolor='red', lw=0.5, elinewidth=2., color='k')
+        axs[1][2].errorbar(x=idx, y=beta_chain_mean,
+                           yerr=beta_chain_err, errorevery=50,
+                           ecolor='red', lw=0.5, elinewidth=2., color='k');
+    elif(ndim==3):
+        axs = fig.subplots(3, 3)
+        labels = [r"$\alpha$", r"$\beta$", r"$\eta$"]
+        axs[2][0].set_xlabel("Ensemble step")
+        axs[2][1].set_xlabel("Ensemble step")
+        axs[2][2].set_xlabel("Walker Step")
+        axs[0][0].set_title("Ensemble dispersion")
+        axs[0][1].set_title("Ensemble autocorrelation")
+        axs[0][2].set_title("Walker mean and stdev")
+        alpha_chain, beta_chain, eta_chain = chains
+        alpha_chain_mean = np.mean(alpha_chain, axis=0)
+        alpha_chain_err = np.std(alpha_chain, axis=0) / np.sqrt(nwalkers)
+        beta_chain_mean = np.mean(beta_chain, axis=0)
+        beta_chain_err = np.std(beta_chain, axis=0) / np.sqrt(nwalkers)
+        eta_chain_mean = np.mean(eta_chain, axis=0)
+        eta_chain_err = np.std(eta_chain, axis=0) / np.sqrt(nwalkers)
+        idx = np.arange(len(alpha_chain_mean))
+        axs[0][2].errorbar(x=idx, y=alpha_chain_mean,
+                           yerr=alpha_chain_err, errorevery=50,
+                           ecolor='red', lw=0.5, elinewidth=2.,
+                           color='k')
+        axs[1][2].errorbar(x=idx, y=beta_chain_mean,
+                           yerr=beta_chain_err, errorevery=50,
+                           ecolor='red', lw=0.5, elinewidth=2., color='k');
+        axs[2][2].errorbar(x=idx, y=eta_chain_mean,
+                           yerr=eta_chain_err, errorevery=50,
+                           ecolor='red', lw=0.5, elinewidth=2., color='k');
+
+    for i, par in enumerate(samples):
+        axs[i][0].set_ylabel(labels[i])
+        idx = np.arange(len(par))
+        axs[i][0].scatter(idx, par[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+        # Get selfcorrelation using emcee
+        ac = emcee.autocorr.function(par)
+        idx = np.arange(len(ac),step=1)
+        axs[i][1].scatter(idx, ac[idx], marker='o', c='k', s=10.0, alpha=0.1, linewidth=0)
+        axs[i][1].axhline(alpha=1., lw=1., color='red')
+
+    print("Printing file:",  namemc)
+    plt.tight_layout()
+    plt.savefig(namemc)
+    plt.close(fig)
+    print(namemc, "Printed")
+    corner_plot(samples, labels, namecont)
+
+    
+ 
+  

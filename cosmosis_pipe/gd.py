@@ -3,8 +3,8 @@ def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description='Sofware to plot all quantities after running WL-pipeline')
     
-    parser.add_argument('--samplesfile_contaminated', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast_cont1.txt', help='txt file with the samples contaminated after running cosmosis')
-    parser.add_argument('--samplesfile_forecast', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast.txt', help='txt file with the samples after running cosmosis')
+    parser.add_argument('--samplesfile_contaminated', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast2.txt', help='txt file with the samples contaminated after running cosmosis')
+    parser.add_argument('--samplesfile_forecast', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/samples/forecast3.txt', help='txt file with the samples after running cosmosis')
     parser.add_argument('--out',
                         default='/home/dfa/sobreira/alsina/alpha-beta-gamma/cosmosis_pipe/',
                         help='path where output will be send') 

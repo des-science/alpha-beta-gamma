@@ -202,7 +202,7 @@ def main():
         corrhdu = fits.BinTableHDU(outdata, name=nam)
         hdul.insert(2, corrhdu)
     
-        hdul.writeto(outpath + nam + '.fits', clobber=True)
+        hdul.writeto(outpath + nam + '.fits', overwrite=True)
 
 if __name__ == "__main__":
     main()

@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('--mod', default=True,
                         action='store_const', const=True,
                         help='If true it substracts the mean to each field before calculate correlations')
-    parser.add_argument('--outpath', default='/home2/dfa/sobreira/alsina/catalogs/output/alpha-beta-gamma/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/',
                         help='location of the output of the files')
     parser.add_argument('--tomo', default=False,
                         action='store_const', const=True,
@@ -257,7 +257,7 @@ def main():
         tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
         tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
         vartau0arr = 2*tau0.varxi; vartau2arr = 2*tau2.varxi; vartau5arr = 2*tau5.varxi;
-        array_list = [jkrarr, angar, thetaarr, tau0parr,tau0marr,
+        array_list = [jkrarr, angarr, thetaarr, tau0parr,tau0marr,
                       vartau0arr, tau2parr,tau2marr, vartau2arr,
                       tau5parr,tau5marr, vartau5arr, ]
         for array, name in zip(array_list, names): outdata[name] = array

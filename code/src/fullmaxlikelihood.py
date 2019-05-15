@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 plt.style.use('SVA1StyleSheet.mplstyle')
 
-def logprior(pars, gflag=True,bflag = True,  uwmprior=False):
+def logprior(pars, eflag=True,bflag = True,  uwmprior=False):
     import numpy as np
     if(uwmprior):
         al = - 2; au =  2
@@ -15,16 +15,16 @@ def logprior(pars, gflag=True,bflag = True,  uwmprior=False):
         el = -l; eu = l
     alpha_min, beta_min, eta_min  = al,bl,el
     alpha_max, beta_max, eta_max  = au,bu,eu
-    if(gflag and bflag):
+    if(eflag and bflag):
         #print("Using alpha, beta and delta")
         alpha, beta, eta = pars
         if ( alpha_min<alpha< alpha_max)and( beta_min < beta< beta_max)and( eta_min<eta<eta_max):
             return 0.0
         return -np.inf
-    elif(gflag and (not bflag)):
+    elif(eflag and (not bflag)):
         #print("Using alpha and gamma")
         alpha, eta = pars
-    elif((not gflag) and bflag):
+    elif((not eflag) and bflag):
         #print("Using alpha and beta")
         alpha, beta = pars
         if (alpha_min<alpha<alpha_max)and( beta_min< beta< beta_max):
@@ -40,11 +40,11 @@ def logprior(pars, gflag=True,bflag = True,  uwmprior=False):
 def loglike(chisq):
     return -0.5*chisq
 ##Log natural of the posterior
-def logpost(pars, data, eq=None, gflag=True,bflag = True, moderr=False, uwmprior=False):
+def logpost(pars, data, eq=None, eflag=True,bflag = True, moderr=False, uwmprior=False):
     import numpy as np
     from fullchi2 import CHI2
-    chisq = CHI2(pars, data,eq=eq, gflag=gflag, bflag=bflag, moderr=moderr )
-    lp = logprior(pars, gflag=gflag,bflag = bflag, uwmprior=uwmprior)
+    chisq = CHI2(pars, data,eq=eq, eflag=eflag, bflag=bflag, moderr=moderr )
+    lp = logprior(pars, eflag=eflag,bflag = bflag, uwmprior=uwmprior)
     if not np.isfinite(lp):
         return -np.inf
     return lp + loglike(chisq)
@@ -66,11 +66,11 @@ def corner_plot(samples, labels, title):
     print(title, "Printed")
 def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
          namecont='contcurve.png', eq=None,
-         gflag=True,bflag = True , moderr=False, uwmprior=False,
+         eflag=True,bflag = True , moderr=False, uwmprior=False,
          plot=True):
     import emcee  
     import numpy as np
-    if(gflag and bflag):
+    if(eflag and bflag):
         #alpha-beta-eta test
         # initial position at maximum likelihood values
         ndim = 3
@@ -78,7 +78,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
         # MCMC chain with 50 walkers and 1000 steps
         sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost,
                                         threads=4,
-                                        args=(data, eq,gflag,bflag,
+                                        args=(data, eq,eflag,bflag,
                                               moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
@@ -139,10 +139,10 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
         return samples
         
             
-    elif(gflag and (not bflag)):
+    elif(eflag and (not bflag)):
         #alpha-eta test
         print("")
-    elif((not gflag) and bflag):
+    elif((not eflag) and bflag):
         #alpha-beta test
         # initial position at maximum likelihood values
         ndim = 2
@@ -150,7 +150,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
         # MCMC chain with 50 walkers and 1000 steps
         sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost,
                                         threads=4,
-                                        args=(data,eq,gflag,bflag,
+                                        args=(data,eq,eflag,bflag,
                                               moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
@@ -215,7 +215,7 @@ def MCMC(best_pars,data, nwalkers=50, nsteps=1000, namemc='mcmc.png',
         # MCMC chain with 50 walkers and 1000 steps
         sampler = emcee.EnsembleSampler(nwalkers, ndim, logpost,
                                         threads=4,
-                                        args=(data,eq,gflag,bflag,
+                                        args=(data,eq,eflag,bflag,
                                               moderr, uwmprior) )
         print("Runing MCMC ...")
         sampler.run_mcmc(pos, nsteps)
@@ -288,13 +288,3 @@ def percentiles(samples, nsig=1):
             allpars_percent_list.append(par_perc_list)
     
     return allpars_percent_list
-
-
-        
-        
-
-
-
-
-   
-        

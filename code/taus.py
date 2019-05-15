@@ -26,7 +26,7 @@ def parse_args():
     parser.add_argument('--mod', default=True,
                         action='store_const', const=True,
                         help='If true it substracts the mean to each field before calculate correlations')
-    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/',
+    parser.add_argument('--outpath', default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations2/',
                         help='location of the output of the files')
     parser.add_argument('--tomo', default=False,
                         action='store_const', const=True,
@@ -43,6 +43,7 @@ def measure_tau(data_stars, data_galaxies, max_sep=250, sep_units='arcmin', pref
     import treecorr
     import numpy as np
     import gc
+    
     e1 = data_stars['obs_e1']
     e2 = data_stars['obs_e2']
     p_e1 = data_stars[prefix+'_e1']
@@ -82,10 +83,6 @@ def measure_tau(data_stars, data_galaxies, max_sep=250, sep_units='arcmin', pref
     decgal = data_galaxies['dec']
     print('ragal = ',ragal)
     print('decgal = ',decgal)
-
-    del data_stars, data_galaxies
-    gc.collect()
-    
     
     ecat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=p_e1, g2=p_e2)
     decat = treecorr.Catalog(ra=ra, dec=dec, ra_units='deg', dec_units='deg', g1=de1, g2=de2)
@@ -95,17 +92,23 @@ def measure_tau(data_stars, data_galaxies, max_sep=250, sep_units='arcmin', pref
     decat.name = 'decat'
     wcat.name = 'wcat'
     egal_cat.name = 'egal_cat'
+
+
+    #del data_stars, data_galaxies,  ra, dec, ragal, decgal, p_e1, p_e2, de1, de2, w1, w2, e1gal, e2gal, e1, e2, T, p_T, dt
+    del data_stars, data_galaxies, e1, e2, T, p_T, dt
+    gc.collect()
     
     bin_config = dict( sep_units = sep_units, min_sep = 2.5, max_sep = 250, nbins = 20,)
     #bin_config = dict(sep_units = 'degrees', bin_slop = 0.1, min_sep = 0.5, max_sep = max_sep, bin_size = 0.2)
     
     results = []
+
     for (cat1, cat2) in [(egal_cat, ecat), 
                          (egal_cat, decat),
                           (egal_cat, wcat) ]:
         print('Doing correlation of %s vs %s'%(cat1.name, cat2.name))
 
-        rho = treecorr.GGCorrelation(bin_config, verbose=2)
+        rho = treecorr.GGCorrelation(bin_config, verbose=3)
 
         if cat1 is cat2:
             rho.process(cat1)
@@ -121,11 +124,11 @@ def main():
     import sys
     sys.path.insert(0, '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src')
     #sys.path.insert(0, '/global/cscratch1/sd/alsina/alpha-beta-gamma/code/src')
-    
     import numpy as np
     from read_psf_cats import read_data, toList, read_metacal
     from astropy.io import fits
-    
+    import gc
+
     args = parse_args()
 
     #Make directory where the ouput data will be
@@ -157,7 +160,8 @@ def main():
     data_stars = data_stars[data_stars['mag']<20]
     print("Objects with magnitude <20",  len(data_stars))
 
-  
+    del bands, tilings, exps, keys
+    gc.collect()
 
     if(args.tomo):
         print('Starting Tomography!')
@@ -183,52 +187,50 @@ def main():
                 covmathdu = fits.ImageHDU(covmat, name='COVMAT')
                 hdul.insert(1, covmathdu)
           
-                angarray = np.exp(tau0.meanlogr)
+                zangarray = np.exp(tau0.meanlogr)
                 valuearray =  np.array(taus[i])
                 bin1array = np.array([bin_c]*nrows)
                 bin2array = np.array([bin_c]*nrows)
                 angbinarray = np.arange(nrows)
-                array_list = [bin1array, bin2array, angbinarray, valuearray,  angarray ]
+                array_list = [bin1array, bin2array, angbinarray, valuearray,  zangarray ]
                 for array, name in zip(array_list, names): outdata[name] = array 
                 corrhdu = fits.BinTableHDU(outdata, name=nam)
                 hdul.insert(2, corrhdu)
     
-                hdul.writeto(outpath + nam +'_bin_' + str(bin_c) +  '.fits', clobber=True)
+                hdul.writeto(outpath + nam +'_bin_' + str(bin_c) +  '.fits', overwrite=True)
                 
 
-            
-    galkeys = ['ra','dec','e_1','e_2','R11','R22']
-    data_galaxies =  read_metacal(args.metacal_cat,  galkeys )
-    print("Total objects in catalog:", len(data_galaxies))
+    else:        
+        galkeys = ['ra','dec','e_1','e_2','R11','R22']
+        data_galaxies =  read_metacal(args.metacal_cat,  galkeys )
+        print("Total objects in catalog:", len(data_galaxies))
     
-    tau0, tau2, tau5= measure_tau(data_stars, data_galaxies, mod=args.mod)
-    angarr = np.arange(nrows)
-    thetaarr = np.exp(tau0.meanlogr)
-    tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
-    tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
-    vartau0arr = 2*tau0.varxi; vartau2arr = 2*tau2.varxi; vartau5arr = 2*tau5.varxi;
+        tau0, tau2, tau5= measure_tau(data_stars, data_galaxies, mod=args.mod)
+        tau0marr = tau0.xim; tau2marr = tau2.xim;  tau5marr = tau5.xim;
+        tau0parr = tau0.xip; tau2parr = tau2.xip;  tau5parr = tau5.xip;
+        vartau0arr = 2*tau0.varxi; vartau2arr = 2*tau2.varxi; vartau5arr = 2*tau5.varxi;
 
-    taus = [tau0parr, tau2parr, tau5parr, tau0marr, tau2marr, tau5marr ]
-    vares = [vartau0arr, vartau2arr, vartau5arr, vartau0arr, vartau2arr, vartau5arr]
-    for i, nam in enumerate(namesout):
-        covmat = np.diag(vares[i])
-        hdu = fits.PrimaryHDU()
-        hdul = fits.HDUList([hdu])
-        covmathdu = fits.ImageHDU(covmat, name='COVMAT')
-        hdul.insert(1, covmathdu)
+        taus = [tau0parr, tau2parr, tau5parr, tau0marr, tau2marr, tau5marr ]
+        vares = [vartau0arr, vartau2arr, vartau5arr, vartau0arr, vartau2arr, vartau5arr]
+        for i, nam in enumerate(namesout):
+            covmat = np.diag(vares[i])
+            hdu = fits.PrimaryHDU()
+            hdul = fits.HDUList([hdu])
+            covmathdu = fits.ImageHDU(covmat, name='COVMAT')
+            hdul.insert(1, covmathdu)
         
-        angarray = np.exp(tau0.meanlogr)
-        valuearray =  np.array(taus[i])
-        bin1array = np.array([ -999]*nrows)
-        bin2array = np.array([ -999]*nrows)
-        angbinarray = np.arange(nrows)
-        array_list = [bin1array, bin2array, angbinarray, valuearray,  angarray ]
-        for array, name in zip(array_list, names): outdata[name] = array 
+            angarray = np.exp(tau0.meanlogr)
+            valuearray =  np.array(taus[i])
+            bin1array = np.array([ -999]*nrows)
+            bin2array = np.array([ -999]*nrows)
+            angbinarray = np.arange(nrows)
+            array_list = [bin1array, bin2array, angbinarray, valuearray,  angarray ]
+            for array, name in zip(array_list, names): outdata[name] = array 
 
-        corrhdu = fits.BinTableHDU(outdata, name=nam)
-        hdul.insert(2, corrhdu)
+            corrhdu = fits.BinTableHDU(outdata, name=nam)
+            hdul.insert(2, corrhdu)
     
-        hdul.writeto(outpath + nam + '.fits', clobber=True)
+            hdul.writeto(outpath + nam + '.fits', overwrite=True)
     
 if __name__ == "__main__":
     main()

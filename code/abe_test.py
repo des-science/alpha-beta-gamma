@@ -9,17 +9,17 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Alpha beta gamma test solving the fitting problem of system ofequatiosn, plotting correlations and final correlation function withbias')
     
     parser.add_argument('--taus', nargs='+',
-                        default=['/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/TAU0P_wep.fits',
-                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/TAU2P_wep.fits',
-                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/TAU5P_wep.fits'],
+                        default=['/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/TAU0P_bin_0.fits',
+                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/TAU2P_bin_0.fits',
+                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/TAU5P_bin_0.fits'],
                         help='Fits file containing all rho stats fitsfiles. --taus tau0.fits tau2.fits tau5.fits')
     parser.add_argument('--rhos', nargs='+',
-                        default=['/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO0P_wep.fits',
-                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO1P_wep.fits',
-                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO2P_wep.fits',
-                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO3P_wep.fits',
-                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO4P_wep.fits',
-                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO5P_wep.fits'],
+                        default=['/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO0P.fits',
+                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO1P.fits',
+                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO2P.fits',
+                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO3P.fits',
+                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO4P.fits',
+                                 '/home/dfa/sobreira/alsina/alpha-beta-gamma/code/correlations/RHO5P.fits'],
                         help='Fits file containing all rho stats fitsfiles. --rhos rho0.fits rho1.fits rho2.fits.. rho5.fits')
     parser.add_argument('--xim', default=False,
                         action='store_const', const=True,
@@ -39,12 +39,22 @@ def parse_args():
     parser.add_argument('--srcpath',
                          default='/home/dfa/sobreira/alsina/alpha-beta-gamma/code/src',
                          help='Path to src/ folder with plenty functions required')
+    parser.add_argument('--eq', default=4, type=int, 
+                        help='Select equations to be used for istance --eq=0, 4 represent the whole system of equations')
     parser.add_argument('--abe', default=False,
                         action='store_const', const=True, help='Run alpha, beta and eta test.')
     parser.add_argument('--ab', default=False,
                         action='store_const', const=True, help='Run alpha and beta test.')
+    parser.add_argument('--ae', default=False,
+                        action='store_const', const=True, help='Run alpha and eta test.')
+    parser.add_argument('--be', default=False,
+                        action='store_const', const=True, help='Run beta and eta test.')
     parser.add_argument('--a', default=False,
                         action='store_const', const=True, help='Run only alpha test.')
+    parser.add_argument('--b', default=False,
+                        action='store_const', const=True, help='Run only beta test.')
+    parser.add_argument('--e', default=False,
+                        action='store_const', const=True, help='Run only eta test.')
     
     
     
@@ -58,13 +68,16 @@ def corrmatrix(cov):
     d = np.linalg.inv(D)
     corr = d*cov*d
     return corr
-def writexipbias(samples,rhonames,plots=False,xim=False,nameterms='terms_dxi.png',dxiname='dxi.png',namecovmat='covm_pars.png',filename='dxi.fits'):
+def writexipbias(samples,rhonames, nsig=1, plots=False,xim=False,nameterms='terms_dxi.png',dxiname='dxi.png',namecovmat='covm_pars.png',filename='dxi.fits'):
     from readjson import read_rhos
-    from maxlikelihood import bestparameters
+    from totalmaxlikelihood import bestparameters, percentiles
     from plot_stats import pretty_rho
     from readfits import read_corr
     from astropy.io import fits
     import numpy as np
+
+    mcmcpars = percentiles(samples, nsig=nsig) 
+    print('nsig=', nsig, ' mcmc parameters: ',  mcmcpars)
     
     ##Format of the fit file output
     names=['BIN1', 'BIN2','ANGBIN', 'VALUE', 'ANG']
@@ -90,6 +103,7 @@ def writexipbias(samples,rhonames,plots=False,xim=False,nameterms='terms_dxi.png
 
     a = b = n = 0; vara =  varb =  varn = 0; covab = covan = covbn = 0
     bestpar = bestparameters(samples)
+    print("Best pars", bestpar)
     par_matcov = np.cov(samples) 
     if (par_matcov.size==1 ): variances = par_matcov
     else: variances = np.diagonal(par_matcov)
@@ -195,36 +209,33 @@ def writexipbias(samples,rhonames,plots=False,xim=False,nameterms='terms_dxi.png
     hdul.writeto(filename, clobber=True)
     print(filename,'Written!')
 
-def RUNtest(data, nwalkers, nsteps, i_guess, eflag, bflag,  eq='All', uwmprior=False,   moderr=False,  nsig=1,  namemc=None,  namecont=None):
-    from fullchi2 import minimizeCHI2
-    from fullmaxlikelihood import MCMC, percentiles
+def RUNtest(i_guess, data, nwalkers, nsteps,  eq='All', mflags=[True, True, True] ,   moderr=False, uwmprior=False, minimize=True ):
+    from totalchi2 import minimizeCHI2
+    from totalmaxlikelihood import MCMC
     import numpy as np
-    if (uwmprior):
-        fitted_params =  np.array(i_guess)
+    if (uwmprior or (not minimize)):
+        iguess =  np.array(i_guess)
         chisq = np.inf
-    else:
+    if(minimize):
         fitted_params, chisq = minimizeCHI2(data, i_guess, eq=eq,
-                                            eflag=eflag,
-                                            bflag=bflag,
+                                            mflags=mflags,
                                             moderr=moderr)
-    dof = len(data['rhos'][0])
-    print("reduced Chi2:", chisq/dof )
-    print("Found parameters" , fitted_params)
-        
-    samples = MCMC(fitted_params,data, nwalkers, nsteps, namemc,
-                   namecont, eq=eq, eflag=eflag, bflag=bflag,
-                   moderr=moderr, uwmprior=uwmprior,
-                   plot=True )
-    mcmcpars = percentiles(samples, nsig=nsig) 
-    print('mcmc parameters',  mcmcpars)
-    return samples
+        dof = len(data['rhos'][0])
+        print("reduced Chi2:", chisq/dof )
+        print("Found parameters" , fitted_params)
+        iguess = fitted_params
+    
+    samples,  chains = MCMC(i_guess,data, nwalkers, nsteps, eq=eq,
+                   mflags=mflags, moderr=moderr, uwmprior=uwmprior)
+   
+    return samples,  chains
     
 def main():
     import sys
     args = parse_args()
     sys.path.insert(0, args.srcpath)
     from readfits import read_corr
-    from plot_stats import plotallrhosfits,  plotallrhoscorrmatfits, plotalltausfits,  plotalltauscorrmatfits
+    from plot_stats import plotallrhosfits,  plotallrhoscorrmatfits, plotalltausfits,  plotalltauscorrmatfits,  plot_samplesdist
     import numpy as np
 
     #Make directory where the ouput data will be
@@ -271,6 +282,7 @@ def main():
     meanr, rho3, cov_rho3 = read_corr(rhonames[3], maxscale=args.maxscale)
     meanr, rho4, cov_rho4 = read_corr(rhonames[4], maxscale=args.maxscale)
     meanr, rho5, cov_rho5 = read_corr(rhonames[5], maxscale=args.maxscale)
+
     rhos = [rho0, rho1, rho2, rho3, rho4, rho5]
     covrhos = [cov_rho0, cov_rho1, cov_rho2, cov_rho3, cov_rho4, cov_rho5]
     taunames = args.taus
@@ -291,8 +303,10 @@ def main():
     #Finding best alpha beta gamma
     nwalkers,  nsteps = 100,  1000
     moderr = False
+    minimize = True
     nsig = 1
-    eq = 2 ;#'All'
+    eq = args.eq
+    print("Using equations: ", eq)
     i_guess0 = [ -0.01, 1, -1 ] #fiducial values
 
     if not (args.abe or args.ab or args.a): args.abe = True
@@ -300,45 +314,87 @@ def main():
     ## ALPHA-BETA-ETA
     if(args.abe):
         print("### Runing alpha, beta and eta test ### ")
-        eflag, bflag = True, True
-        i_guess = i_guess0
+        mflags = [True, True, True] ##alpha,beta,eta
         namemc = plotspath + 'mcmc_alpha-beta-eta_eq_' + str(eq) + '_.png'
         namecont = plotspath +'contours_alpha-beta-eta_eq_' + str(eq) + '_.png'
         nameterms = plotspath +'termsdxip_alpha-beta-eta_eq_' + str(eq) + '_.png'
         namecovmat = plotspath +'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
-        namedxip = plotspath +'xobias_abe_' + str(eq) + '_.png'
-        filename =  outpath +'abe_dxi.fits'
-        samples = RUNtest(data, nwalkers, nsteps, i_guess, eflag, bflag, eq, args.uwmprior,  moderr, nsig,  namemc, namecont)
-        writexipbias(samples, args.rhos, args.plots, args.xim,  nameterms, namedxip, namecovmat, filename )
-            
+        namedxip = plotspath +'xibias_abe_' + str(eq) + '_.png'
+        filename =  outpath +'abe_dxi.fits'            
     ## ALPHA-BETA
     if(args.ab):
         print("### Runing alpha and beta test ### ")
-        eflag, bflag = False, True
-        i_guess = i_guess0[:2] #fiducial values
+        mflags = [True, True, False] ##alpha,beta,eta
         namemc = plotspath + 'mcmc_alpha-beta_eq_' + str(eq) + '_.png'
         namecont = plotspath + 'contours_alpha-beta_eq_' + str(eq) + '_.png'
         nameterms = plotspath + 'termsdxip_alpha-beta_eq_' + str(eq) + '_.png'
         namecovmat = plotspath +'covmatrix_alpha-beta_eq_' + str(eq) + '_.png'
         namedxip = plotspath +'xibias_ab_' + str(eq) + '_.png'
         filename =  outpath +'ab_dxi.fits'
-        samples = RUNtest(data, nwalkers, nsteps, i_guess, eflag, bflag, eq, args.uwmprior, moderr, nsig,  namemc, namecont)
-        writexipbias(samples, args.rhos, args.plots, args.xim,  nameterms, namedxip, namecovmat, filename )
-       
-               
+    ## ALPHA-ETA
+    if(args.ae):
+        print("### Runing alpha and eta test ### ")
+        mflags = [True, False, True] ##alpha,eta,eta
+        namemc = plotspath + 'mcmc_alpha-eta_eq_' + str(eq) + '_.png'
+        namecont = plotspath + 'contours_alpha-eta_eq_' + str(eq) + '_.png'
+        nameterms = plotspath + 'termsdxip_alpha-eta_eq_' + str(eq) + '_.png'
+        namecovmat = plotspath +'covmatrix_alpha-eta_eq_' + str(eq) + '_.png'
+        namedxip = plotspath +'xibias_ae_' + str(eq) + '_.png'
+        filename =  outpath +'ae_dxi.fits'
+    ## BETA-ETA
+    if(args.be):
+        print("### Runing beta and eta test ### ")
+        mflags = [True, False, True] ##beta,eta,eta
+        namemc = plotspath + 'mcmc_beta-eta_eq_' + str(eq) + '_.png'
+        namecont = plotspath + 'contours_beta-eta_eq_' + str(eq) + '_.png'
+        nameterms = plotspath + 'termsdxip_beta-eta_eq_' + str(eq) + '_.png'
+        namecovmat = plotspath +'covmatrix_beta-eta_eq_' + str(eq) + '_.png'
+        namedxip = plotspath +'xibias_be_' + str(eq) + '_.png'
+        filename =  outpath +'be_dxi.fits' 
     ## ALPHA
     if(args.a):
         print("### Runing alpha test ### ")
-        eflag, bflag = False, False
-        i_guess = i_guess0[:1] #fiducial values
+        mflags = [True, False, False] ##alpha,beta,eta
         namemc = plotspath +'mcmc_alpha_eq_' + str(eq) + '_.png'
         namecont = plotspath +'contours_alpha_eq_' + str(eq) + '_.png'
         nameterms = plotspath +'termsdxip_alpha_eq_' + str(eq) + '_.png'
-        namecovmat = plotspath +'covmatrix_alpha-beta-eta_eq_' + str(eq) + '_.png'
+        namecovmat = plotspath +'covmatrix_alpha_eq_' + str(eq) + '_.png'
         namedxip = plotspath +'xibias_a_' + str(eq) + '_.png'
         filename =  outpath +'a_dxi.fits'
-        samples = RUNtest(data, nwalkers, nsteps, i_guess, eflag, bflag, eq, args.uwmprior, moderr, nsig,  namemc, namecont)
-        writexipbias(samples, args.rhos, args.plots, args.xim,  nameterms, namedxip, namecovmat, filename )
+    ## Beta
+    if(args.b):
+        print("### Runing beta test ### ")
+        mflags = [False, True, False] ##alpha,beta,eta
+        namemc = plotspath +'mcmc_beta_eq_' + str(eq) + '_.png'
+        namecont = plotspath +'contours_beta_eq_' + str(eq) + '_.png'
+        nameterms = plotspath +'termsdxip_beta_eq_' + str(eq) + '_.png'
+        namecovmat = plotspath +'covmatrix_beta_eq_' + str(eq) + '_.png'
+        namedxip = plotspath +'xibias_b_' + str(eq) + '_.png'
+        filename =  outpath +'b_dxi.fits'
+    ## Eta
+    if(args.e):
+        print("### Runing eta test ### ")
+        mflags = [False, False, True] ##alpha,eta,eta
+        namemc = plotspath +'mcmc_eta_eq_' + str(eq) + '_.png'
+        namecont = plotspath +'contours_eta_eq_' + str(eq) + '_.png'
+        nameterms = plotspath +'termsdxip_eta_eq_' + str(eq) + '_.png'
+        namecovmat = plotspath +'covmatrix_eta_eq_' + str(eq) + '_.png'
+        namedxip = plotspath +'xibias_e_' + str(eq) + '_.png'
+        filename =  outpath +'e_dxi.fits'
+
+    i_guess = np.array(i_guess0)[np.array(mflags)].tolist()
+    samples, chains = RUNtest(i_guess, data, nwalkers, nsteps, eq=eq,
+                      mflags=mflags, moderr=moderr,
+                      uwmprior=args.uwmprior, minimize= minimize)
+    #samples= np.c_[[par[int(0.2 * len(par)):] for par in samples]].T
+    #print("Total samples", [len(i) for i in samples] )
+    if(args.plots): plot_samplesdist(samples, chains, mflags, nwalkers, nsteps,  namemc, namecont )
+    writexipbias(samples, args.rhos, plots=args.plots, xim=args.xim,
+                 nameterms=nameterms, dxiname=namedxip,
+                 namecovmat=namecovmat, filename=filename )
+    
+  
     
 if __name__ == "__main__":
     main()
+
